@@ -7,8 +7,7 @@ The PHP class(X2Form) read the XML definition and render the form as well as pro
  
 This architecture effectively separates of the  processing of form, definition of the form elements, rendering of the elements and positioning of the elements(layout)
  
-Main features:
-
+###Main features:
 1. Create HTML forms from XML file/string(predefined format)
 2. Can generate forms using only pure PHP calls as well(without XML files)
 3. It can read values of dropdowns, checkboxes and radio from PHP functions, PHP Closures, PHP Global variables MYSQL queries.
