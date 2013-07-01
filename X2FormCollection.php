@@ -120,7 +120,14 @@ class X2FormCollection{
 
 		//find collection attributes
 		foreach( $formXml->attributes() as $k => $v ){
-			$this->attributes[ strtolower( "$k" ) ] = "$v";
+			$key = strtolower( (string)$k ); 
+			if( $key == 'label' ){
+				$this->label = (string)$v;
+			}elseif( $key == 'description' ){
+				$this->description = (string)$v;
+			}else{
+				$this->attributes[ strtolower( "$k" ) ] = "$v";
+			}
 			
 		}
 		
