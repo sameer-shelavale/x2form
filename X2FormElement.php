@@ -357,8 +357,8 @@ class X2FormElement{
 			}
 		}elseif( $type == "label" ){
 			$labelVal = $this->hasLanguage( $this->config->language, 'value' );
-			if( !$labelVal && isset( $this->config['value'] ) ){
-				$labelVal = $this->config['value'];
+			if( !$labelVal && isset( $this->value ) ){
+				$labelVal = $this->value;
 			}
 			if( $labelVal ){
 				$str .= "<label id=\"".$id."\" name=\"{$this->outputName}\"  $attribTxt $eventsTxt />{$labelVal}</label>";
