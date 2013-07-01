@@ -382,6 +382,8 @@ class X2Form{
 			if( $cnt%2 == 0){ $class = 'even'; }else{ $class= 'odd'; }
 			if( $elem->type == 'hidden' ){
 				$hiddenElems .= $elem->render( $this->name );
+			}elseif( $elem->type == 'label' ){
+				$html .= '<tr class="'.$class.'"><td valign="top" colspan="2">'.$elem->render( $this->name ).' &nbsp;</td></tr>';
 			}else{
 				$html .= '<tr class="'.$class.'"><td valign="top">'.$elem->label().'</td><td>'.$elem->render( $this->name ).' &nbsp; <i>'.$elem->description().'</i></td></tr>';
 			}
