@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<examples>
+	<example title="A simple X2Form example" description="Creating a simple HTML Form from xml definition file">
+		<demo>
+			<title>Live Demo</title>
+			<url>../sample1.php</url>			
+		</demo>	
+		<file>
+			<language>php</language>
+			<title>PHP Code to display form</title>
+			<path>../sample1.php</path>
+			<description>Creating a simple HTML Form from xml definition file</description>
+		</file>
+		<file>
+			<language>php</language>
+			<title>PHP code to process the form</title>
+			<path>../sample1_process.php</path>
+			<description>Processing the form</description>
+		</file>
+		<file>
+			<language>xml</language>
+			<title>XML definition of the form</title>
+			<path>../forms/quidich_form.xml</path>
+			<description>XML definition of the form</description>
+		</file>
+	</example>
+	
+	<example title="Pre-Populate the form in Example 1" description="Populate the form in Example 1 from xml and from PHP">
+		<demo>
+			<title>Live Demo</title>
+			<url>../sample1_populate.php</url>			
+		</demo>	
+		<file>
+			<language>php</language>
+			<title>PHP Code to display &amp; populate the form</title>
+			<path>../sample1_populate.php</path>
+			<description>Populateing the form in Example 1.</description>
+		</file>
+		<file>
+			<language>xml</language>
+			<title>XML definition of the form</title>
+			<path>../forms/quidich_form_populated.xml</path>
+			<description>XML definition of the form</description>
+		</file>
+		<file>
+			<language>html</language>
+			<title>HTML template for form in Example 1</title>
+			<path>../forms/template1.html</path>
+			<description>Custom template for form in Example 1</description>
+		</file>
+	</example>
+	
+	<example title="Example 1 using template" description="Customize layout of the form in Example 1 using templates">
+		<demo>
+			<title>Live Demo</title>
+			<url>../sample1-w-template.php</url>			
+		</demo>	
+		<file>
+			<language>php</language>
+			<title>PHP Code to display &amp; populate the form</title>
+			<path>../sample1-w-template.php</path>
+			<description>Populateing the form in Example 1.</description>
+		</file>
+		<file>
+			<language>php</language>
+			<title>PHP code to process the form</title>
+			<path>../sample1_process.php</path>
+			<description>PHP code for Populateing the form in Example 1.</description>
+		</file>
+		<file>
+			<language>xml</language>
+			<title>XML definition of the form</title>
+			<path>../forms/quidich_form_populated.xml</path>
+			<description>XML definition of the form</description>
+		</file>
+	</example>
+	
+	
+	<example title="Creating form in Example 1 without XML" description="Creating form in Example 1 with only PHP(without XML)">
+		<demo>
+			<title>Live Demo</title>
+			<url>../sample2-no-xml.php</url>			
+		</demo>	
+		<file>
+			<language>php</language>
+			<title>PHP Code to create form</title>
+			<path>../sample2-no-xml.php</path>
+			<description>PHP code to create Form in Example 1 without xml</description>
+		</file>		
+	</example>
+	
+	
+	<example title="Creating a form with multiple group/s of fields" description="Creating a form in which a group of fields can occur multiple times. e.g. multiple addresses">
+		<demo>
+			<title>Live Demo</title>
+			<url>../sample1-grouped.php</url>			
+		</demo>	
+		<file>
+			<language>php</language>
+			<title>PHP Code to display &amp; populate the form</title>
+			<path>../sample1-grouped.php</path>
+			<description>Populateing the form in Example 1.</description>
+		</file>
+		<file>
+			<language>php</language>
+			<title>PHP code to process the form</title>
+			<path>../sample1_process.php</path>
+			<description>PHP code for Populateing the form in Example 1.</description>
+		</file>
+		<file>
+			<language>xml</language>
+			<title>XML definition of the form</title>
+			<path>../forms/quidich_form_grouped.xml</path>
+			<description>XML definition of the form</description>
+		</file>
+	</example>
+	
+	
+</examples>
