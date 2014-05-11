@@ -504,7 +504,11 @@ class X2FormElement{
 		
 		//check if its file input and the file is uploaded properly
 		if( $this->type == 'file' ){
-			if( $_FILES[$this->name]['error'] == 1 ){
+            if( !isset( $_FILES[$this->name] ) ){
+                if( $this->config['mandatory'] == "true" && ! $this->oldValue ){
+                    $this->errorString =  "Please specify '{$this->name}'. It is a mandatory field.\n";
+                }
+            }elseif( $_FILES[$this->name]['error'] == 1 ){
 				$this->errorString =  "The uploaded file '{$this->name}' exceeds the upload_max_filesize directive in php.ini.\n";
 			}elseif( $_FILES[$this->name]['error'] == 2 ){
 				$this->errorString =  "The uploaded file '{$this->name}' exceeds the MAX_FILE_SIZE.\n";
@@ -519,10 +523,41 @@ class X2FormElement{
 				if( $this->config['mandatory'] == "true" && ! $this->oldValue ){
 					$this->errorString =  "Please specify '{$this->name}'. It is a mandatory field.\n";
 				}
-			}
+			}else{
+
+                $maxSize =  $this->config['maxsize'] * 1048576; //convert mb to b
+                //Retrieve file details from uploaded file, sent from upload form
+                $allowFileTypes = explode( ',',  $this->config['allowfiletypes'] );
+                $allowExtensions = explode( ',', $this->config['allowextensions'] );
+
+                if( $_FILES[$this->name]['size'] > $maxSize ){
+                    $this->errorString =  "The uploaded file '{$_FILES[$this->name]['name']}' exceeds the maximum allowed size {$this->config['maxsize']}mb.\n";
+                }
+
+                $mimeType	= $_FILES[$this->name]['type'];
+                $ext		= $this->getExtension( $_FILES[$this->name]['name'] );
+
+                //First check if the file has the right extension, we need jpg only
+                if ( !in_array( $mimeType,  $allowFileTypes )&& in_array( $ext,  $allowExtensions ) && $allowFileTypes == '*' && $allowExtensions='*' ){
+                    $this->errorString =  $_FILES[$this->name]['name']." has invalid extension or MIME type.";
+                }
+
+                //check if its image and has any size restrictions
+                if( $mimeType == 'image/jpeg' || $mimeType == 'image/jpg' || $mimeType == 'image/png' || $mimeType == 'image/gif' ){
+                    $size = getimagesize( $_FILES[$this->name]['tmp_name'] );
+                    $imgWidth = $size[0];
+                    $imgHeight = $size[1];
+                    if( $this->config['imgwidth'] && $imgWidth != $this->config['imgwidth'] ){
+                        $this->errorString = 'Image width should be exactly '.$this->config['imgwidth'].'px.';
+                    }elseif( $this->config['minheight'] && $imgHeight != $this->config['minheight'] ){
+                        $this->errorString = 'Image height should be exactly '.$this->config['imgwidth'].'px.';
+                    }
+                }
+
+            }
 		}
-		
-		
+
+
 		if( $datatype == "url" ){
 			if( !filter_var( $this->value, FILTER_VALIDATE_URL ) ){
 				$this->errorString = "'{$this->name}' is not a valid ip address.\n" ;
@@ -689,8 +724,9 @@ class X2FormElement{
 			 */
 			$file = $_FILES[ $this->outputName ];
 			if( $file['error'] == 0 ){
-				$result = $this->fileUpload( $file, $this->config['uploaddirectory'], $this->config['filenameprefix'], $this->config['allowmimetypes'], $this->config['allowextensions'], $this->config['maxsizemb'], $this->oldValue );
-				
+
+				$result = $this->fileUpload( $file, $this->config['uploaddirectory'], $this->config['filenameprefix'], $this->config['allowmimetypes'], $this->config['allowextensions'], $this->config['maxsize'], $this->oldValue );
+
 				if( $result['result'] == "Success" ){
 					$this->value = $result['filename'];
 				}else{
@@ -728,7 +764,7 @@ class X2FormElement{
 		}
 		
 		if( $postFile['size'] > $maxSize ){
-			return Logg( 'Failure', '', "File size shall not exceed {$maxSize}mb" );
+			return Logg( 'Failure', '', "File size shall not exceed {$maxSizeMb}mb" );
 		}
 		
 		
