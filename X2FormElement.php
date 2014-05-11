@@ -64,8 +64,8 @@ class X2FormElement{
 		
 		//configuration attributes that our class recognizes and uses for desired output and validation 
 		$conf = array( 'title'=>'', 'language'=>false, 'languages'=>new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS ), 'prompt'=>'', 'direction'=>'', 'mandatory'=>'false', 'datatype'=>'text', 'datapattern'=>'', 'emailcheckdns'=>'false', 'validate'=>'false', 'min'=>null, 'max'=>null, 'filenameprefix'=>null, 'uploaddirectory'=>'./', 'allowmimetypes'=>null, 'allowextensions'=>null, 'maxsize'=>20, 'oldfileaction'=>'renamenew', 'iffileexists'=>'renamenew', 'imgwidth'=>false, 'imgheight'=>false, 'ifempty'=>'', 'ifinvalid'=>''  );
-		
-		
+
+
 		if( $this->parent && $this->parent->language ){
 			$this->config->language = $this->parent->language; //inherit language from parent
 		}
@@ -229,9 +229,9 @@ class X2FormElement{
 		foreach( $this->attributes as $atr => $act ){
 			$attribTxt .= " $atr=\"$act\""; 
 		}
+
 		
-		
-		
+
 		//render text for events
 		foreach( $this->events as $e => $action ){
 			$eventsTxt .= " $e=\"". str_replace( '"', '&quot;', trim( $action) )."\""; 
@@ -254,8 +254,17 @@ class X2FormElement{
 			$toolTip = ' title="'.$toolTipText.'" ';
 			
 		}
-		
-		if( $type == "text" || $type == "button" || $type == "submit" || $type == "hidden" || $type == "image" || $type == "password" || $type == "reset" || $type == "submit"  ){
+
+        if( $type == "button" || $type == "submit" || $type == "reset"  ){
+            //the value here is actually label displayed on buttons and it can be different in different languages
+            $btnValue = $this->hasLanguage( $this->config->language, 'value' );
+
+            if( !$btnValue && isset( $this->value ) ){
+                $btnValue = $this->value;
+            }
+            $str = "<input id=\"".$id."\" type=\"$type\" name=\"{$this->outputName}\" value=\"{$btnValue}\" $toolTip $attribTxt $eventsTxt />";
+
+        }elseif( $type == "text" || $type == "hidden" || $type == "image" || $type == "password" ){
 			
 			$str = "<input id=\"".$id."\" type=\"$type\" name=\"{$this->outputName}\" value=\"{$this->value}\" $toolTip $attribTxt $eventsTxt />";
 			

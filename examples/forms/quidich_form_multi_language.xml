@@ -47,6 +47,7 @@
                 <language name="marathi">
                     <label>ई-मेल</label>
                     <title>आपले ई-मेल येथे टाईप करा.</title>
+                    <ifempty>आपले ई-मेल आपण भरले नाही. ते भरणे आवश्यक आहे.</ifempty>
                 </language>
             </languages>
 		</element>
