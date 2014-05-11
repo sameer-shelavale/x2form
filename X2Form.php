@@ -277,9 +277,9 @@ class X2Form{
 					}
 					//check if only value is given
 					if( $optAtr['label'] || $optAtr['value'] ){
-						if( !$optAtr['label'] ){
+						if( !isset($optAtr['label']) || $optAtr['label'] === false || $optAtr['label'] === null){
 							$optAtr['label'] = $optAtr['value'];
-						}elseif( !$optAtr['value'] ){
+						}elseif( !isset( $optAtr['value'] ) || $optAtr['value'] === false || $optAtr['value'] === null ){
 							$optAtr['value'] = $optAtr['label']; 
 						}
 						
@@ -385,9 +385,10 @@ class X2Form{
 			}elseif( $elem->type == 'label' ){
 				$html .= '<tr class="'.$class.'"><td valign="top" colspan="2">'.$elem->render( $this->name ).' &nbsp;</td></tr>';
 			}else{
+                $cnt++;
 				$html .= '<tr class="'.$class.'"><td valign="top">'.$elem->label().'</td><td>'.$elem->render( $this->name ).' &nbsp; <i>'.$elem->description().'</i></td></tr>';
 			}
-			$cnt++;
+
 		}
 		$html .= '</table>';
 		
@@ -431,9 +432,10 @@ class X2Form{
 			}elseif( $elem->type == 'label' ){
 				$html .= '<tr class="'.$class.'"><td valign="top">'.$elem->label().'</td><td>'.$elem->render( $this->name ).' &nbsp; <i>'.$elem->description().'</i></td></tr>';
 			}else{
+                $cnt++;
 				$html .= '<tr class="'.$class.'"><td valign="top">['.$elem->name.'_label]</td><td>['.$elem->name.'] &nbsp; <i>['.$elem->name.'_description]</i></td></tr>';
 			}
-			$cnt++;
+
 		}
 		$html .= '</table>';
 		
@@ -607,9 +609,8 @@ class X2Form{
 		$values = array();
 		foreach( $this->elements as $element ){
 			//skip submit buttons and files
-			//we will handle files in separate call
 			if( $element instanceOf X2FormCollection ){
-				$element->getValue();
+                $values[ $element->name ] = $element->getValues();
 			}elseif( !in_array( $element->type, array( 'submit', 'button' ) ) ){
 				$values[ $element->name ] = $element->value;
 			}
