@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form action="sample1_process.php" method="POST" enctype="multipart/form-data">
+	<elements>
+		<!-- example of labels -->
+		<element type="label" name="LABEL1" value="Annual Quidich Tournament Application Form" style="font-weight:bold" >
+            <languages>
+                <language name="english">
+                    <value>Annual Quidich Tournament Application Form</value>
+                </language>
+                <language name="marathi">
+                    <value><![CDATA[
+						वार्षिक क्विडिच स्पर्धेचा अर्ज
+					]]></value>
+                </language>
+            </languages>
+        </element>
+		
+		<!-- example of text input -->
+		<element type="text" name="FIRST_NAME" label="First Name" >
+            <languages>
+                <language name="english">
+                    <label>First Name?</label>
+                </language>
+                <language name="marathi">
+                    <label>पहिले नाव</label>
+                    <title>आपले पहिले नाव येथे टाईप करा.</title>
+                </language>
+            </languages>
+        </element>
+		
+		<!-- example of text input with tooltip( specified by title attribute to keep similarity with html syntax) -->
+		<element type="text" name="LAST_NAME" label="Last Name" title="Enter your Last Name here.">
+            <languages>
+                <language name="english">
+                    <label>Last Name?</label>
+                </language>
+                <language name="marathi">
+                    <label>आडनाव</label>
+                    <title>आपले आडनाव येथे टाईप करा.</title>
+                </language>
+            </languages>
+		</element>
+		
+		<!-- example of mandatory text input with 'email' datatype -->
+		<element type="text" name="QMAIL" label="Email" datatype="email" mandatory="true" >
+            <languages>
+                <language name="marathi">
+                    <label>ई-मेल</label>
+                    <title>आपले ई-मेल येथे टाईप करा.</title>
+                    <ifempty>आपले ई-मेल आपण भरले नाही. ते भरणे आवश्यक आहे.</ifempty>
+                </language>
+            </languages>
+		</element>
+		
+		
+		
+		<!-- example of dropdown with description. Description is displayed after the element by default, but with templates it can be customized -->
+		<element type="dropdown" name="PROFESSION" label="Profession" mandatory="true" description="You need not apply if your profession is not listed here." >
+			<options>
+				<option value="" label="Select Profession" />
+				<option value="seeker" label="Seeker" />
+				<option value="keeper" label="Keeper" />
+				<option value="blindsidebeater" label="Blind Side Beater" />
+				<option value="opensidebeater" label="Open Side Beater" />
+				<option value="centerchaser" label="Center Chaser" />
+				<option value="outsidechaser" label="Outside Chaser" />
+			</options>
+            <languages>
+                <language name="english">
+                    <label>Profession</label>
+                </language>
+                <language name="marathi">
+                    <label>व्यवसाय</label>
+                </language>
+            </languages>
+		</element>
+		
+		<!-- another example of dropdown with prompt, and options populated from result of a mysql query, 
+			 Note the use of valueField and labelField attributes to specify fields to be used for value and label
+		 -->
+		<element type="dropdown" name="HOUSE" label="Which house you are from?" prompt="Select your house" >
+			<options>
+				<query valueField="HOUSE_ID" labelField="NAME"><![CDATA[
+					SELECT * FROM houses;
+				]]></query>
+			</options>			
+		</element>
+		
+		<!-- checkboxes arranged vertically, using 'direction' attribute -->
+		<element type="checkbox" name="BROOMSTICKS" label="Select the broomsticks you have" direction="vertical" >
+			<options>
+				<option value="cleansweep" label="Cleansweep" />
+				<option value="nimbus" label="Nimbus" />
+				<option value="nimbus2000" label="Nimbus 2000" />
+				<option value="nimbus2001" label="Nimbus 20001" />
+				<option value="firebolt" label="Firebolt" />
+			</options>
+		</element>
+		
+		<!-- example of a single checkbox -->
+		<element type="checkbox" name="RECEIVE_OFFERS" label="Receive special offers?">
+			<options>
+				<option value="yes" label="Yes"/>
+			</options>
+		</element>
+		
+		<!-- example of radio input arranged vertically -->
+		<element type="radio" name="MATCHES_PLAYED" label="How many matches have you played?" direction="vertical" >
+			<options>
+				<option value="0" label="0"/>
+				<option value="1-5" label="1 to 5"/>
+				<option value="6-10" label="6 to 10"/>
+				<option value="11-25" label="11 to 25"/>
+				<option value="26-100" label="26 to 100"/>
+				<option value="100+" label="more than 100"/>
+			</options>
+		</element>
+		
+		
+		
+		<!-- example of radio input arranged vertically -->
+		<element type="radio" name="IS_SEPARABLE" label="Is Separable?" >
+			<options>
+				<option value="True" label="Yes"/>
+				<option value="False" label="No"/>
+			</options>
+		</element>
+		
+		<!-- example of textarea -->
+		<element type="textarea" name="INTRO" label="Write something about yourself" rows="5" cols="50">test string</element>
+		
+		<!-- example of file input with Maximum file size allowed = 2mb, only jpg,png,jpeg extensions allowed  
+			It has also specified the directory where to put the file on successful submission
+		-->
+		<element type="file" name="PHOTO" label="Upload your photo" maxsizemb="2" allowextensions="jpg,png,jpeg" iffileexists="renamenew" uploaddirectory="uploaded_files/"></element>
+		
+		<element type="file" name="PORTFOLIO" description="Only in pdf format" label="Upload your portfolio" mandatory="true" maxsizemb="2" allowextensions="pdf" ></element>
+		
+		<!-- example of hidden inputs -->
+		<element type="hidden" name="USER_ID" value="0" ></element>
+		
+		<!-- example of hidden submit buttons -->
+		<element type="submit" name="submit" value="Submit" class="siteButtons saveDiamondButton">
+            <languages>
+                <language name="english">
+                    <value>Submit</value>
+                </language>
+                <language name="marathi">
+                    <value>सुपुर्द करा</value>
+                </language>
+            </languages>
+		</element>
+		<element type="submit" name="dump" value="Submit &amp; dump data" class="siteButtons saveDiamondButton"></element>
+		
+		<!-- example of normal button with onclick event -->
+		<element type="button" name="eventbutton" value="Click event" class="siteButtons saveDiamondButton">
+			<events>
+				<event type="onclick"><![CDATA[ alert("This click event originates from XML definition of this form!")  ]]></event>
+			</events>
+		</element>
+	</elements>
+</form>
