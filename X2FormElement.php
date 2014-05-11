@@ -718,7 +718,7 @@ class X2FormElement{
 	 ***********************************************************************************/		
 	function fileUpload( $postFile, $upload_dir,  $fileNamePrefix, $allowFileTypes='', $allowExtensions='', $maxSizeMb=20, $oldFiles=false ){
 		
-		$maxSize = $maxSizeMb * 100000; //convert mb to b
+		$maxSize = $maxSizeMb * 1048576; //convert mb to b
 		//Retrieve file details from uploaded file, sent from upload form
 		$allowFileTypes = explode( ',', $allowFileTypes );
 		$allowExtensions = explode( ',', $allowExtensions );
