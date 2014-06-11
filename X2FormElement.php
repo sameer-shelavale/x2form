@@ -783,7 +783,7 @@ class X2FormElement{
 		$ext		= $this->getExtension( $postFile['name'] );
 	
 		//First check if the file has the right extension, we need jpg only
-		if ( !in_array( $mimeType,  $allowFileTypes )&& in_array( $ext,  $allowExtensions ) && $allowFileTypes == '*' && $allowExtensions='*' ){
+		if ( !in_array( $mimeType,  $allowFileTypes ) && !in_array( $ext,  $allowExtensions ) && $allowFileTypes !== '*' && $allowExtensions != '*' ){
 			return Logg( 'Failure', '', $postFile['name']." has invalid extension or MIME type." );				
 		}
 		
