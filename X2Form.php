@@ -658,7 +658,9 @@ class X2Form{
 		
 		if( $uploadError ){
 			$this->rollBackFileUploads();
+			return false;
 		}
+		return true;
 		
 	}
 	
