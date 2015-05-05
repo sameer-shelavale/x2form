@@ -1,10 +1,6 @@
 <?php
 
-require_once( '../X2Form.php' );
-require_once( '../X2FormElement.php' );
-require_once( '../X2FormCollection.php' );
-require_once( '../class.dbhelper.php' );
-require_once( '../class.logger.php' );
+require_once( '../src/form.php' );
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -16,7 +12,13 @@ if (!$db_selected) {
 }
 
 //create the X2Form object from XML file
-$formObj = new X2Form( 'QuidichForm', 'xmlfile', 'forms/quidich_form_multi_language.xml', null, 'marathi'  );
+$formObj = new \X2Form\Form(
+    'QuidichForm',
+    array(
+        'file'=>'forms/quidich_form_multi_language.xml',
+        'language' => 'marathi'
+    )
+);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>

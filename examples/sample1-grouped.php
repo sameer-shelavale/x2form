@@ -1,9 +1,6 @@
 <?php
-require_once( '../X2Form.php' );
-require_once( '../X2FormElement.php' );
-require_once( '../X2FormCollection.php' );
-require_once( '../class.dbhelper.php' );
-require_once( '../class.logger.php' );
+require_once( '../src/form.php' );
+
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -16,9 +13,11 @@ if (!$db_selected) {
 
 
 //FIRST_NAME, LAST_NAME and PROFESSION is populated from xml
-$formObj = new X2Form( 'DiamondForm', 'xmlfile', 'forms/quidich_form_grouped.xml'  );
+$formObj = new \X2Form\Form( 'DiamondForm', ['file'=> 'forms/quidich_form_grouped.xml'] );
 
-$formObj->elements['FAMILY_MEMBERS']->setValues( array( 0=>array( 'FIRST_NAME'=>'sameer' ), 1=>array( 'FIRST_NAME'=>'test' ) ) );
+//print_r( $formObj->elements );
+
+$formObj->elements['FAMILY_MEMBERS']->setValues( array( 0=>array( 'FIRST_NAME'=>'sameer' ), 1=>array( 'LAST_NAME'=>'test' ) ) );
 
 
 ?>
