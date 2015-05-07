@@ -1,9 +1,6 @@
 <?php
-require_once( '../X2Form.php' );
-require_once( '../X2FormElement.php' );
-require_once( '../X2FormCollection.php' );
-require_once( '../class.dbhelper.php' );
-require_once( '../class.logger.php' );
+require_once( '../src/form.php' );
+
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -15,7 +12,13 @@ if (!$db_selected) {
 }
 
 //FIRST_NAME, LAST_NAME and PROFESSION is populated from xml
-$formObj = new X2Form( 'DiamondForm', 'xmlfile', 'forms/quidich_form_populated.xml', 'forms/template1.html'  );
+$formObj = new \X2Form\Form(
+    'DiamondForm',
+    [
+        'file'=>'forms/quidich_form_populated.xml',
+        'template'=> 'forms/template1.html'
+    ]
+);
 
 //we can also populate fieds from php using setFormValues() method of the X2Form class 
 $values = array('BROOMSTICKS'=>array('nimbus2001', 'firebolt'),

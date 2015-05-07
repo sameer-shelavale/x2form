@@ -1,9 +1,6 @@
 <?php
 
 require_once( '../X2Form.php' );
-require_once( '../X2FormElement.php' );
-require_once( '../class.dbhelper.php' );
-require_once( '../class.logger.php' );
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -15,7 +12,8 @@ if (!$db_selected) {
 }
 
 
-$formObj = new X2Form( 'DiamondForm', 'xmlfile', 'forms/quidich_form.xml'  );
+$formObj = new \X2Form\Form(
+    'DiamondForm', ['file'=> 'forms/quidich_form.xml']  );
 
 if( $_POST['submit'] == "Submit" ){
 	

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form action="sample1_process.php" method="POST" enctype="multipart/form-data">
 	<elements>
-		<element type="label" name="LABEL1" value="Annual Quidich Tournament" ></element>
+		<element type="label" name="LABEL1" value="Family Background" ></element>
 		<collection name="FAMILY_MEMBERS" label="Family Members" groupcontainer="div">
 			<prototype>
 				<elements>
