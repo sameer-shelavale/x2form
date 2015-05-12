@@ -118,8 +118,8 @@ class Form{
         if( isset( $params['file'] ) ){
             $this->loadXMLFile( $params['file'] );
         }
-        if( isset( $params['simpleXMLElement'] ) ){
-            $this->loadXMLElement( $params['simpleXMLElement'] );
+        if( isset( $params['SimpleXMLElement'] ) ){
+            $this->loadXMLElement( $params['SimpleXMLElement'] );
         }
 
 	}
@@ -280,7 +280,16 @@ class Form{
 		if( $prop['type'] =="collection" || strtolower( $elem->getName() ) == 'collection' ){
 			
 			$prop['type'] = 'collection'; //force type=group
-			$result = new Collection( $prop['name'], 'SimpleXMLElement', $elem, $this->language, $this->dbType, $this->dbHandle, $this );
+			$result = new Collection(
+                $prop['name'],
+                [
+                    'SimpleXMLElement'=> $elem,
+                    'language' => $this->language,
+                    'dbType' => $this->dbType,
+                    'dbHandle' => $this->dbHandle,
+                    'parent' => &$this
+                ]
+            );
 			
 		}else{
 			
