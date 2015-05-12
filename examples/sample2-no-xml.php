@@ -1,8 +1,5 @@
 <?php
-require_once( '../X2Form.php' );
-require_once( '../X2FormElement.php' );
-require_once( '../class.dbhelper.php' );
-require_once( '../class.logger.php' );
+require_once( '../src/Form.php' );
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -14,23 +11,28 @@ if (!$db_selected) {
 }
 
 
-$formObj = new X2Form( 'MyForm', 'php' );
+$formObj = new \X2Form\Form( 'MyForm', 'php' );
 $formObj->attributes->method = "POST";
 $formObj->attributes->action = 'sample1_process.php';
 
-$formObj->elements->FIRST_NAME = new X2FormElement( 'text', array(	'name'=>'FIRST_NAME',
-																		'label'=>'First Name' ) );
+$formObj->elements->FIRST_NAME = new \X2Form\Element(
+    'text',
+    array(
+        'name'=>'FIRST_NAME',
+        'label'=>'First Name'
+    )
+);
 
-$formObj->elements->LAST_NAME = new X2FormElement( 'text', array(	'name'=>'LAST_NAME',
+$formObj->elements->LAST_NAME = new \X2Form\Element( 'text', array(	'name'=>'LAST_NAME',
 																		'label'=>'Last Name',
 																		'value'=>'Potter' ) );
 
-$formObj->elements->QMAIL = new X2FormElement( 'text', array('name'=>'QMAIL',
+$formObj->elements->QMAIL = new \X2Form\Element( 'text', array('name'=>'QMAIL',
 																'label'=>'Email',
 																'mandatory'=>'true',
 																'datatype'=>'email' ) );
 
-$formObj->elements->PROFESSION = new X2FormElement( 'dropdown', array('name'=>'PROFESSION',
+$formObj->elements->PROFESSION = new \X2Form\Element( 'dropdown', array('name'=>'PROFESSION',
 																		'label'=>'Profession',
 																		'mandatory'=>'true',
 																		'description'=>"You need not apply if your profession is not listed here.",
@@ -44,7 +46,7 @@ $formObj->elements->PROFESSION = new X2FormElement( 'dropdown', array('name'=>'P
 																							array( 'value'=>'outsidechaser', 'label'=>'Out Side Chaser' )
 																						) ) );
 
-$formObj->elements->BROOMSTICKS = new X2FormElement( 'checkbox', array('name'=>'BROOMSTICKS',
+$formObj->elements->BROOMSTICKS = new \X2Form\Element( 'checkbox', array('name'=>'BROOMSTICKS',
 																		'label'=>'Select the broomsticks you have',
 																		'direction'=>'vertical',
 																		'options'=>array(	array( 'value'=>'cleansweep', 'label'=>'Cleansweep' ),
@@ -54,12 +56,12 @@ $formObj->elements->BROOMSTICKS = new X2FormElement( 'checkbox', array('name'=>'
 																							array( 'value'=>'firebolt', 'label'=>'Firebolt' )
 																						) ) );																						
 																						
-$formObj->elements->RECEIVE_OFFERS = new X2FormElement( 'checkbox', array('name'=>'RECEIVE_OFFERS',
+$formObj->elements->RECEIVE_OFFERS = new \X2Form\Element( 'checkbox', array('name'=>'RECEIVE_OFFERS',
 																		'label'=>'Receive Special Offers?',
 																		'direction'=>'vertical',
 																		'options'=>array(	array( 'value'=>'yes', 'label'=>'Yes' ) ) ) );	
 
-$formObj->elements->MATCHES_PLAYED = new X2FormElement( 'radio', array('name'=>'MATCHES_PLAYED',
+$formObj->elements->MATCHES_PLAYED = new \X2Form\Element( 'radio', array('name'=>'MATCHES_PLAYED',
 																		'label'=>'How many matches have you played?',
 																		'direction'=>'vertical',
 																		'options'=>array(	array( 'value'=>'0', 'label'=>'0' ),
@@ -70,7 +72,7 @@ $formObj->elements->MATCHES_PLAYED = new X2FormElement( 'radio', array('name'=>'
 																							array( 'value'=>'100+', 'label'=>'more than 100' )
 																						) ) );
 																						
-$formObj->elements->HOUSE = new X2FormElement( 'dropdown', array('name'=>'HOUSE',
+$formObj->elements->HOUSE = new \X2Form\Element( 'dropdown', array('name'=>'HOUSE',
 																		'label'=>'Which house you are from?',
 																		'direction'=>'vertical',
 																		'framework'=>'php',
@@ -80,21 +82,21 @@ $formObj->elements->HOUSE = new X2FormElement( 'dropdown', array('name'=>'HOUSE'
 																							'labelfield'=>'NAME'
 																						) ) );																						
 
-$formObj->elements->IS_SEPARABLE = new X2FormElement( 'radio', array('name'=>'IS_SEPARABLE',
+$formObj->elements->IS_SEPARABLE = new \X2Form\Element( 'radio', array('name'=>'IS_SEPARABLE',
 																		'label'=>'How many matches have you played?',
 																		'direction'=>'horizontal',
 																		'options'=>array(	array( 'value'=>'True', 'label'=>'Yes' ),
 																							array( 'value'=>'False', 'label'=>'No' )																							
 																						) ) );																						
 
-$formObj->elements->INTRO = new X2FormElement( 'textarea', array('name'=>'INTRO',
+$formObj->elements->INTRO = new \X2Form\Element( 'textarea', array('name'=>'INTRO',
 																	'label'=>'Write something about yourself',
 																	'rows'=>'5',
 																	'cols'=>'50',
 																	'value'=>'I am Harry... Harry Potter.'
 																 ) );
 																						
-$formObj->elements->PHOTO = new X2FormElement( 'file', array('name'=>'PHOTO',
+$formObj->elements->PHOTO = new \X2Form\Element( 'file', array('name'=>'PHOTO',
 																	'label'=>'Upload your photo',
 																	'maxsize'=>'2',
 																	'allowextensions'=>'jpg,png,jpeg',
@@ -102,7 +104,7 @@ $formObj->elements->PHOTO = new X2FormElement( 'file', array('name'=>'PHOTO',
 																	'uploaddirectory'=>'uploaded_files/'
 																 ) );
 
-$formObj->elements->PORTFOLIO = new X2FormElement( 'file', array('name'=>'PORTFOLIO',
+$formObj->elements->PORTFOLIO = new \X2Form\Element( 'file', array('name'=>'PORTFOLIO',
 																	'label'=>'Upload your portfolio',
 																	'description'=>'Only in pdf format',
 																	'mandatory'=>'true',
@@ -112,21 +114,21 @@ $formObj->elements->PORTFOLIO = new X2FormElement( 'file', array('name'=>'PORTFO
 																	'uploaddirectory'=>'uploaded_files/'
 																 ) );
 																 
-$formObj->elements->LOT = new X2FormElement( 'hidden', array('name'=>'LOT',
+$formObj->elements->LOT = new \X2Form\Element( 'hidden', array('name'=>'LOT',
 																'value'=>'sds8sds785fdf'
 																 ) );
 
-$formObj->elements->submit = new X2FormElement( 'submit', array('name'=>'submit',
+$formObj->elements->submit = new \X2Form\Element( 'submit', array('name'=>'submit',
 																'value'=>'Submit',
 																'class'=>"siteButtons saveDiamondButton"
 																 ) );
 																 
-$formObj->elements->dump = new X2FormElement( 'submit', array('name'=>'dump',
+$formObj->elements->dump = new \X2Form\Element( 'submit', array('name'=>'dump',
 																'value'=>'Submit & dump data',
 																'class'=>"siteButtons saveDiamondButton"
 																 ) );																 																 
 
-$formObj->elements->eventbutton = new X2FormElement( 'button', array('name'=>'eventbutton',
+$formObj->elements->eventbutton = new \X2Form\Element( 'button', array('name'=>'eventbutton',
 																'value'=>'Click event',
 																'events'=> array( 'onclick'=>"alert('This click event originates from XML definition of this form!')" )	
 																 ) );
@@ -142,7 +144,7 @@ $formObj->isLoaded = true;
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Diplaying a Form using X2Form</title>
+	<title>Constructing form using only php(without using any xml)</title>
 	<link href="style.css" type="text/css" rel="stylesheet">
 </head>
 <body>
