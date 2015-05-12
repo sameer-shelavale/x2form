@@ -61,28 +61,32 @@ class Collection{
 	
 	
 	
-	public function __construct( $name, $definitionType="xml", $definitionValue=false, $lang, $dbTyp = 'php', $dbHnd=false, &$parentForm ){
-		
+	public function __construct( $name, $params ){
+        //$definitionType="xml", $definitionValue=false, $lang, $dbTyp = 'php', $dbHnd=false, &$parentForm
 		$this->name = $name;
-		$this->parent = $parentForm;
-		//$this->template = $template;
-		$this->dbType = $dbTyp;
-		$this->dbHandle = $dbHnd;
-		$this->elements = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
+
+        //params
+        $this->parent = (isset( $params['parent']))?$params['parent']: $this->parent = false;
+        $this->template = (isset( $params['template']))?$params['template']: $this->template = false;
+        $this->language = (isset( $params['language']))?$params['language']: $this->language = false;
+        $this->dbType = (isset( $params['dbType']))?$params['dbType']: $this->dbType = 'php';
+        $this->dbHandle = (isset( $params['dbHandle']))?$params['dbHandle']: $this->dbHandle = false;
+        $this->renderer = (isset( $params['renderer']))?$params['renderer']: $this->renderer = new Renderers\Table\Renderer(); //render using tables by default
+
+        //initialize vars
+        $this->elements = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 		$this->attributes = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
-		
-		$this->language = $lang;
-		
-		$definitionType = strtolower( $definitionType );
-		if( $definitionType == 'xml' && $definitionValue ){
-			$this->loadXML( $definitionValue );
-		}elseif( $definitionType == 'xmlfile' && $definitionValue ){
-			$this->loadXMLFile( $definitionValue );
-		}elseif( $definitionType == 'simplexmlelement' && $definitionValue ){
-			$this->loadXMLElement( $definitionValue );
-		}else{
-			//should return false?
-		}
+
+        //load data
+        if( isset( $params['xml']) ){
+            $this->loadXML( $params['xml'] );
+        }
+        if( isset( $params['file'] ) ){
+            $this->loadXMLFile( $params['file'] );
+        }
+        if( isset( $params['SimpleXMLElement'] ) ){
+            $this->loadXMLElement( $params['SimpleXMLElement'] );
+        }
 		 
 	}
 	
@@ -134,7 +138,18 @@ class Collection{
 		}
 		
 		//initialize form prototype
-		$this->prototype = new Form( $this->name, 'SimpleXMLElement', $formXml->prototype, false, $this->language, $this->dbType, $this->dbHandle, $this->elements->count(), $this );
+		$this->prototype = new Form(
+            $this->name,
+            [
+                'SimpleXMLElement' => $formXml->prototype,
+                'template' => false,
+                'language' => $this->language,
+                'dbType' => $this->dbType,
+                'dbHandle' => $this->dbHandle,
+                'index' => $this->elements->count(),
+                'parent' => $this
+            ]
+            );
 		
 		if( $formXml->headertemplate ){
 			$this->headerTemplate = "$formXml->headertemplate";
@@ -187,116 +202,7 @@ class Collection{
             $this->ready = true;
         }
     }
-	
-	/*****************************************************************************
-	 * function render()
-	 * 		renders the Collection HTML.
-	 * returns:
-	 * 		the rendered HTML as string.
-	 * 		Note that it does'nt send output to screen
-	 ****************************************************************************/
-	public function render(){
-		$html = $this->renderList();
-		/*foreach( $this->elements as $elem ){
-			$html .= $elem->render( false );
-		}*/
 
-		$this->prototype->index = 'X2F_INDEX';
-
-		$addHtml = '<tr>';
-		foreach( $this->prototype->elements as $i => $elem ){
-			$addHtml .= '<td>'.$elem->render().'</td>';
-		}
-		$addHtml .= '</tr>';
-
-		if( $this->attributes['showbbuttons'] != 'false' ){
-			$html .= '<input type="button" value="Add" onclick="AddToX2'.$this->parent->name.'_'.$this->name.'_list()" />
-					<input type="button" value="Remove" onclick="RemoveFromX2'.$this->parent->name.'_'.$this->name.'_list()" />
-			';
-		}
-
-		$js = '
-
-		<script type="text/javascript">
-			var  '.$this->parent->name.'_'.$this->name.'_count = '.$this->elements->count().';
-			function AddToX2'.$this->parent->name.'_'.$this->name.'_list( ){
-				var tmp = \''.$addHtml. '\';
-				tmp = tmp.replace( /X2F_INDEX/gi, '.$this->parent->name.'_'.$this->name.'_count );
-				$(\'#'.$this->parent->name.'_'.$this->name.'_list tr:last\').after(tmp);
-				'.$this->parent->name.'_'.$this->name.'_count ++;
-			}
-
-			function RemoveFromX2'.$this->parent->name.'_'.$this->name.'_list( ){
-				$(\'#'.$this->parent->name.'_'.$this->name.'_list tr:last\').remove();
-				'.$this->parent->name.'_'.$this->name.'_count--;
-			}
-		</script>';
-
-
-
-		$html .= $js;
-		return $html;
-	}
-
-	public function renderTemplate(){
-
-	}
-
-	public function renderRaw(){
-
-	}
-
-
-	/*****************************************************************************
-	 * function renderList()
-	 * 		renders a list of field sets in the Collection, with the fields
-	 * 		arranged horizontally in a row.
-	 * 		Generally this is called by render() function.
-	 * returns:
-	 * 		the rendered HTML as string.
-	 * 		Note that it does'nt send output to screen
-	 ****************************************************************************/
-	public function renderList(){
-		$html = '<table class="list" id="'.$this->parent->name.'_'.$this->name.'_list">';
-		$html .= $this->renderListHeader();
-		foreach( $this->elements as $i => $subForm ){
-			$html .= '<tr>';
-			foreach( $subForm->elements as $elem ){
-				$html .= '<td>'.$elem->render().'</td>';
-			}
-			$html .= '</tr>';
-		}
-		$html .= '</table>';
-
-		return $html;
-	}
-
-
-	/*****************************************************************************
-	 * function renderListHeader()
-	 * 		renders a row of column titles for the list generated by renderList().
-	 * 		Generally this is called by renderList() function.
-	 * returns:
-	 * 		the rendered HTML as string.
-	 * 		Note that it does'nt send output to screen
-	 ****************************************************************************/
-	public function renderListHeader(){
-		$header = '<tr>';
-		foreach( $this->prototype->elements as $elem ){
-			$header .= '<th>'.$elem->label().'</th>';
-		}
-		$header .= '</tr>';
-		return $header;
-	}
-
-	public function renderListRaw(){
-
-	}
-
-	public function renderListTemplate(){
-
-	}
-	
 	
 	/***********************************************************************************
 	 * function SetValues( $valueArray )
