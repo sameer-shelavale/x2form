@@ -31,7 +31,7 @@ $formObj->elements['FAMILY_MEMBERS']->setValues( array( 0=>array( 'FIRST_NAME'=>
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Diplaying a Form with collection of fields</title>
+	<title>Displaying a Form using bootstrap</title>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
