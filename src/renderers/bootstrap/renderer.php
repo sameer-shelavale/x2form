@@ -3,7 +3,7 @@ namespace X2Form\Renderers\Bootstrap;
 
 use X2Form\Collection;
 
-class Renderer implements \X2Form\Renderer{
+class Renderer implements \X2Form\Interfaces\Renderer{
 
     var $elementRenderer;
     var $collectionRenderer;
