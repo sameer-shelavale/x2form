@@ -56,8 +56,12 @@ class Element{
 	var $parent = false;
 	
 	var $errorString = '';
-	
-	public function __construct( $eType='text', $attribs = array(), $dbTyp = 'php', &$dbHnd=false, &$parentForm ){
+
+    /*
+     * Default constructor
+     * parentForm can be null, it will be updated to correct value during the finalize()
+     */
+	public function __construct( $eType='text', $attribs = array(), $dbTyp = 'php', &$dbHnd=false, &$parentForm=null ){
 		$this->attributes = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 		$this->config = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 		$this->events = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
@@ -68,7 +72,31 @@ class Element{
 		//$prop = array( 'id'=>'', 'name'=>'', 'type'=>'', 'value'=>'', 'label'=>'', 'description'=>'' );
 		
 		//configuration attributes that our class recognizes and uses for desired output and validation 
-		$conf = array( 'title'=>'', 'language'=>false, 'languages'=>new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS ), 'prompt'=>'', 'direction'=>'', 'mandatory'=>'false', 'datatype'=>'text', 'datapattern'=>'', 'emailcheckdns'=>'false', 'validate'=>'false', 'min'=>null, 'max'=>null, 'filenameprefix'=>null, 'uploaddirectory'=>'./', 'allowmimetypes'=>null, 'allowextensions'=>null, 'maxsize'=>20, 'oldfileaction'=>'renamenew', 'iffileexists'=>'renamenew', 'imgwidth'=>false, 'imgheight'=>false, 'ifempty'=>'', 'ifinvalid'=>''  );
+		$conf = array(
+            'title'=>'',
+            'language'=>false,
+            'languages'=>new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS ),
+            'prompt'=>'',
+            'direction'=>'',
+            'mandatory'=>'false',
+            'datatype'=>'text',
+            'datapattern'=>'',
+            'emailcheckdns'=>'false',
+            'validate'=>'false',
+            'min'=>null,
+            'max'=>null,
+            'filenameprefix'=>null,
+            'uploaddirectory'=>'./',
+            'allowmimetypes'=>null,
+            'allowextensions'=>null,
+            'maxsize'=>20,
+            'oldfileaction'=>'renamenew',
+            'iffileexists'=>'renamenew',
+            'imgwidth'=>false,
+            'imgheight'=>false,
+            'ifempty'=>'',
+            'ifinvalid'=>''
+        );
 
 
 		if( $this->parent && $this->parent->language ){
@@ -150,12 +178,16 @@ class Element{
 	 * 		it is used while rendering element.
 	 ***********************************************************************************/
 	public function label(){
-		
-		$label = $this->hasLanguage( $this->config->language, 'label' );
-		
-		if( !$label ){
+        $label = '';
+		if( property_exists( $this->config, 'language' ) ){
+		    $label = $this->hasLanguage( $this->config->language, 'label' );
+        }
+		if( $label == '' ){
 			$label = $this->label;
 		}
+        if( $label == '' ){
+            $label = ucfirst( str_replace( '_', ' ',$this->name) );
+        }
 		if( $this->config->mandatory == true || $this->config->mandatory == 'true' ){
 			$mand = '<span class="mandatory">*</span>';
 		}
@@ -170,11 +202,14 @@ class Element{
 	 * 		it is used while rendering element.
 	 ***********************************************************************************/
 	public function description(){
-		$desc = $this->hasLanguage( $this->config->language, 'description' );
-		
-		if( !$desc ){
+        $desc = '';
+        if( property_exists( $this->config, 'language' ) ){
+		    $desc = $this->hasLanguage( $this->config->language, 'description' );
+        }
+		if( $desc == '' ){
 			$desc = $this->description;
 		}
+
 		return $desc;
 	}
 	
@@ -185,10 +220,12 @@ class Element{
 	 * 		it is used while rendering element.
 	 ***********************************************************************************/
 	public function title(){
+        $title = '';
+        if( property_exists( $this->config, 'language' ) ){
+		    $title = $this->hasLanguage( $this->config->language, 'title' );
+        }
 		
-		$title = $this->hasLanguage( $this->config->language, 'title' );
-		
-		if( !$title && isset( $this->config['title'] ) ){
+		if( $title == '' && isset( $this->config['title'] ) ){
 			$title = $this->config['title'];
 		}
 		return $title;
@@ -201,10 +238,12 @@ class Element{
 	 * 		it is used while rendering dropdown element.
 	 ***********************************************************************************/
 	public function prompt(){
+        $prompt = '';
+        if( property_exists( $this->config, 'language' ) ){
+		    $prompt = $this->hasLanguage( $this->config->language, 'prompt' );
+        }
 		
-		$prompt = $this->hasLanguage( $this->config->language, 'prompt' );
-		
-		if( !$prompt && isset( $this->config['prompt'] ) ){
+		if( $prompt == '' && isset( $this->config['prompt'] ) ){
 			$prompt = $this->config['prompt'];
 		}
 		return $prompt;
@@ -242,18 +281,16 @@ class Element{
 		
 		$data = array();
 			
-		if( $options['query'] ){
+		if( isset( $options['query'] ) ){
 			
 			//find dynamic query parameters for WHERE clause if any
-			
 			$helper = new MultiFrameworkDBHelper( $this->dbType );
-			
 			
 			$log = $helper->query( trim( "{$options['query']}" ), MultiFrameworkDBHelper::FETCH_ALL, null, $this->dbHandle );
 			if( $log['result'] == 'Success' ){
 				$data= $log['data']['records'];
 			}			
-		}elseif( $options['create_function'] ){
+		}elseif( isset( $options['create_function'] ) ){
 			$tmpFunc = create_function( $options['params'], $options['create_function'] );
 			
 			if( $options['pass'] && $this->parent && isset( $this->parent->elements[ $options['pass'] ] ) ){
@@ -264,7 +301,7 @@ class Element{
 			}
 			
 			
-		}elseif( $options['phpglobal'] ){
+		}elseif( isset( $options['phpglobal'] ) ){
 			
 			$vars = explode( ':', $options['var'] );
 			$cur = $GLOBALS;
@@ -292,7 +329,7 @@ class Element{
 				}
 			}
 			
-		}elseif( $options['array'] ){
+		}elseif( isset( $options['array'] ) ){
 		
 			$data = $options['array'];
 		}else{
