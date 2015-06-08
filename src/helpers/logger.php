@@ -15,7 +15,7 @@
  * Copyrights (C) 2012-2013 Sameer Shelavale
  * Dependencies : class.dbhelper.php, class.logg.php
  *******************************************************************************************************/
-namespace X2Form;
+namespace X2Form\Helpers;
 
 class Logger{
 	

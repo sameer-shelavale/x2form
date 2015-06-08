@@ -20,9 +20,9 @@
  * 		 I have only added functions which I needed so far. 
  * 		 You may still use this class at your own responsibility 
  *******************************************************************************************************/
-namespace X2Form;
+namespace X2Form\Helpers;
 
-class MultiFrameworkDBHelper{
+class DB{
 	var $framework = 'default';
 	
 	const GET_COUNT = 1;
@@ -31,7 +31,7 @@ class MultiFrameworkDBHelper{
 	const FETCH_ONE = 8;
 	const FETCH_ALL = 16;
 	
-	function MultiFrameworkDBHelper( $frmwrk = "default" ){
+	function __construct( $frmwrk = "default" ){
 		$this->framework = $frmwrk; 
 	}
 	
@@ -140,7 +140,6 @@ class MultiFrameworkDBHelper{
 		
 		if( ( $options & self::FETCH_ALL ) == self::FETCH_ALL ){
 			$log['data']['records'] = $stmt->fetchAll( PDO::FETCH_ASSOC );
-			
 		}
 		
 		if( ( $options & self::GET_INSERT_ID ) == self::GET_INSERT_ID ){
