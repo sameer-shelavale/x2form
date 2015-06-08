@@ -168,6 +168,7 @@ class ElementRenderer {
         $attribTxt = $this->makeAttributes( $attributes );
         $eventsTxt = $this->makeEvents( $element->events );
 
+        $multipleSuffix = '';
         if( isset( $element->attributes['multiple'] ) ){
             $multipleSuffix = "[]";
         }
@@ -176,22 +177,24 @@ class ElementRenderer {
         if( $promt = $element->prompt() ){
             $str .= "<option value=\"\" >{$promt}</option>";
         }
-        foreach( $element->optionData as $opt ){
-            if( is_array( $opt ) ){
-                $option = $opt['label'];
-                $val = $opt['value'];
-            }else{
-                $option = $opt;
-                $val = $opt;
+        if( is_array( $element->optionData ) ){
+            foreach( $element->optionData as $opt ){
+                if( is_array( $opt ) ){
+                    $option = $opt['label'];
+                    $val = $opt['value'];
+                }else{
+                    $option = $opt;
+                    $val = $opt;
+                }
+                if( isset( $element->attributes['multiple'] ) && is_array( $element->value ) && in_array( $val, $element->value ) ){
+                    $selected = 'selected="true"';
+                }elseif( $val == $element->value ){
+                    $selected = 'selected="true"';
+                }else{
+                    $selected = '';
+                }
+                $str .= "<option value=\"$val\" $selected >$option</option>";
             }
-            if( isset( $element->attributes['multiple'] ) && is_array( $element->value ) && in_array( $val, $element->value ) ){
-                $selected = 'selected="true"';
-            }elseif( $val == $element->value ){
-                $selected = 'selected="true"';
-            }else{
-                $selected = '';
-            }
-            $str .= "<option value=\"$val\" $selected >$option</option>";
         }
         $str .= "</select>";
 
