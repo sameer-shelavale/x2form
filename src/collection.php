@@ -39,7 +39,7 @@ class Collection{
 	var $listTemplate;
 	
 	//variables storing form and element details
-	var $prototype;			// prototype of the form of recordset
+	var $schema;			// schema of the form of recordset
 	
 	var $attributes;		// attributes to be used
 	var $elements;			// this will be used internally to store individual form objects
@@ -137,11 +137,11 @@ class Collection{
 			
 		}
 		
-		//initialize form prototype
-		$this->prototype = new Form(
+		//initialize form schema
+		$this->schema = new Form(
             $this->name,
             [
-                'SimpleXMLElement' => $formXml->prototype,
+                'SimpleXMLElement' => $formXml->schema,
                 'template' => false,
                 'language' => $this->language,
                 'dbType' => $this->dbType,
@@ -196,8 +196,13 @@ class Collection{
      *****************************************************************************/
     function finalize(){
         if( !$this->ready ){
-            foreach( $this->prototype->elements as $i => $elem ){
-                $this->prototype->elements[$i]->finalize();
+            foreach( $this->schema->elements as $i => $elem ){
+                //set $this as parent of all elements
+                //we do this here because we dont want to call function for adding elements
+                //nor do we want the user to have pain of specifying the parent when its so obvious
+                $this->schema->elements[$i]->parent = $this;
+                //now finalize the elment itself
+                $this->schema->elements[$i]->finalize();
             }
             $this->ready = true;
         }
@@ -214,7 +219,7 @@ class Collection{
 		foreach( $valueArray as $idx => $formValue ){
 			if( !isset( $this->elements[ $idx ] ) ){
 				
-				$this->elements[ $idx ] = $this->prototype->deepClone();;
+				$this->elements[ $idx ] = $this->schema->deepClone();;
 				$this->elements[ $idx ]->index = $idx;
 			}
 			$this->elements[ $idx ]->setValues( $formValue );
