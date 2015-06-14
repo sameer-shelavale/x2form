@@ -30,7 +30,11 @@ class ElementRenderer {
 
         //the value here is actually label displayed on buttons
         //sand it can be different in different languages
-        $btnValue = $element->hasLanguage( $element->config->language, 'value' );
+        $btnValue = '';
+        if( isset( $element->config['language'] ) ){
+            $btnValue = $element->hasLanguage( $element->config->language, 'value' );
+        }
+
 
         if( !$btnValue && isset( $element->value ) ){
             $btnValue = $element->value;
@@ -85,7 +89,7 @@ class ElementRenderer {
         $attribTxt = $this->makeAttributes( $element->attributes );
         $eventsTxt = $this->makeEvents( $element->events );
 
-        if( $element->config['direction'] == 'vertical' ){
+        if( isset( $element->config['direction'] ) && $element->config['direction'] == 'vertical' ){
             $openWrapper = '<div class="radio"><label>';
             $closeWrapper = '</label></div>';
         }else{
@@ -120,7 +124,7 @@ class ElementRenderer {
         $attribTxt = $this->makeAttributes( $element->attributes );
         $eventsTxt = $this->makeEvents( $element->events );
 
-        if( $element->config['direction'] == 'vertical' ){
+        if( isset( $element->config['direction'] ) && $element->config['direction'] == 'vertical' ){
             $openWrapper = '<div class="checkbox"><label>';
             $closeWrapper = '</label></div>';
         }else{
@@ -134,6 +138,7 @@ class ElementRenderer {
                 .$closeWrapper;
         }elseif( count( $element->optionData ) == 1 ){
             $opt = $element->optionData[0];
+            $checked = '';
             if( is_array( $element->value ) && in_array( $opt['value'], $element->value ) ){
                 $checked = 'checked="true"';
             }elseif( $opt['value'] == $element->value ){
@@ -147,6 +152,7 @@ class ElementRenderer {
             $cnt = 0;
             $str = '';
             foreach( $element->optionData as $opt ){
+                $checked = '';
                 if( is_array( $element->value ) && in_array( $opt['value'], $element->value ) ){
                     $checked = 'checked="true"';
                 }elseif( $opt['value'] == $element->value ){
@@ -220,7 +226,11 @@ class ElementRenderer {
         $attribTxt = $this->makeAttributes( $element->attributes );
         $eventsTxt = $this->makeEvents( $element->events );
 
-        $labelVal = $element->hasLanguage( $element->config->language, 'value' );
+        $labelVal = '';
+        if( isset( $element->config['language'] ) ){
+            $labelVal = $element->hasLanguage( $element->config->language, 'value' );
+        }
+
         if( !$labelVal && isset( $element->value ) ){
             $labelVal = $element->value;
         }

@@ -28,7 +28,10 @@ class ElementRenderer {
 
         //the value here is actually label displayed on buttons
         //sand it can be different in different languages
-        $btnValue = $element->hasLanguage( $element->config->language, 'value' );
+        $btnValue = '';
+        if( isset( $element->config['language'] ) ){
+            $btnValue = $element->hasLanguage( $element->config->language, 'value' );
+        }
 
         if( !$btnValue && isset( $element->value ) ){
             $btnValue = $element->value;
@@ -81,7 +84,7 @@ class ElementRenderer {
         $attribTxt = $this->makeAttributes( $element->attributes );
         $eventsTxt = $this->makeEvents( $element->events );
 
-        if( $element->config['direction'] == 'vertical' ){
+        if( isset( $element->config['direction'] ) && $element->config['direction'] == 'vertical' ){
             $spacer='<br/>';
         }else{
             $spacer=' ';
@@ -110,7 +113,7 @@ class ElementRenderer {
         $attribTxt = $this->makeAttributes( $element->attributes );
         $eventsTxt = $this->makeEvents( $element->events );
 
-        if( $element->config['direction'] == 'vertical' ){
+        if( isset( $element->config['direction'] ) && $element->config['direction'] == 'vertical' ){
             $spacer='<br/>';
         }else{
             $spacer=' ';
@@ -120,6 +123,7 @@ class ElementRenderer {
             $str = "<input type=\"checkbox\" id=\"".$id."\" name=\"$element->outputName\" value=\"$element->value\" $attribTxt $eventsTxt />";
         }elseif( count( $element->optionData ) == 1 ){
             $opt = $element->optionData[0];
+            $checked = '';
             if( is_array( $element->value ) && in_array( $opt['value'], $element->value ) ){
                 $checked = 'checked="true"';
             }elseif( $opt['value'] == $element->value ){
@@ -131,6 +135,7 @@ class ElementRenderer {
             $cnt = 0;
             $str = '';
             foreach( $element->optionData as $opt ){
+                $checked = '';
                 if( is_array( $element->value ) && in_array( $opt['value'], $element->value ) ){
                     $checked = 'checked="true"';
                 }elseif( $opt['value'] == $element->value ){
@@ -149,6 +154,7 @@ class ElementRenderer {
         $attribTxt = $this->makeAttributes( $element->attributes );
         $eventsTxt = $this->makeEvents( $element->events );
 
+        $multipleSuffix = '';
         if( isset( $element->attributes['multiple'] ) ){
             $multipleSuffix = "[]";
         }
@@ -198,7 +204,10 @@ class ElementRenderer {
         $attribTxt = $this->makeAttributes( $element->attributes );
         $eventsTxt = $this->makeEvents( $element->events );
 
-        $labelVal = $element->hasLanguage( $element->config->language, 'value' );
+        $labelVal = '';
+        if( array_key_exists( 'language', $element->config )){
+            $labelVal = $element->hasLanguage( $element->config->language, 'value' );
+        }
         if( !$labelVal && isset( $element->value ) ){
             $labelVal = $element->value;
         }
@@ -222,7 +231,12 @@ class ElementRenderer {
     public function makeTooltip( &$element ){
         $toolTipText = '';
         if( strlen( $element->errorString ) > 0 ){
-            $element->attributes['class'] = "errorfield ".$element->attributes['class'];
+            if( isset( $element->attributes['class'] ) ){
+                $element->attributes['class'] = "errorfield ".$element->attributes['class'];
+            }else{
+                $element->attributes['class'] = "errorfield";
+            }
+
             $toolTipText = $element->errorString;
         }
 

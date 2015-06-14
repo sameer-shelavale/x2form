@@ -26,15 +26,8 @@ class Renderer implements \X2Form\Interfaces\Renderer{
         $hiddenElems = '';
 
         foreach( $form->elements as $i=>$elem ){
-            if( $cnt%2 == 0){ $class = 'even'; }else{ $class= 'odd'; }
 
-            if( $elem->type == 'hidden' ){
-                $hiddenElems .= $this->elementRenderer->render( $form->elements[$i] );
-            }elseif( $elem->type == 'label' ){
-                $html .= '<div class="form-group">'
-                    .$this->elementRenderer->render( $form->elements[$i] )
-                    .'</div>';
-            }elseif( $form->elements[$i] instanceof \X2Form\Collection ){
+            if( $form->elements[$i] instanceof \X2Form\Collection ){
                 $cnt++;
                 $html .= '<div class="form-group">'
                     .$form->elements[$i]->label()
@@ -42,11 +35,17 @@ class Renderer implements \X2Form\Interfaces\Renderer{
 
                 if( strlen( $form->elements[$i]->description() ) > 0 ){
                     $html .= '<p class="help-block">'
-                    .$form->elements[$i]->description()
-                    .'</p>';
+                        .$form->elements[$i]->description()
+                        .'</p>';
                 }
                 $html .= '</div>';
 
+            }elseif( $elem->type == 'hidden' ){
+                $hiddenElems .= $this->elementRenderer->render( $form->elements[$i] );
+            }elseif( $elem->type == 'label' ){
+                $html .= '<div class="form-group">'
+                    .$this->elementRenderer->render( $form->elements[$i] )
+                    .'</div>';
             }else{
                 $cnt++;
                 $html .= '<div class="form-group">'
@@ -117,14 +116,14 @@ class Renderer implements \X2Form\Interfaces\Renderer{
         }
 
         $attribs = '';
-        foreach( $this->attributes as $key=>$atr ){
+        foreach( $form->attributes as $key=>$atr ){
             $attribs .= " $key=\"$atr\"";
         }
 
         if( $addFormTag ){
-            $template = "<form name=\"{$form->name}\" id=\"{$form->id}\" $attribs >$template $hiddenElems {$this->extraCode} </form>";
+            $template = "<form name=\"{$form->name}\" id=\"{$form->id}\" $attribs >$template $hiddenElems {$form->extraCode} </form>";
         }else{
-            $template = "$template $hiddenElems {$this->extraCode}";
+            $template = "$template $hiddenElems {$form->extraCode}";
         }
         return $template;
 
@@ -153,7 +152,7 @@ class Renderer implements \X2Form\Interfaces\Renderer{
             $attribs .= " $key=\"$atr\"";
         }
 
-        $template = "<form name=\"{$this->name}\" id=\"{$this->id}\" $attribs >$html $hiddenElems {$this->extraCode} </form>";
+        $template = "<form name=\"{$this->name}\" id=\"{$this->id}\" $attribs >$html $hiddenElems {$form->extraCode} </form>";
 
 
         return $template;
