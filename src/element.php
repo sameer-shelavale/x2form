@@ -21,6 +21,7 @@
  *******************************************************************************************************/
 namespace X2Form;
 use ArrayObject;
+use X2Form\Helpers\DB;
 
 class Element{
 	//major element attributes
@@ -61,14 +62,17 @@ class Element{
      * Default constructor
      * parentForm can be null, it will be updated to correct value during the finalize()
      */
-	public function __construct( $eType='text', $attribs = array(), $dbTyp = 'php', &$dbHnd=false, &$parentForm=null ){
+	public function __construct( $eType='text', $params = array() ){
 		$this->attributes = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 		$this->config = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 		$this->events = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
-		$this->dbType = $dbTyp;
-		$this->dbHandle = $dbHnd;
-		$this->parent = $parentForm;
-		//basic properties/attributes 
+
+        $this->parent = (isset( $params['parent']))?$params['parent']: $this->parent = false;
+        $this->dbType = (isset( $params['dbType']))?$params['dbType']: $this->dbType = 'php';
+        $this->dbHandle = (isset( $params['dbHandle']))?$params['dbHandle']: $this->dbHandle = false;
+
+
+        //basic properties/attributes
 		//$prop = array( 'id'=>'', 'name'=>'', 'type'=>'', 'value'=>'', 'label'=>'', 'description'=>'' );
 		
 		//configuration attributes that our class recognizes and uses for desired output and validation 
@@ -102,10 +106,10 @@ class Element{
 		if( $this->parent && $this->parent->language ){
 			$this->config->language = $this->parent->language; //inherit language from parent
 		}
-		
-		
+
+
 		//now find the $prop, $conf and $attr
-		foreach( $attribs as $k => $v ){
+		foreach( $params as $k => $v ){
 			$k = strtolower( $k );
 			if( property_exists( '\X2Form\Element', $k ) ){
 				$this->$k = $v;
@@ -122,6 +126,10 @@ class Element{
 		    	$this->attributes[ $k ] = "$v";
 			}
 		}
+
+        if( !isset( $this->config['mandatory'] ) ){
+            $this->config['mandatory'] = false;
+        }
 
 		$this->type = $eType;
 			
@@ -179,8 +187,9 @@ class Element{
 	 ***********************************************************************************/
 	public function label(){
         $label = '';
-		if( property_exists( $this->config, 'language' ) ){
-		    $label = $this->hasLanguage( $this->config->language, 'label' );
+
+		if( array_key_exists( 'language', $this->config ) ){
+            $label = $this->hasLanguage( $this->config->language, 'label' );
         }
 		if( $label == '' ){
 			$label = $this->label;
@@ -188,6 +197,7 @@ class Element{
         if( $label == '' ){
             $label = ucfirst( str_replace( '_', ' ',$this->name) );
         }
+        $mand = '';
 		if( $this->config->mandatory == true || $this->config->mandatory == 'true' ){
 			$mand = '<span class="mandatory">*</span>';
 		}
@@ -284,9 +294,9 @@ class Element{
 		if( isset( $options['query'] ) ){
 			
 			//find dynamic query parameters for WHERE clause if any
-			$helper = new MultiFrameworkDBHelper( $this->dbType );
+			$helper = new DB( $this->dbType );
 			
-			$log = $helper->query( trim( "{$options['query']}" ), MultiFrameworkDBHelper::FETCH_ALL, null, $this->dbHandle );
+			$log = $helper->query( trim( "{$options['query']}" ), DB::FETCH_ALL, null, $this->dbHandle );
 			if( $log['result'] == 'Success' ){
 				$data= $log['data']['records'];
 			}			
@@ -386,8 +396,8 @@ class Element{
 		}
 		$this->errorString = '';
 		//$uploadedFile = JRequest::getVar( $this->name , null, 'files', 'array');
-		$datatype = trim( $this->config['datatype']);
-		$datapattern = trim( $this->config['datapattern'] );
+		$datatype = isset( $this->config['datatype'] )?trim( $this->config['datatype']):null;
+		$datapattern = isset( $this->config['datapattern'] )?trim( $this->config['datapattern'] ):null;
 		
 		if( $this->config['mandatory'] == "true" && ( $this->value== '' || $this->value== null || $this->value=== false ) ){
 			//file inputs are handled later
@@ -500,17 +510,17 @@ class Element{
 		
 		//check limits
 		if( $datatype == "number" || $datatype == "integer" ){		
-			if( !is_null( $this->config['min'] ) && $this->config['min'] > $this->value ){
+			if( isset( $this->config['min'] ) && !is_null( $this->config['min'] ) && $this->config['min'] > $this->value ){
 				$this->errorString .= "Value of '{$this->name}' should be at least '{$this->config['min']}'.\n";
 			}
 			
-			if( !is_null( $this->config['max'] ) && $this->config['max'] > $this->value ){
+			if( isset( $this->config['max'] ) && !is_null( $this->config['max'] ) && $this->config['max'] > $this->value ){
 				$this->errorString = "Value of '{$this->name}' should be maximum '{$this->config['max']}' \n";
 			}
 		}
 		
 		
-		if( strlen( $this->value) > 0 && strlen( $datapattern )>0 && !preg_match( $datapattern, $this->value ) ){
+		if( is_string( $this->value ) &&  strlen( $this->value) > 0 && strlen( $datapattern )>0 && !preg_match( $datapattern, $this->value ) ){
 			$this->errorString = "'{$this->name}' does not have a valid $datatype format.\n" ;
 		}
 		
@@ -565,7 +575,7 @@ class Element{
 	         }
 	      }
 	      
-	      if( $this->config['emailcheckdns']=='true' && $isValid && !( checkdnsrr($domain,"MX") || checkdnsrr( $domain, "A" ) ) ){
+	      if( isset( $this->config['emailcheckdns'] ) &&$this->config['emailcheckdns']=='true' && $isValid && !( checkdnsrr($domain,"MX") || checkdnsrr( $domain, "A" ) ) ){
 	         // domain not found in DNS
 	         $isValid = false;
 	      }
@@ -588,9 +598,11 @@ class Element{
 	function hasLanguage( $lang, $key=false ){
 		
 		if( !$lang
-			|| !isset( $this->config ) 
-			|| !is_array( $this->config['languages'] )  
-			|| !isset( $this->config['languages'][ $lang ] ) ){
+			|| !isset( $this->config )
+            || !isset( $this->config['languages'] )
+            || !is_array( $this->config['languages'] )
+            || !isset( $this->config['languages'][ $lang ] )
+            ){
 			return false;	
 			
 		}
@@ -780,9 +792,9 @@ class Element{
 	public function rollBackFileUploads(){
 		Logg( "LOG", '', "Rolling back {$this->name}.<br>" );
 		$total = count( $this->fileSystemChanges );
-		$upload_dir = $this->config['uploaddirectory'];
-		
+
 		if( $total > 0 ){
+            $upload_dir = $this->config['uploaddirectory'];
 			for( $i = $total-1; $i >= 0 ; $i-- ){
 				$change = $this->fileSystemChanges[$i];
 				
