@@ -18,6 +18,7 @@
  *******************************************************************************************************/
 namespace X2Form;
 use ArrayObject;
+use SimpleXMLElement;
 
 class Collection{
 
@@ -55,10 +56,13 @@ class Collection{
 	var $xmlfile;			//
 	
 	var $isLoaded = false;
+    var $ready = false;
 	
 	var $headerTemplate = false;
 	var $itemTemplate = false;
-	
+
+    var $loader;
+	var $renderer;
 	
 	
 	public function __construct( $name, $params ){
@@ -71,124 +75,58 @@ class Collection{
         $this->language = (isset( $params['language']))?$params['language']: $this->language = false;
         $this->dbType = (isset( $params['dbType']))?$params['dbType']: $this->dbType = 'php';
         $this->dbHandle = (isset( $params['dbHandle']))?$params['dbHandle']: $this->dbHandle = false;
+
         $this->renderer = (isset( $params['renderer']))?$params['renderer']: $this->renderer = new Renderers\Table\Renderer(); //render using tables by default
+
+        if( isset( $params['loader']) && is_object( $params['loader']) && is_subclass_of( $params['loader'], 'X2Form\Loaders\Collection' )  ){
+            $this->loader = $params['loader'];
+        }else{
+            //render using tables by default
+            $this->loader = new Loaders\Collection();
+        }
 
         //initialize vars
         $this->elements = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 		$this->attributes = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 
+        $this->schema = new Form( $this->name,[
+            'parent' => $this,
+            'language' => $this->language,
+            'dbType' => $this->dbType,
+            'dbHandle'=> $this->dbHandle,
+            'renderer'=> $this->renderer,
+            'index' => 'X2F_INDEX'
+        ] );
         //load data
-        if( isset( $params['xml']) ){
-            $this->loadXML( $params['xml'] );
+        if( isset( $params['from']) ){
+            $exclude = [];
+            if( isset( $params['exclude'] ) ){
+                $exclude = $params['exclude'];
+            }
+            $this->load( $params['from'], $exclude );
         }
-        if( isset( $params['file'] ) ){
-            $this->loadXMLFile( $params['file'] );
-        }
-        if( isset( $params['SimpleXMLElement'] ) ){
-            $this->loadXMLElement( $params['SimpleXMLElement'] );
+        if( isset( $params['attributes'] ) ){
+            $this->attributes = $params['attributes'] ;
         }
 		 
 	}
-	
-	/*****************************************************************************
-	 * loadXMLFile()
-	 * 		Loads form collection information from a xml file
-	 * parameters:
-	 * 		$xmlFileName - full path to the xml file
-	 * returns:
-	 * 		true - if the string is loaded successfully
-	 * 		false - if the xml string can not be loaded or if its invalid   
-	 ****************************************************************************/
-	function loadXMLFile( $xmlFileName ){
-		
-		//get xml as string from xml file 
-		$xmlString = file_get_contents( $xmlFileName );
-		
-		//check if file reading was successful
-		if( !$xmlString ){ $this->isLoaded = false; } 
-		
-		//load xml
-		$this->loadXML( $xmlString );
-		
-	}
-	
-	
-	/*****************************************************************************
-	 * loadXML()
-	 * 		Loads form collection information from a xml string
-	 * parameters:
-	 * 		$xmlString - XML string
-	 * returns:
-	 * 		true - if the string is loaded successfully
-	 * 		false - if the xml string can not be loaded or if its invalid   
-	 ****************************************************************************/
-	function loadXMLElement( $formXml ){
-
-		//find collection attributes
-		foreach( $formXml->attributes() as $k => $v ){
-			$key = strtolower( (string)$k ); 
-			if( $key == 'label' ){
-				$this->label = (string)$v;
-			}elseif( $key == 'description' ){
-				$this->description = (string)$v;
-			}else{
-				$this->attributes[ strtolower( "$k" ) ] = "$v";
-			}
-			
-		}
-		
-		//initialize form schema
-		$this->schema = new Form(
-            $this->name,
-            [
-                'SimpleXMLElement' => $formXml->schema,
-                'template' => false,
-                'language' => $this->language,
-                'dbType' => $this->dbType,
-                'dbHandle' => $this->dbHandle,
-                'index' => $this->elements->count(),
-                'parent' => $this
-            ]
-            );
-		
-		if( $formXml->headertemplate ){
-			$this->headerTemplate = "$formXml->headertemplate";
-		}
-		
-		if( $formXml->headertemplate ){
-			$this->headerTemplate = "$formXml->headertemplate";
-		}
-		
-	}
-	
-	
-	/*****************************************************************************
-	 * function loadXMLElement()
-	 * 		Loads form collection information from a object of type SimpleXMLElement
-	 * parameters:
-	 * 		$formXmlObj - a SimpleXMLElement object
-	 * returns:
-	 * 		true - if the string is loaded successfully
-	 * 		false - if the xml string can not be loaded or if its invalid   
-	 ****************************************************************************/
-	function loadXML( $xmlString ){
-
-		//first load the xml String
-		try{
-			$formXml = new SimpleXMLElement( $xmlString );
-			
-		}catch ( Exception $e ){
-			$this->errorString =  "BAD XML format.";
-			$this->isLoaded = false;
-			return;
-		}
-		
-		$this->loadXMLElement( $formXml );
-		
-	}
 
 
-    /*****************************************************************************
+    function load( $from, $exclude=[] ){
+        if( method_exists( $this->loader, 'load' ) ){
+            $log = $this->loader->load( $this, $from, $exclude );
+            if( $log['result'] == 'Failure' ){
+                $this->isLoaded = false;
+                $this->errorString = 'Unable to load form fields';
+            }
+        }else{
+            $log = Logg( 'Failure', '', 'load() function missing in loader object.' );
+        }
+        return $log;
+    }
+	
+	
+	 /*****************************************************************************
      * function finalize()
      *      evaluates all queries, php expressions passed for finding datasets for
      *      elements like dropdowns etc. Also computes final output names for fields
@@ -196,14 +134,16 @@ class Collection{
      *****************************************************************************/
     function finalize(){
         if( !$this->ready ){
-            foreach( $this->schema->elements as $i => $elem ){
+            $this->schema->finalize();
+            foreach( $this->elements as $i => $elem ){
                 //set $this as parent of all elements
                 //we do this here because we dont want to call function for adding elements
                 //nor do we want the user to have pain of specifying the parent when its so obvious
-                $this->schema->elements[$i]->parent = $this;
+                $this->elements[$i]->parent = $this;
                 //now finalize the elment itself
-                $this->schema->elements[$i]->finalize();
+                $this->elements[$i]->finalize();
             }
+
             $this->ready = true;
         }
     }
