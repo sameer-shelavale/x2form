@@ -3,13 +3,13 @@
 	<elements>
 		<element type="label" name="LABEL1" value="Family Background" ></element>
 		<collection name="FAMILY_MEMBERS" label="Family Members" groupcontainer="div">
-			<prototype>
+			<schema>
 				<elements>
 					<element type="text" name="FIRST_NAME" label="First Name" ></element>
 					<element type="text" name="LAST_NAME" label="Last Name" ></element>
 					
 				</elements>
-			</prototype>
+			</schema>
 			<headertemplate><![CDATA[
 					<tr>
 						<th>[FIRST_NAME_title]</th>
@@ -28,13 +28,13 @@
 		</collection>
 		
 		<collection name="TEAM_MEMBERS" label="Team Members" groupcontainer="div">
-			<prototype>
+			<schema>
 				<elements>
 					<element type="text" name="FIRST_NAME" label="First Name" ></element>
 					<element type="text" name="LAST_NAME" label="Last Name" ></element>
 					
 				</elements>
-			</prototype>
+			</schema>
 			<headertemplate><![CDATA[
 					<tr>
 						<th>[FIRST_NAME_title]</th>

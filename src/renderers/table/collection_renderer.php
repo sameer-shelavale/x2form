@@ -18,15 +18,15 @@ class CollectionRenderer {
 
         $html = $this->renderList( $collection );
 
-        $collection->prototype->index = 'X2F_INDEX';
+        $collection->schema->index = 'X2F_INDEX';
 
         $addHtml = '<tr>';
-        foreach( $collection->prototype->elements as $i => $elem ){
+        foreach( $collection->schema->elements as $i => $elem ){
             $addHtml .= '<td>'.$this->elementRenderer->render( $elem ).'</td>';
         }
         $addHtml .= '</tr>';
 
-        if( $collection->attributes['showbbuttons'] != 'false' ){
+        if( !isset( $collection->attributes['showbbuttons'] ) || ( isset( $collection->attributes['showbbuttons'] ) && $collection->attributes['showbbuttons'] != 'false' ) ){
             $html .= '<input type="button" value="Add" onclick="AddToX2'.$collection->parent->name.'_'.$collection->name.'_list()" />
 					<input type="button" value="Remove" onclick="RemoveFromX2'.$collection->parent->name.'_'.$collection->name.'_list()" />
 			';
@@ -99,7 +99,7 @@ class CollectionRenderer {
      ****************************************************************************/
     public function renderListHeader( &$collection ){
         $header = '<tr>';
-        foreach( $collection->prototype->elements as $elem ){
+        foreach( $collection->schema->elements as $elem ){
             $header .= '<th>'.$elem->label().'</th>';
         }
         $header .= '</tr>';
