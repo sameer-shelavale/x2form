@@ -16,7 +16,8 @@
  * Dependencies : class.dbhelper.php, class.logg.php
  *******************************************************************************************************/
 namespace X2Form\Loaders;
-use X2Form\Helpers\Logger;
+use X2Form\Helpers;
+use ArrayObject;
 
 class Simplexml{
 

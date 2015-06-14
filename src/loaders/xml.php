@@ -16,6 +16,7 @@
  * Dependencies : class.dbhelper.php, class.logg.php
  *******************************************************************************************************/
 namespace X2Form\Loaders;
+use SimpleXMLElement;
 use X2Form\Loaders\Simplexml;
 use X2Form\Helpers\Logger;
 class Xml{
@@ -30,10 +31,10 @@ class Xml{
             return Logg( 'Failure', '', "BAD XML format.");
         }
 
-        return SimpleXml::load( $formXml, $form );
+        return SimpleXml::load( $form, $formXml );
 	}
 
-    public static function loadFile( $xmlFileName, &$form ){
+    public static function loadFile( &$form, $xmlFileName ){
         //get xml as string from xml file
         $xmlString = file_get_contents( $xmlFileName );
 
@@ -43,7 +44,7 @@ class Xml{
         }
 
         //load xml
-        return self::load( $xmlString, $form );
+        return self::load( $form, $xmlString );
 
     }
 	

@@ -1,5 +1,6 @@
 <?php
 namespace X2Form\Loaders;
+use SimpleXMLElement;
 use \X2Form\Helpers\Logger;
 
 class Auto{
