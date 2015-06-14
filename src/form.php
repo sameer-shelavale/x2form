@@ -144,14 +144,26 @@ class Form{
         }
 
         if( isset( $params['from']) ){
-            if( method_exists( $this->loader, 'load' ) ){
-                $log = $this->loader->load( $this, $params['from'], $this->excludeFields );
-                if( $log['result'] == 'Failure' ){
-                    $this->isLoaded = false;
-                    $this->errorString = 'Unable to load form fields';
-                }
+            $exclude = [];
+            if( isset( $params['exclude'] ) ){
+                $exclude = $params['exclude'];
             }
+            $this->load( $params['from'], $exclude );
         }
+
+    }
+
+    function load( $from, $exclude=[] ){
+        if( method_exists( $this->loader, 'load' ) ){
+            $log = $this->loader->load( $this, $from, $exclude );
+            if( $log['result'] == 'Failure' ){
+                $this->isLoaded = false;
+                $this->errorString = 'Unable to load form fields';
+            }
+        }else{
+            $log = Logg( 'Failure', '', 'load() function missing in loader object.' );
+        }
+        return $log;
     }
 
 
@@ -212,13 +224,13 @@ class Form{
 
         $opt = array();
 
-        if( $prop['type'] =="collection" || strtolower( $elem->getName() ) == 'collection' ){
+        if( isset( $prop['type'] ) && $prop['type'] =="collection" || strtolower( $elem->getName() ) == 'collection' ){
 
             $prop['type'] = 'collection'; //force type=group
             $result = new Collection(
                 $prop['name'],
                 [
-                    'SimpleXMLElement'=> $elem,
+                    'from'=> $elem,
                     'language' => $this->language,
                     'dbType' => $this->dbType,
                     'dbHandle' => $this->dbHandle,
@@ -324,8 +336,11 @@ class Form{
             //so we have now all data required for creating the X2Form\Element object
             $prop[ 'options' ] = $opt;
             $prop[ 'events' ] = $events;
+            $prop[ 'dbType' ] = $this->dbType;
+            $prop[ 'dbHandle' ] = $this->dbHandle;
+            $prop[ 'parent' ] = &$this;
 
-            $result = new Element( $prop['type'], $prop, $this->dbType, $this->dbHandle, $this );
+            $result = new Element( $prop['type'], $prop );
 
         }
 
@@ -460,12 +475,12 @@ class Form{
 
         if( $this->errorString ){
             //clear the filenames
-            foreach( $this->elements as $element ){
+            foreach( $this->elements as $i => $element ){
                 if( $element->type == 'file' ){
-                    if( $this->oldValue ){
-                        $this->value = $this->oldValue ;
+                    if( $this->elements[$i]->oldValue ){
+                        $this->elements[$i]->value = $this->oldValue ;
                     }else{
-                        $this->value = "" ;
+                        $this->elements[$i]->value = "" ;
                     }
                 }
             }
@@ -528,7 +543,7 @@ class Form{
      ***********************************************************************************/
     public function storeOldValues( $oldValues ){
         foreach( $this->elements as $element ){
-            if( $element->type != 'submit' && $element->type != 'button'){
+            if( $element->type != 'submit' && $element->type != 'button' && isset( $oldValues[ $element->name ] ) ){
                 $element->oldValue = $oldValues[ $element->name ];
             }
         }
