@@ -15,28 +15,58 @@
  * Copyrights (C) 2012-2013 Sameer Shelavale
  * Dependencies : class.dbhelper.php, class.logg.php
  *******************************************************************************************************/
-namespace X2Form\Helpers;
 
 class Logger{
 	
 	var $log = array();
+    var $logOnlyErrors = true;
+
 	var $fileName = "log.txt";
-	var $logToScreen = false;
+
+    var $logToFile = false;
+    var $logToScreen = false;
+
 	var $logQueriesToScreen = false;
 	var $logErrorsToScreen = false;
-	var $logOnlyErrors = true;
-	var $logToFile = true;
 	var $errorFields = array();
 	var $logFileHandle;
 	var $logText;
 	
 	
-	public function Logger($file = "log.txt" ){
-		$this->fileName = $file;
+	public function __construct( $params=[] ){
+        if( isset( $params['file'] ) ){
+            $this->fileName = $params['file'];
+        }else{
+            $this->fileName = 'log.txt';
+            $this->logToFile = false;
+        }
+
+        if( isset( $params['logQueriesToScreen'] ) && is_bool( $params['logQueriesToScreen'] ) ){
+            $this->logQueriesToScreen = $params['logQueriesToScreen'];
+        }
+
+        if( isset( $params['logErrorsToScreen'] ) && is_bool( $params['logErrorsToScreen'] ) ){
+            $this->logToFile = $params['logErrorsToScreen'];
+        }
+
+        if( isset( $params['logOnlyErrors'] ) && is_bool( $params['logOnlyErrors'] ) ){
+            $this->logToFile = $params['logOnlyErrors'];
+        }
+
+        if( isset( $params['logToScreen'] ) && is_bool( $params['logToScreen'] ) ){
+            $this->logToFile = $params['logToScreen'];
+        }
+
+        if( isset( $params['logToFile'] ) && is_bool( $params['logToFile'] ) ){
+            $this->logToFile = $params['logToFile'];
+        }
+
 		if( $this->logToFile ){
-			$this->logFileHandle = fopen( $this->fileName , "a" );	// we do this so that we can use the handle in destructor, 
-																	// to avoid bug with file writing in destructors
+            // we do this so that we can use the handle in destructor,
+            // to avoid bug with file writing in destructors
+			$this->logFileHandle = fopen( $this->fileName , "a" );
 		}
+
 		$this->logText = "\r\n\r\n===========================================\r\n"
 						."Call started: ".date( "Y-m-d H:i:s" )."\r\n"
 						.$_SERVER['REQUEST_URI']."\r\n"
@@ -65,7 +95,6 @@ class Logger{
 			if( $this->logErrorsToScreen ){
 				echo  "\r\n------------\r\n{$newLog['sqlError']}\n\n";
 			}
-			
 			
 		}
 		
@@ -103,7 +132,10 @@ class Logger{
 
 global $__LOGGER;
 if( defined( 'LOGFILE' ) ){
-	$__LOGGER = new Logger( LOGFILE );
+	$__LOGGER = new Logger( [
+        'file' => LOGFILE,
+
+    ]);
 }else{
 	$__LOGGER = new Logger( "log".date("y-m-d").".txt" );
 }
@@ -113,6 +145,26 @@ if( defined( 'LOGFILE' ) ){
 function Logg( $result, $code, $message = '', $query='', $sqlError='' ){
 	global 	$__LOGGER;
 	return $__LOGGER->Log( $result, $code, $message, $query, $sqlError );
+}
+
+function logg_ok( $log ){
+    if( !is_array( $log ) ){
+        return false;
+    }
+    if( $log['result'] == 'Success' ){
+        return true;
+    }
+    return false;
+}
+
+function logg_fail( $log ){
+    if( !is_array( $log ) ){
+        return false;
+    }
+    if( $log['result'] == 'Failure' ){
+        return true;
+    }
+    return false;
 }
 
 ?>
