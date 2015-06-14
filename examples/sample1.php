@@ -15,7 +15,7 @@ if (!$db_selected) {
 //create the X2Form object from XML file
 $formObj = new Form(
     'QuidichForm',
-    ['file'=> 'forms/quidich_form.xml']
+    ['from'=> 'forms/quidich_form.xml']
 );
 
 ?>

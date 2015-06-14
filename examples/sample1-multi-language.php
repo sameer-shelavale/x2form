@@ -15,7 +15,7 @@ if (!$db_selected) {
 $formObj = new \X2Form\Form(
     'QuidichForm',
     array(
-        'file'=>'forms/quidich_form_multi_language.xml',
+        'from'=>'forms/quidich_form_multi_language.xml',
         'language' => 'marathi'
     )
 );
@@ -24,7 +24,7 @@ $formObj = new \X2Form\Form(
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<title>A simple HTML form using X2Form</title>
+	<title>A simple HTML with multilanguage supportform using X2Form </title>
 	<link href="style.css" type="text/css" rel="stylesheet">
 </head>
 <body>

@@ -11,7 +11,7 @@ if (!$db_selected) {
 }
 
 
-$formObj = new \X2Form\Form( 'MyForm', 'php' );
+$formObj = new \X2Form\Form( 'MyForm', [] );
 $formObj->attributes->method = "POST";
 $formObj->attributes->action = 'sample1_process.php';
 

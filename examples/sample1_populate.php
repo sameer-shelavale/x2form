@@ -14,7 +14,7 @@ if (!$db_selected) {
 //FIRST_NAME, LAST_NAME and PROFESSION is populated from xml
 $formObj = new \X2Form\Form(
     'DiamondForm',
-    ['file' => 'forms/quidich_form_populated.xml']
+    ['from' => 'forms/quidich_form_populated.xml']
 );
 
 //we can also populate fieds from php using setFormValues() method of the X2Form class 

@@ -15,7 +15,7 @@ if (!$db_selected) {
 $formObj = new \X2Form\Form(
     'DiamondForm',
     [
-        'file'=>'forms/quidich_form_populated.xml',
+        'from'=>'forms/quidich_form_populated.xml',
         'template'=> 'forms/template1.html'
     ]
 );

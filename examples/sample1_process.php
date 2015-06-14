@@ -1,6 +1,6 @@
 <?php
 
-require_once( '../X2Form.php' );
+require_once( '../src/form.php' );
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -13,7 +13,7 @@ if (!$db_selected) {
 
 
 $formObj = new \X2Form\Form(
-    'DiamondForm', ['file'=> 'forms/quidich_form.xml']  );
+    'DiamondForm', ['from'=> 'forms/quidich_form.xml']  );
 
 if( $_POST['submit'] == "Submit" ){
 	
@@ -39,13 +39,13 @@ if( $_POST['submit'] == "Submit" ){
 		<h3>Displaying form stored in <a href="forms/quidich_form.xml">xml file</a></h3>
 		<?php 
 		
-		if( $_POST['dump'] ){
+		if( isset($_POST['dump'] ) ){
 			var_dump( $_POST );
-		}elseif( $result['result'] == 'Success'){
+		}elseif( $log['result'] == 'Success'){
 			var_dump( $result );
 			
 		}else{
-			echo '<div class="error">'.$result['message'].'<br/>'.$formObj->errorString."</div>";
+			echo '<div class="error">'.$log['message'].'<br/>'.$formObj->errorString."</div>";
 			echo $formObj->render();
 		}
 		 
