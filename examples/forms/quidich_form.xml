@@ -88,6 +88,13 @@
 		<element type="file" name="PHOTO" label="Upload your photo" maxsizemb="2" allowextensions="jpg,png,jpeg" iffileexists="renamenew" uploaddirectory="uploaded_files/"></element>
 		
 		<element type="file" name="PORTFOLIO" description="Only in pdf format" label="Upload your portfolio" mandatory="true" maxsizemb="2" allowextensions="pdf" ></element>
+
+        <element type="captcha" name="captcha" secret="secret-key1" refreshUrl="sample1.php?captcha=refresh" helpUrl="" >
+            <options>
+                <option type="gif" maxCodeLength="8" width="180" height="60" totalFrames="50" delay="20" />
+                <option type="math" description="Answer following question if you are human" level="4" />
+            </options>
+        </element>
 		
 		<!-- example of hidden inputs -->
 		<element type="hidden" name="USER_ID" value="0" ></element>
@@ -102,5 +109,8 @@
 				<event type="onclick"><![CDATA[ alert("This click event originates from XML definition of this form!")  ]]></event>
 			</events>
 		</element>
+
+
+
 	</elements>
 </form>

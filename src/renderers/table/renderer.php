@@ -12,6 +12,7 @@ class Renderer implements \X2Form\Interfaces\Renderer{
         $this->elementRenderer = new ElementRenderer();
         $this->collectionRenderer = new CollectionRenderer();
         $this->collectionRenderer->elementRenderer = &$this->elementRenderer;
+
     }
 
     public function render( &$form, $addFormTag=true ){
@@ -42,11 +43,12 @@ class Renderer implements \X2Form\Interfaces\Renderer{
             }else{
                 $cnt++;
                 $html .= '<tr class="'.$class.'"><td valign="top">'
-                    .$form->elements[$i]->label().'</td><td>'
+                    .$this->elementRenderer->makeLabel( $form->elements[$i] ).'</td><td>'
                     .$this->elementRenderer->render( $form->elements[$i] ).' &nbsp; <i>'
                     .$form->elements[$i]->description().'</i></td></tr>';
             }
         }
+
         $html .= '</table>';
 
         $attribs = '';
@@ -153,8 +155,5 @@ class Renderer implements \X2Form\Interfaces\Renderer{
 
         return $template;
     }
-
-
-
 
 } 

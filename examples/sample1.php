@@ -1,6 +1,8 @@
 <?php
 use \X2form\Form;
 require_once( '../src/form.php' );
+require_once( '../vendor/sameer-shelavale/multi-captcha/src/Captcha.php' );
+require_once( '../vendor/autoload.php' );
 
 
 $link = mysql_connect('localhost', 'root', '');
@@ -17,7 +19,11 @@ $formObj = new Form(
     'QuidichForm',
     ['from'=> 'forms/quidich_form.xml']
 );
-
+$formObj->finalize();
+if( isset( $_REQUEST['captcha'] ) && $_REQUEST['captcha'] == 'refresh' ){
+    echo $formObj->renderer->elementRenderer->refreshCaptcha( $formObj->elements['captcha'] );
+    exit;
+}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>

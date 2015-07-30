@@ -81,8 +81,6 @@ class Form{
     var $attributes;		// attributes to output in FORM tag
     var $elements;			// this will be used internally to store form elements and their details
 
-
-
     //variables for storing raw information about form
     var $xml;				//
     var $xmlfile;			//
@@ -258,7 +256,21 @@ class Form{
                 $prop['value'] = (string)$elem;
             }
 
-            if( $elem->options && $elem->options->option ){
+            if( $elem->options && isset( $prop['type'] ) && $prop['type'] =="captcha" ){
+                //if options are passed for CAPTCHA in xml itself as children of the element tag
+                if( $elem->options->option ){
+                    foreach( $elem->options->option as $o ){
+                        $optAtr = array();
+                        foreach( $o->attributes() as $k => $v ){
+                            $k = "$k";
+                            $optAtr[ $k ] = "$v";
+                        }
+                        if( isset( $optAtr['type'] ) ){
+                            $opt[ $optAtr['type'] ] = $optAtr;
+                        }
+                    }
+                }
+            }elseif( $elem->options && $elem->options->option ){
                 //if options are passed in xml itself as children of the element tag
                 foreach( $elem->options->option as $o ){
                     $optAtr = array();
@@ -432,7 +444,7 @@ class Form{
         $this->storeOldValues( $oldData );
 
         if( $this->validate( $postedData ) ){
-            Logg( 'LOG', 'CODE', 'Submited data has passed.' );
+            Logg( 'LOG', 'CODE', 'Submited data has passed validation.' );
 
             $this->handleFileUploads( $postedData, $oldData );
             return Logg( 'Success', 'S001', 'Form submission successful.' );

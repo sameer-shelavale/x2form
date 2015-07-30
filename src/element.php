@@ -39,7 +39,7 @@ class Element{
 	
 	//other values to be passed like events or list data
 	var $options;
-    var $optionData; // used for storing calculated list of data options for dropdowns, radio & checkboxes
+    var $data; // used for storing calculated data, e.g. list of options for dropdowns, radio, checkboxes
 	var $events;
 	var $config;
     var $ready=false; //indicates that the element is ready for rendering
@@ -57,6 +57,11 @@ class Element{
 	var $parent = false;
 	
 	var $errorString = '';
+
+    var $basicTypes = [ 'text', 'button', 'submit', 'reset', 'hidden', 'image', 'password', 'file', 'textarea', 'dropdown', 'checkbox', 'radio', 'label' ];
+
+    var $provider;  // an object/array of objects(of external classes/dependencies) which provides the processing,rendering, validating logic
+                    // e.g. Captcha is provided by Multicaptcha library
 
     /*
      * Default constructor
@@ -122,7 +127,9 @@ class Element{
 				}else{
 					$this->config[ $k ] = "$v";
 				}				
-			}else{
+			}elseif( !in_array( $eType, $this->basicTypes ) ){
+                $this->config[ $k ] = $v;
+            }else{
 		    	$this->attributes[ $k ] = "$v";
 			}
 		}
@@ -272,12 +279,34 @@ class Element{
             $this->updateOutputName();
             //calculate the option data
             if( $this->type == 'radio' || $this->type == 'checkbox' || $this->type == 'dropdown' ){
-                $this->optionData = $this->createOptions( $this->options );
+                $this->data = $this->createOptions( $this->options );
+            }elseif( $this->type == 'captcha' ){
+                $params=[];
+                foreach( $this->config as $k => $v ){
+                    $params[$k] = $v;
+                }
+                if( isset( $params['refreshurl'] ) ){
+                    $params['refreshUrl'] = $params['refreshurl'];
+                }
+                if( isset( $params['helpurl'] ) ){
+                    $params['helpUrl'] = $params['helpurl'];
+                }
+
+                $params['options'] = $this->options;
+                foreach( $params['options'] as $k => $v ){
+                    $params['options'][$k]['theme'] = 'MulticaptchaTheme';
+                    $params['options'][$k]['themeOptions'] = [];
+                }
+                $this->provider = new \Multicaptcha\Captcha( $params );
+                $this->provider->make();
+
+                $this->label = $this->provider->data['description']; //get raw label
+                $this->config['title'] = $this->provider->data['tooltip'];
             }
             $this->ready = true;
         }
     }
-	
+
 
 	
 	
