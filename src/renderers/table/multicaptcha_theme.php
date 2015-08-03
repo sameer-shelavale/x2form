@@ -25,6 +25,7 @@ class MulticaptchaTheme {
 <style type="text/css">
 a.btn-refresh, a.btn-help{
     background-color:#fff;
+    border:0;
     text-decoration:none;
     color:#f66a03;
     padding:1px 2px;
