@@ -99,7 +99,7 @@ class Renderer implements \X2Form\Interfaces\Renderer{
                 }else{
                     $template = str_replace( "[{$elem->name}]", $this->elementRenderer->render( $elem  ), $template );
                 }
-                $template = str_replace( "[{$elem->name}_label]", $elem->label(), $template );
+                $template = str_replace( "[{$elem->name}_label]", $this->elementRenderer->makeLabel( $elem ), $template );
                 $template = str_replace( "[{$elem->name}_description]", $elem->description(), $template );
 
             }
@@ -128,32 +128,31 @@ class Renderer implements \X2Form\Interfaces\Renderer{
 
     public function raw( &$form ){
         //generate normal html
+        //generate normal html
         $html = '<table cellpadding="0" cellspacing="0" border="0">';
         $cnt=1;
         $hiddenElems = '';
-        foreach( $form->elements as $elem ){
+
+        foreach( $form->elements as $i=>$elem ){
             if( $cnt%2 == 0){ $class = 'even'; }else{ $class= 'odd'; }
+
             if( $elem->type == 'hidden' ){
-                $hiddenElems .= "[{$elem->name}]";
+                $hiddenElems .= " [{$elem->name}]";
             }elseif( $elem->type == 'label' ){
-                $html .= '<tr class="'.$class.'"><td valign="top">'.$elem->label().'</td><td>'.$elem->render( $this->name ).' &nbsp; <i>'.$elem->description().'</i></td></tr>';
+                $html .= '<tr class="'.$class.'"><td valign="top" colspan="2">'
+                    ."[{$elem->name}]".' &nbsp;</td></tr>';
             }else{
                 $cnt++;
-                $html .= '<tr class="'.$class.'"><td valign="top">['.$elem->name.'_label]</td><td>['.$elem->name.'] &nbsp; <i>['.$elem->name.'_description]</i></td></tr>';
+                $html .= '<tr class="'.$class.'"><td valign="top">'
+                    ."[{$elem->name}_label]".'</td><td>'
+                    ."[{$elem->name}]".' &nbsp; <i>'
+                    ."[{$elem->name}_description]".'</i></td></tr>';
             }
-
         }
+
         $html .= '</table>';
 
-        $attribs = '';
-        foreach( $form->attributes as $key=>$atr ){
-            $attribs .= " $key=\"$atr\"";
-        }
-
-        $template = "<form name=\"{$this->name}\" id=\"{$this->id}\" $attribs >$html $hiddenElems {$form->extraCode} </form>";
-
-
-        return $template;
+        return $html;
     }
 
 } 

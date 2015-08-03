@@ -130,32 +130,29 @@ class Renderer implements \X2Form\Interfaces\Renderer{
     }
 
     public function raw( &$form ){
-        //generate normal html
         $html = '';
         $cnt=1;
         $hiddenElems = '';
-        foreach( $form->elements as $elem ){
-            if( $cnt%2 == 0){ $class = 'even'; }else{ $class= 'odd'; }
+
+        foreach( $form->elements as $i=>$elem ){
+
             if( $elem->type == 'hidden' ){
-                $hiddenElems .= "[{$elem->name}]";
+                $hiddenElems .= " [{$elem->name}]";
             }elseif( $elem->type == 'label' ){
-                $html .= '<div class="form-group">'.$elem->label().$elem->render( $this->name ).' &nbsp; <i>'.$elem->description().'</i></div>';
+                $html .= '<div class="form-group">'
+                    ." [{$elem->name}]"
+                    .'</div>';
             }else{
                 $cnt++;
-                $html .= '<div class="form-group">['.$elem->name.'_label]['.$elem->name.'] &nbsp; <i>['.$elem->name.'_description]</i></div>';
+                $html .= '<div class="form-group">'
+                    ."[{$elem->name}_label]"
+                    ."[{$elem->name}]"
+                    .'<p class="help-block">['.$elem->name.'_description]</p>'.
+                    '</div>';
             }
-
         }
 
-        $attribs = '';
-        foreach( $this->attributes as $key=>$atr ){
-            $attribs .= " $key=\"$atr\"";
-        }
-
-        $template = "<form name=\"{$this->name}\" id=\"{$this->id}\" $attribs >$html $hiddenElems {$form->extraCode} </form>";
-
-
-        return $template;
+        return $html;
     }
 
 
