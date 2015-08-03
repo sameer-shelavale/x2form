@@ -1,6 +1,7 @@
 <?php
 
 require_once( '../src/form.php' );
+require_once( '../vendor/autoload.php' );
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -14,7 +15,7 @@ if (!$db_selected) {
 
 $formObj = new \X2Form\Form(
     'DiamondForm', ['from'=> 'forms/quidich_form.xml']  );
-
+$formObj->finalize();
 if( $_POST['submit'] == "Submit" ){
 	
 	$formObj->setValues($_POST);
@@ -41,9 +42,6 @@ if( $_POST['submit'] == "Submit" ){
 		
 		if( isset($_POST['dump'] ) ){
 			var_dump( $_POST );
-		}elseif( $log['result'] == 'Success'){
-			var_dump( $result );
-			
 		}else{
 			echo '<div class="error">'.$log['message'].'<br/>'.$formObj->errorString."</div>";
 			echo $formObj->render();

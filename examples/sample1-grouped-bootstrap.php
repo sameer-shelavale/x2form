@@ -1,6 +1,6 @@
 <?php
 require_once( '../src/form.php' );
-
+require_once( '../vendor/autoload.php' );
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -24,7 +24,7 @@ $formObj = new \X2Form\Form(
 //print_r( $formObj->elements );
 
 $formObj->elements['FAMILY_MEMBERS']->setValues( array( 0=>array( 'FIRST_NAME'=>'sameer' ), 1=>array( 'LAST_NAME'=>'test' ) ) );
-
+$formObj->finalize();
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">

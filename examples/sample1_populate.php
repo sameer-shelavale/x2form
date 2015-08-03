@@ -1,6 +1,6 @@
 <?php
 require_once( '../src/form.php' );
-
+require_once( '../vendor/autoload.php' );
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -28,7 +28,7 @@ $formObj->setValues( $values );
 //Alternatively we can also populate individual fields directly
 $formObj->elements['HOUSE']->value = '1';	//arary syntax 
 $formObj->elements->INTRO->value = "I am a Harry... Harry Potter!"; //this syntax works as well
-
+$formObj->finalize();
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">

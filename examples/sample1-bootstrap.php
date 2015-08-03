@@ -1,6 +1,5 @@
 <?php
 require_once( '../src/form.php' );
-require_once( '../vendor/sameer-shelavale/multi-captcha/src/Captcha.php' );
 require_once( '../vendor/autoload.php' );
 
 $link = mysql_connect('localhost', 'root', '');
