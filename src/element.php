@@ -117,9 +117,13 @@ class Element{
 		foreach( $params as $k => $v ){
 			$k = strtolower( $k );
 			if( property_exists( '\X2Form\Element', $k ) ){
-				$this->$k = $v;
-				
-			}else if( array_key_exists( $k, $conf ) ){
+                if( $eType == 'captcha' && $k == 'options'){
+                    //for captcha type, options are part of the config which it passes as params
+                    $this->config['options'] = $v;
+                }else{
+				    $this->$k = $v;
+                }
+			}elseif( array_key_exists( $k, $conf ) ){
 				if( $k == 'languages' ){
 					$this->config[ $k ] = $v;
 				}elseif( $k == 'mandatory' || $k == 'validate' || $k == 'emailcheckdns' ){
@@ -201,7 +205,7 @@ class Element{
 		if( $label == '' ){
 			$label = $this->label;
 		}
-        if( $label == '' ){
+        if( $label == '' && $this->type != 'submit' && $this->type != 'reset' && $this->type != 'button' ){
             $label = ucfirst( str_replace( '_', ' ',$this->name) );
         }
         $mand = '';
@@ -281,23 +285,12 @@ class Element{
             if( $this->type == 'radio' || $this->type == 'checkbox' || $this->type == 'dropdown' ){
                 $this->data = $this->createOptions( $this->options );
             }elseif( $this->type == 'captcha' ){
-                $params=[];
-                foreach( $this->config as $k => $v ){
-                    $params[$k] = $v;
-                }
-                if( isset( $params['refreshurl'] ) ){
-                    $params['refreshUrl'] = $params['refreshurl'];
-                }
-                if( isset( $params['helpurl'] ) ){
-                    $params['helpUrl'] = $params['helpurl'];
-                }
-
-                $params['options'] = $this->options;
+                $params=$this->config;
                 foreach( $params['options'] as $k => $v ){
                     $params['options'][$k]['theme'] = 'MulticaptchaTheme';
                     $params['options'][$k]['themeOptions'] = [];
                 }
-                $this->provider = new \Multicaptcha\Captcha( $params );
+                $this->provider = new \MultiCaptcha\Captcha( $params );
                 $this->provider->make();
 
                 $this->label = $this->provider->data['description']; //get raw label
@@ -431,7 +424,7 @@ class Element{
 		if( $this->config['mandatory'] == "true" && ( $this->value== '' || $this->value== null || $this->value=== false ) ){
 			//file inputs are handled later
 			if( $this->type != 'file' ){
-				if( $errMsg = $this->hasLanguage( $this->config->language, 'ifempty' ) ){
+				if( isset( $this->config->language ) && $errMsg = $this->hasLanguage( $this->config->language, 'ifempty' ) ){
 					$this->errorString = $errMsg ;
 				}elseif( isset( $this->config['ifempty'] )  ){
 					$this->errorString = $this->config['ifempty'] ;
