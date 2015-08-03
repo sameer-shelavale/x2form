@@ -123,7 +123,7 @@ class Form{
         if( isset( $params['loader']) && is_object( $params['loader']) && is_subclass_of( $params['loader'], 'X2Form\Interfaces\Loader'  )  ){
             $this->loader = $params['loader'];
         }else{
-            //render using tables by default
+            //load using Autoloader by default
             $this->loader = new Loaders\Auto();
         }
 
@@ -147,6 +147,9 @@ class Form{
                 $exclude = $params['exclude'];
             }
             $this->load( $params['from'], $exclude );
+        }else{
+            //form will be loaded manually
+            $this->isLoaded = true;
         }
 
     }
@@ -176,6 +179,31 @@ class Form{
             'errorString', 'errorFields', 'isLoaded', 'callBack' );
     }
 
+    public function __call( $name, $arguments ){
+        if( preg_match( '/add([a-z]+)/i', $name, $matches ) ){
+            //add element of type $name
+            return $this->addElement( $matches[1], $arguments );
+        }
+    }
+
+    public function addElement( $type, $params ){
+        $type = strtolower( $type );
+        if( isset( $params['name'] ) && !isset( $this->elements[ $params['name'] ] ) ){
+
+            $params['language'] = $this->language;
+            $params['dbType'] = $this->dbType;
+            $params['dbHandle'] = $this->dbHandle;
+            $params['parent'] = $this;
+
+            if( $type == 'collection' ){
+                $this->elements[$params['name']] = new Collection( $params['name'], $params );
+            }else{
+                $this->elements[$params['name']] = new Element( $type, $params );
+            }
+        }
+        return false;
+    }
+
 
     /*****************************************************************************
      * function deepClone()
@@ -198,166 +226,6 @@ class Form{
         return $obj;
     }
 
-
-    /********************************************************************************
-     * function createNode()
-     *		This function create a X2Form\Collection or X2Form\Element object from
-     *		passed simpleXMLElement object
-     * parameters:
-     * 		$elem - a SimpleXMLElement object
-     * returns:
-     * 		X2Form\Collection or X2Form\Element object
-     ********************************************************************************/
-    function createNode( $elem ){
-
-        $prop = array();
-        $children = array(); //in case the element is a 'group'
-
-        //now find the $prop, $conf and $attr
-        foreach( $elem->attributes() as $k => $v ){
-            $prop[ strtolower( "$k" ) ] = "$v";
-        }
-
-
-
-        $opt = array();
-
-        if( isset( $prop['type'] ) && $prop['type'] =="collection" || strtolower( $elem->getName() ) == 'collection' ){
-
-            $prop['type'] = 'collection'; //force type=group
-            $result = new Collection(
-                $prop['name'],
-                [
-                    'from'=> $elem,
-                    'language' => $this->language,
-                    'dbType' => $this->dbType,
-                    'dbHandle' => $this->dbHandle,
-                    'parent' => &$this
-                ]
-            );
-
-        }else{
-
-            //find the values of different attributes in different languages
-            if( $elem->languages ){
-                foreach( $elem->languages->children() as $lang ){
-
-                    foreach( $lang->children() as $langSetting ){
-                        $prop['languages'][ (string)$lang->attributes()->name ][$langSetting->getName()] = (string)$langSetting;
-                    }
-                }
-            }
-
-
-            //find options of the element,
-            //options are to be mentioned for dropdowns, multiple checkboxes and multiple radio boxes
-
-            if( $prop['type'] =="textarea" && "$elem" != '' ){
-                $prop['value'] = (string)$elem;
-            }
-
-            if( $elem->options && isset( $prop['type'] ) && $prop['type'] =="captcha" ){
-                //if options are passed for CAPTCHA in xml itself as children of the element tag
-                if( $elem->options->option ){
-                    foreach( $elem->options->option as $o ){
-                        $optAtr = array();
-                        foreach( $o->attributes() as $k => $v ){
-                            $k = "$k";
-                            $optAtr[ $k ] = "$v";
-                        }
-                        if( isset( $optAtr['type'] ) ){
-                            $opt[ $optAtr['type'] ] = $optAtr;
-                        }
-                    }
-                }
-            }elseif( $elem->options && $elem->options->option ){
-                //if options are passed in xml itself as children of the element tag
-                foreach( $elem->options->option as $o ){
-                    $optAtr = array();
-                    foreach( $o->attributes() as $k => $v ){
-                        $k = strtolower( "$k" );
-                        if( $k == 'value' || $k == 'label' ){
-                            $optAtr[ $k ] = "$v";
-                        }
-                    }
-                    //check if only value is given
-                    if( $optAtr['label'] || $optAtr['value'] ){
-                        if( !isset($optAtr['label']) || $optAtr['label'] === false || $optAtr['label'] === null){
-                            $optAtr['label'] = $optAtr['value'];
-                        }elseif( !isset( $optAtr['value'] ) || $optAtr['value'] === false || $optAtr['value'] === null ){
-                            $optAtr['value'] = $optAtr['label'];
-                        }
-
-                    }
-                    $opt[] = $optAtr;
-                }
-            }elseif( $elem->options && $elem->options->query ){
-                //options are to be fetched from result of a passed query
-                //the query is passed by 'query' tag which is child of options tag
-                $opt['query'] = "{$elem->options->query}";
-
-                //find the valuefield and labelfield
-                //these will be used to pick up values from the query results
-                foreach( $elem->options->query->attributes() as $k => $v ){
-                    $k = strtolower( "$k" );
-                    if( strtolower( $k ) == 'valuefield' ){
-                        $opt['valuefield'] = "$v";
-                    }
-                    if( strtolower( $k ) == 'labelfield' ){
-                        $opt['labelfield'] = "$v";
-                    }
-                }
-            }elseif( $elem->options && $elem->options->create_function ){
-                //options are to be fetched from result of a passed query
-                //the query is passed by 'query' tag which is child of options tag
-                $opt['create_function'] = "{$elem->options->create_function}";
-
-                //find the valuefield and labelfield
-                //these will be used to pick up values from the query results
-                foreach( $elem->options->create_function->attributes() as $k => $v ){
-                    $k = strtolower( "$k" );
-                    $opt[$k] = "$v";
-                }
-            }elseif( $elem->options && $elem->options->phpglobal ){
-                //options are to be fetched from result of a passed query
-                //the query is passed by 'query' tag which is child of options tag
-                $opt['phpglobal'] = true;
-
-                //find the valuefield and labelfield
-                //these will be used to pick up values from the query results
-                foreach( $elem->options->phpglobal->attributes() as $k => $v ){
-                    $k = strtolower( "$k" );
-                    $opt[$k] = "$v";
-                }
-            }
-
-            //find events if any
-            //events are defined in 'event' tag which is child of 'events', which in turn is child of the element tag
-            $events = array();
-            if( $elem->events->event ){
-                foreach( $elem->events->event as $e ){
-                    foreach( $e->attributes() as $k => $v ){
-                        if( $k == 'type' ){
-                            $events[ "$v" ] = "$e";
-
-                        }
-                    }
-                }
-            }
-
-            //so we have now all data required for creating the X2Form\Element object
-            $prop[ 'options' ] = $opt;
-            $prop[ 'events' ] = $events;
-            $prop[ 'dbType' ] = $this->dbType;
-            $prop[ 'dbHandle' ] = $this->dbHandle;
-            $prop[ 'parent' ] = &$this;
-
-            $result = new Element( $prop['type'], $prop );
-
-        }
-
-        return $result;
-    }
 
     /*****************************************************************************
      * function finalize()
@@ -402,21 +270,17 @@ class Form{
 
 
     /*****************************************************************************
-     * function render()
+     * function renderRaw()
      * 		Render a raw HTML template without adding any values and without template file
      * returns:
      * 		the rendered HTML as string.
      * 		Note that it does'nt send output to screen
      ****************************************************************************/
-    function renderRawTemplate(){
+    function renderRaw(){
         if( !$this->isLoaded ){
             return $this->errorString;
         }
         $this->finalize();
-
-        if( $this->template && is_file( $this->template ) ){
-            return $this->renderTemplate();
-        }
 
         return $this->renderer->raw( $this );
     }
@@ -440,10 +304,7 @@ class Form{
      ***********************************************************************************/
     function processSubmission( $postedData, $oldData=array(), $rollbackOnError = true ){
 
-        $this->setValues( $postedData );
-        $this->storeOldValues( $oldData );
-
-        if( $this->validate( $postedData ) ){
+        if( $this->validate( $postedData, $oldData ) ){
             Logg( 'LOG', 'CODE', 'Submited data has passed validation.' );
 
             $this->handleFileUploads( $postedData, $oldData );
@@ -467,14 +328,23 @@ class Form{
      *		returns true on success, false on failure.
      *		it sets $errorString variable on failure.
      ***********************************************************************************/
-    public function validate( ){
+    public function validate( $postedData, $oldData = array() ){
         $this->errorString = '';
+
+        $this->setValues( $postedData );
+        $this->storeOldValues( $oldData );
 
         foreach( $this->elements as $element ){
             //skip submit buttons and files
             //we will handle files in separate call
 
-            if( $element->type != 'submit' && $element->type != 'button' && $element->type != 'reset' && $element->type != 'label' ){
+            if( $element->type == 'captcha' ){
+                if( !$element->provider->validate( $postedData ) ){
+                    $element->errorString = $element->provider->error;
+                    $this->errorFields[ $element->name ] = $element->provider->error;
+                    $this->errorString .= $this->errorFields[ $element->name ].'<br/>';
+                }
+            }elseif( $element->type != 'submit' && $element->type != 'button' && $element->type != 'reset' && $element->type != 'label' ){
 
                 $val = $element->validate();
                 if( strlen( $val ) > 0 ){
