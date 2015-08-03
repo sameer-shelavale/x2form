@@ -93,18 +93,18 @@ class ElementRenderer {
             $openWrapper = '<div class="radio"><label>';
             $closeWrapper = '</label></div>';
         }else{
-            $openWrapper = '<label class="radio-inline">';
+            $openWrapper = ' <label class="radio-inline">';
             $closeWrapper = '</label>';
         }
 
-        if( count( $element->optionData ) == 0 ){
+        if( count( $element->data ) == 0 ){
             $str = $openWrapper
                 ."<input type=\"radio\" id=\"".$id."\" name=\"$element->outputName\" value=\"$element->value\" $attribTxt $eventsTxt />"
                 .$closeWrapper;
         }else{
             $cnt = 0;
             $str = '';
-            foreach( $element->optionData as $opt ){
+            foreach( $element->data as $opt ){
                 //var_dump( $opt );
                 $checked='';
                 if( $opt['value'] == $element->value ){ $checked = 'checked="true"'; }
@@ -128,16 +128,16 @@ class ElementRenderer {
             $openWrapper = '<div class="checkbox"><label>';
             $closeWrapper = '</label></div>';
         }else{
-            $openWrapper = '<label class="checkbox-inline">';
+            $openWrapper = ' <label class="checkbox-inline">';
             $closeWrapper = '</label>';
         }
 
-        if( count( $element->optionData ) == 0 ){
+        if( count( $element->data ) == 0 ){
             $str = $openWrapper
                 ."<input type=\"checkbox\" id=\"".$id."\" name=\"$element->outputName\" value=\"$element->value\" $attribTxt $eventsTxt />"
                 .$closeWrapper;
-        }elseif( count( $element->optionData ) == 1 ){
-            $opt = $element->optionData[0];
+        }elseif( count( $element->data ) == 1 ){
+            $opt = $element->data[0];
             $checked = '';
             if( is_array( $element->value ) && in_array( $opt['value'], $element->value ) ){
                 $checked = 'checked="true"';
@@ -151,7 +151,7 @@ class ElementRenderer {
         }else{
             $cnt = 0;
             $str = '';
-            foreach( $element->optionData as $opt ){
+            foreach( $element->data as $opt ){
                 $checked = '';
                 if( is_array( $element->value ) && in_array( $opt['value'], $element->value ) ){
                     $checked = 'checked="true"';
@@ -183,8 +183,8 @@ class ElementRenderer {
         if( $promt = $element->prompt() ){
             $str .= "<option value=\"\" >{$promt}</option>";
         }
-        if( is_array( $element->optionData ) ){
-            foreach( $element->optionData as $opt ){
+        if( is_array( $element->data ) ){
+            foreach( $element->data as $opt ){
                 if( is_array( $opt ) ){
                     $option = $opt['label'];
                     $val = $opt['value'];
@@ -241,6 +241,32 @@ class ElementRenderer {
         return $str;
     }
 
+    public function renderCaptcha( &$element ){
+        $toolTip = $this->makeTooltip( $element );
+        $element->provider->data['tooltip'] = $toolTip;
+        $attributes = $this->addClass( 'form-control', $element->attributes );
+        //$attribTxt = $this->makeAttributes( $element->attributes );
+        //$eventsTxt = $this->makeEvents( $element->events );
+        $theme = new MulticaptchaTheme();
+        if( isset( $element->attributes['class'] ) ){
+            $theme->fieldClass = $element->attributes['class'];
+        }
+        return $theme->render( $element->provider->data );
+    }
+
+    public function refreshCaptcha( &$element ){
+        $toolTip = $this->makeTooltip( $element );
+        $element->provider->data['tooltip'] = $toolTip;
+        $attributes = $this->addClass( 'form-control', $element->attributes );
+        //$attribTxt = $this->makeAttributes( $element->attributes );
+        //$eventsTxt = $this->makeEvents( $element->events );
+        $theme = new MulticaptchaTheme();
+        if( isset( $element->attributes['class'] ) ){
+            $theme->fieldClass = $element->attributes['class'];
+        }
+        return $theme->refresh( $element->provider->data );
+    }
+
 
     public function makeId( &$element ){
         if( $element->id == '' ){
@@ -289,7 +315,14 @@ class ElementRenderer {
     }
 
     public function makeLabel( &$element ){
-        return '<label for="'.$this->makeId($element).'" class="control-label">'.$element->label().'</label>';
+        if( $element->type != 'captcha' ){
+            return '<label for="'.$this->makeId($element).'" class="control-label">'.$element->label().'</label>';
+        }
+        $element->provider->data['description'] = $element->label();
+
+        //for captcha we include the challenge below the label
+        $theme = new MulticaptchaTheme();
+        return '<label for="'.$this->makeId($element).'" class="control-label">'.$theme->renderLabel( $element->provider->data ).'</label>';
     }
 
     public function addClass( $className, $attributes ){
