@@ -229,7 +229,7 @@ $formObj->addDropdown([
 Firstly its very important to understand that each item in dropdown control is comprised of *value* and *label* (Same is true for *radio* and *checkboxes* types).
 
 As said before, you can pass these groups of value-label pairs in multiple ways
-#######  1. php array
+######  1. php array
 here you can simply pass the labels and values as an array of strings.
 for example lets see this example, it uses a simple 1d array:
 ```php
@@ -283,7 +283,7 @@ $formObj->addDropdown([
 );
 ```
 
-####### 2. SQL queries:
+###### 2. SQL queries:
 You can also load options from sql queries. All you need to do is just pass in the query to run, and the names of label and value fields.
 Ofcourse you should make sure you have the db connected and the dbHandle is set in your form object(for php & pdo).
 e.g.
@@ -316,8 +316,9 @@ $formObj->addDropdown([
 alternatively you can also modify the query as `select code as value, continent_name as label from continents;` and you wont have to set the labelfield and valuefield.
 
 
-####### 3. php global variables
+###### 3. php global variables
 You can also load the options from php global variables(or sub-elements of the element of the globals array) .e.g.
+
 ```php
 //somewhere in your code you set a global variable
 $GLOBAL['location_data']['continents'] = [
@@ -343,8 +344,9 @@ $formObj->addDropdown([
 ```
 
 
-####### 4. anonymous functions:
+###### 4. anonymous functions:
 The anonymous functions are useful when defining the form in XML, you can process global variables/presets and create your data from it, like:
+
 ```php
 $continents = [
     [ 'code'=>'afr', 'continent_name'=>'Africa' ],
@@ -406,6 +408,7 @@ Configuration attributes are mainly used for form validation or formatting the d
 
 ***IMP NOTE: besides all of the above basic and advanced params, all other normal HTML attributes for the `<input type="radio">` tag like *style*, *class* etc. can also be passed.
 basic example of radio is
+
 ```php
 $formObj->addRadio([
     'name'=>'gender',
@@ -530,7 +533,7 @@ Configuration attributes are mainly used for form validation or formatting the d
 | *emailCheckDNS* | (boolean) false | Optional | This is effective only when passed with *dataType=email* otherwise it is ignored and has no effect. If its true, it will check if the domain of the email exists or not by checking the DNS. So this attribute should NOT be set to true if your web-server is running in offline mode or is not connected to internet. Possible values: Boolean ( *true* / *false* , *yes* / *no*, *on* / *off*, *1* / *0* ). if value is *true*, *on*, *yes*, *1* it is true, else its false |
 | *min* | - | Optional | This attribute is used with *dataType=integer* or *dataType=number*. It is used to specify minimum limit/value of the integer/number. If not specified it is ignored.|
 | *max* | - | Optional | This attribute is used with *dataType=integer* or *dataType=number*. It is used to specify maximum limit of the integer/number. If not specified it is ignored.|.
-
+```php
 $form->addHidden([
     'name'=>'product_id',
     'value'=> 3,
@@ -552,6 +555,7 @@ This element creates a `<label>` in the form.
 
 ***IMP NOTE: besides all of the above params, all other normal HTML attributes for the `<label>` tag like *style*, *class* etc. can also be passed.
 
+```php
 $form->addLabel([
     'name'=>'LABEL1',
     'value'=>'How many matches have you played?',
@@ -575,6 +579,7 @@ This element creates a `<input type="button">` in the form.
 
 ***IMP NOTE: besides all of the above params, all other normal HTML attributes for the `<input type="button">` tag like *style*, *class* etc. can also be passed.
 
+```php
 $form->addButton([
     'name'=>'button1',
     'value'=>'Calculate',
@@ -597,7 +602,7 @@ This element creates a form submit button `<input type="submit">` in the form.
 | *events* | Optional | Array of events where each key is name of event like *onclick* etc. and the value is the javascript code to be executed for that event.|
 
 ***IMP NOTE: besides all of the above params, all other normal HTML attributes for the `<input type="button">` tag like *style*, *class* etc. can also be passed.
-
+```php
 $form->addSubmit([
     'name'=>'button2',
     'value'=>'Send',
@@ -619,7 +624,7 @@ This element creates a form reset button `<input type="reset">` in the form.
 | *events* | Optional | Array of events where each key is name of event like *onclick* etc. and the value is the javascript code to be executed for that event.|
 
 ***IMP NOTE: besides all of the above params, all other normal HTML attributes for the `<input type="button">` tag like *style*, *class* etc. can also be passed.
-
+```php
 $form->addReset([
     'name'=>'button3',
     'value'=>'Reset',
@@ -641,7 +646,7 @@ This element creates a form reset button `<input type="reset">` in the form.
 | *events* | Optional | Array of events where each key is name of event like *onclick* etc. and the value is the javascript code to be executed for that event.|
 
 ***IMP NOTE: besides all of the above params, all other normal HTML attributes for the `<input type="button">` tag like *style*, *class* etc. can also be passed.
-
+```php
 $form->addReset([
     'name'=>'button3',
     'value'=>'Reset',
