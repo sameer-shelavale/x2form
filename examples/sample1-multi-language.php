@@ -1,6 +1,6 @@
 <?php
 
-require_once( '../src/form.php' );
+require_once( '../src/autoload.php' );
 require_once( '../vendor/autoload.php' );
 
 $link = mysql_connect('localhost', 'root', '');

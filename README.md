@@ -57,19 +57,19 @@ include_once( 'PATH-TO-X2FORM-FOLDER/src/autoload.php' );
 
 ## Supported form controls/elements
 X2Form supports following HTML controls:
-1. text
-2. textarea
-3. checkbox
-4. radio
-5. dropdown
-6. file
-7. label
-8. button ( i.e. `<input type="button" >` )
-9. submit (i.e. `<input type="submit" >`)
-10. reset (i.e. `<input type="reset" >` )
-11. hidden (i.e. `<input type="hidden" >` )
-12. image (i.e. `<input type="image" >` )
-13. captcha
+* text
+* textarea
+* checkbox
+* radio
+* dropdown
+* file
+* label
+* button ( i.e. `<input type="button" >` )
+* submit (i.e. `<input type="submit" >`)
+* reset (i.e. `<input type="reset" >` )
+* hidden (i.e. `<input type="hidden" >` )
+* image (i.e. `<input type="image" >` )
+* captcha
 
 ## Usage
 ### Initialize
