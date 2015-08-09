@@ -107,7 +107,7 @@ First we will see the available element types and how to add them in the form.
 
 
 ##### text
-This element creates a *textbox* or *<input type="text">* control in the form
+This element creates a *textbox* or *&lt;input type="text"&gt;* control in the form
 
 Basic parameters are:
 -------------------------
@@ -144,7 +144,7 @@ $form->addText([
 ```
 
 ##### textarea
-This element creates a *<textarea>* control in the form
+This element creates a *&lt;textarea&gt;* control in the form
 
 Basic parameters are:
 -------------------------
@@ -180,7 +180,7 @@ $form->addTextarea([
 
 
 ##### dropdown
-This element creates a *<select>* control in the form
+This element creates a *&lt;select&gt;* control in the form
 
 ###### Basic parameters are:
 
@@ -374,7 +374,7 @@ The above use of anonymous function and phpglobals looks very irrelevant in php 
 
 
 ##### radio
-This element creates a *<input type="radio">* control in the form
+This element creates a *&lt;input type="radio"&gt;* control in the form
 
 ###### Basic parameters are:
 
@@ -419,7 +419,7 @@ $formObj->addRadio([
 ```
 
 ##### checkbox
-This element creates a *<input type="checkbox">* control in the form
+This element creates a *&lt;input type="checkbox"&gt;* control in the form
 
 ###### Basic parameters are:
 
@@ -477,7 +477,7 @@ $formObj->addRadio([
 ```
 
 ##### file
-This element creates a *<input type="file">* control in the form
+This element creates a *&lt;input type="file"&gt;* control in the form
 
 ###### Basic parameters are:
 
@@ -509,7 +509,7 @@ Configuration attributes are mainly used for form validation or formatting the d
 ***IMP NOTE: besides all of the above basic and advanced params, all other normal HTML attributes for the `<input type="file">` tag like *style*, *class* etc. can also be passed.
 
 ##### hidden
-This element creates a *<input type="hidden">* in the form.
+This element creates a *&lt;input type="hidden"&gt;* in the form.
 
 ###### Basic parameters are:
 
@@ -539,7 +539,7 @@ $form->addHidden([
 
 
 ##### label
-This element creates a *<label>* in the form.
+This element creates a *&lt;label&gt;* in the form.
 
 ###### Basic parameters are:
 
@@ -560,7 +560,7 @@ $form->addLabel([
 
 
 ##### button
-This element creates a *<input type="button">* in the form.
+This element creates a *&lt;input type="button"&gt;* in the form.
 
 ###### Basic parameters are:
 
@@ -583,7 +583,7 @@ $form->addButton([
 ```
 
 ##### submit
-This element creates a form submit button *<input type="submit">* in the form.
+This element creates a form submit button *&lt;input type="submit"&gt;* in the form.
 
 ###### Basic parameters are:
 
@@ -605,7 +605,7 @@ $form->addSubmit([
 ```
 
 ##### reset
-This element creates a form reset button *<input type="reset">* in the form.
+This element creates a form reset button *&lt;input type="reset"&gt;* in the form.
 
 ###### Basic parameters are:
 
@@ -627,7 +627,7 @@ $form->addReset([
 ```
 
 ##### image
-This element creates a form reset button *<input type="reset">* in the form.
+This element creates a form reset button *&lt;input type="reset"&gt;* in the form.
 
 ###### Basic parameters are:
 
