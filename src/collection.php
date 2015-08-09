@@ -51,17 +51,10 @@ class Collection{
 	
 	var $callBack = array(); //this array will hold all the callback functions/closures : not yet implemented
 	
-	//variables for storing raw information about form
-	var $xml;				//
-	var $xmlfile;			//
-	
 	var $isLoaded = false;
     var $ready = false;
 	
-	var $headerTemplate = false;
-	var $itemTemplate = false;
-
-    var $loader;
+	var $loader;
 	var $renderer;
 	
 	
