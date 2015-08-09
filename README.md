@@ -57,19 +57,19 @@ include_once( 'PATH-TO-X2FORM-FOLDER/src/autoload.php' );
 
 ## Supported form controls/elements
 X2Form supports following HTML controls:
-    1. text
-    2. textarea
-    3. checkbox
-    4. radio
-    5. dropdown
-    6. file
-    7. label
-    8. button ( i.e. `<input type="button" >` )
-    9. submit (i.e. `<input type="submit" >`)
-    10. reset (i.e. `<input type="reset" >` )
-    11. hidden (i.e. `<input type="hidden" >` )
-    12. image (i.e. `<input type="image" >` )
-    13. captcha
+1. text
+2. textarea
+3. checkbox
+4. radio
+5. dropdown
+6. file
+7. label
+8. button ( i.e. `<input type="button" >` )
+9. submit (i.e. `<input type="submit" >`)
+10. reset (i.e. `<input type="reset" >` )
+11. hidden (i.e. `<input type="hidden" >` )
+12. image (i.e. `<input type="image" >` )
+13. captcha
 
 ## Usage
 ### Initialize
@@ -107,7 +107,7 @@ First we will see the available element types and how to add them in the form.
 
 
 ##### text
-This element creates a *textbox* or *&lt;input type="text"&gt;* control in the form
+This element creates a *textbox* or `<input type="text">` control in the form
 
 Basic parameters are:
 -------------------------
@@ -144,7 +144,7 @@ $form->addText([
 ```
 
 ##### textarea
-This element creates a *&lt;textarea&gt;* control in the form
+This element creates a `<textarea>` control in the form
 
 Basic parameters are:
 -------------------------
@@ -180,7 +180,7 @@ $form->addTextarea([
 
 
 ##### dropdown
-This element creates a *&lt;select&gt;* control in the form
+This element creates a `<select>` control in the form
 
 ###### Basic parameters are:
 
@@ -374,7 +374,7 @@ The above use of anonymous function and phpglobals looks very irrelevant in php 
 
 
 ##### radio
-This element creates a *&lt;input type="radio"&gt;* control in the form
+This element creates a `<input type="radio">` control in the form
 
 ###### Basic parameters are:
 
@@ -419,7 +419,7 @@ $formObj->addRadio([
 ```
 
 ##### checkbox
-This element creates a *&lt;input type="checkbox"&gt;* control in the form
+This element creates a `<input type="checkbox">` control in the form
 
 ###### Basic parameters are:
 
@@ -477,7 +477,7 @@ $formObj->addRadio([
 ```
 
 ##### file
-This element creates a *&lt;input type="file"&gt;* control in the form
+This element creates a `<input type="file">` control in the form
 
 ###### Basic parameters are:
 
@@ -499,7 +499,7 @@ Configuration attributes are mainly used for form validation or formatting the d
 | *directory* | ./ | Optional | this attribute is used to specify the path to directory( with ending / ) where the uploaded files are to be stored. |
 | *filePrefix*|  | Optional | a string prefix to be attached to the filename while storing it in the upload directory. by default its empty string, means no prefix is attached by default. |
 | *allowMIME* |  | Optional | used to specify MIME types that are allowed, it can be a single value or multiple comma separated values. If not specified, it is ignored and MIME types are not checked. |
-| *allowExtensions* | Optional | used to specify file extensions(WITHOUT DOT) that are allowed, can be a single value or multiple comma separated values. If not specified, it is ignored and extensions are not checked, so its recommended to specify this. |
+| *allowExtensions* |  | Optional | used to specify file extensions(WITHOUT DOT) that are allowed, can be a single value or multiple comma separated values. If not specified, it is ignored and extensions are not checked, so its recommended to specify this. |
 | *maxSize*   | 20 | Optional |  maximum size of the file in MB that can be uploaded |
 | *ifFileExists* | renamenew | Optional |Specify an action file with EXACTLY SAME NAME is already present in file system. For example. you are uploading a myphoto.jpg as a profile image but a file with same name already exist in the upload directory.  Possible values are: *replace* ( if file already exists, replace it and existing file will be deleted ), *reamenew* ( rename new file which is being uploaded, so that names don't clash. |
 | *ifOldFileExists* | renamenew | Optional |Specify an action if a file is already uploaded for this control(means old value exist). This scenario may occur while editing an existing record. for example: you have uploaded myphoto.jpg as a profile image but now you are uploading newphoto.jpg as your profile photo. This variable will specify what to do in such cases. Available values are: *delete* ( will delete all old files ), *replace*( replace old file if it has same name as uploaded file(after applying prefix). ), *renameold* ( rename old file so that names don't clash ) | *renamenew* (rename new file so that the names don't clash. ) |
@@ -509,7 +509,7 @@ Configuration attributes are mainly used for form validation or formatting the d
 ***IMP NOTE: besides all of the above basic and advanced params, all other normal HTML attributes for the `<input type="file">` tag like *style*, *class* etc. can also be passed.
 
 ##### hidden
-This element creates a *&lt;input type="hidden"&gt;* in the form.
+This element creates a `<input type="hidden">` in the form.
 
 ###### Basic parameters are:
 
@@ -539,7 +539,7 @@ $form->addHidden([
 
 
 ##### label
-This element creates a *&lt;label&gt;* in the form.
+This element creates a `<label>` in the form.
 
 ###### Basic parameters are:
 
@@ -560,7 +560,7 @@ $form->addLabel([
 
 
 ##### button
-This element creates a *&lt;input type="button"&gt;* in the form.
+This element creates a `<input type="button">` in the form.
 
 ###### Basic parameters are:
 
@@ -583,7 +583,7 @@ $form->addButton([
 ```
 
 ##### submit
-This element creates a form submit button *&lt;input type="submit"&gt;* in the form.
+This element creates a form submit button `<input type="submit">` in the form.
 
 ###### Basic parameters are:
 
@@ -605,7 +605,7 @@ $form->addSubmit([
 ```
 
 ##### reset
-This element creates a form reset button *&lt;input type="reset"&gt;* in the form.
+This element creates a form reset button `<input type="reset">` in the form.
 
 ###### Basic parameters are:
 
@@ -627,7 +627,7 @@ $form->addReset([
 ```
 
 ##### image
-This element creates a form reset button *&lt;input type="reset"&gt;* in the form.
+This element creates a form reset button `<input type="reset">` in the form.
 
 ###### Basic parameters are:
 
