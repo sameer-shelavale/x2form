@@ -49,7 +49,7 @@ class Element{
 	var $dbType="default";
 	var $dbHandle=false;
 	
-	var $fileSystemChanges = array();	// old files are deleted, immediately, they are backed up
+	var $fileSystemChanges = array();	// old files are not deleted immediately, they are backed up
 									// If some error occurs during the file Upload, the backed up files are restored
 									
 	var $renamedFiles = array();	//this will store all files we renamed and their actual names
@@ -312,32 +312,46 @@ class Element{
 	function createOptions( $options ){
 		
 		$data = array();
-			
-		if( isset( $options['query'] ) ){
+
+        $valueField = 'value';
+        $labelField = $valueField;
+
+		if( isset( $options['query'] ) && isset( $options['query']['sql'] ) ){
 			
 			//find dynamic query parameters for WHERE clause if any
 			$helper = new DB( $this->dbType );
 			
-			$log = $helper->query( trim( "{$options['query']}" ), DB::FETCH_ALL, null, $this->dbHandle );
+			$log = $helper->query( trim( "{$options['query']['sql']}" ), DB::FETCH_ALL, null, $this->dbHandle );
 			if( $log['result'] == 'Success' ){
 				$data= $log['data']['records'];
-			}			
-		}elseif( isset( $options['create_function'] ) ){
-			$tmpFunc = create_function( $options['params'], $options['create_function'] );
+			}
+            if( isset( $options['query']['valuefield'] ) ){
+                $valueField = $options['query']['valuefield'];
+            }
+            if( isset( $options['query']['labelfield'] ) ){
+                $labelField = $options['query']['labelfield'];
+            }
+		}elseif( isset( $options['create_function'] ) && isset( $options['create_function']['code'] ) ){
+			$tmpFunc = create_function( $options['create_function']['args'], $options['create_function']['code'] );
 			
-			if( $options['pass'] && $this->parent && isset( $this->parent->elements[ $options['pass'] ] ) ){
-				$passedValue =  $this->parent->elements[ $options['pass'] ]->value ;
+			if( isset( $options['create_function']['pass'] ) ){
+				$passedValue =  $this->parent->elements[ $options['create_function']['pass'] ]->value ;
 				$data = $tmpFunc( $passedValue );
 			}else{
 				$data = $tmpFunc();
 			}
-			
-			
-		}elseif( isset( $options['phpglobal'] ) ){
-			
-			$vars = explode( ':', $options['var'] );
+            if( isset( $options['create_function']['valuefield'] ) ){
+                $valueField = $options['query']['valuefield'];
+            }
+            if( isset( $options['create_function']['labelfield'] ) ){
+                $labelField = $options['query']['labelfield'];
+            }
+		}elseif( isset( $options['phpglobal'] ) && isset( $options['phpglobal']['var'] ) ){
+			//find the keys to get the exact sub-element of the globals array
+			$vars = explode( ':', $options['phpglobal']['var'] );
 			$cur = $GLOBALS;
 			$found = true;
+            //pickup the correct sub-element in the globals array
 			foreach( $vars as $v ){
 				if( isset( $cur[ $v] ) ){
 					$cur = $cur[$v];
@@ -351,6 +365,9 @@ class Element{
 			}else{
 				$data = array();
 			}
+            /*
+             * TODO: implement filter for other option types
+             */
 			if( $options['filter'] && preg_match( '/^([a-zA-Z0-9_]+)(<|>|>=|<=|==)([a-zA-Z0-9_]+)$/', $options['filter'], $matches ) > 0 ){
 				foreach( $data as $i=>$dat ){
 					if( $matches[2] == '==' ){
@@ -360,23 +377,25 @@ class Element{
 					}
 				}
 			}
-			
+            if( isset( $options['phpglobal']['valuefield'] ) ){
+                $valueField = $options['phpglobal']['valuefield'];
+            }
+            if( isset( $options['phpglobal']['labelfield'] ) ){
+                $labelField = $options['phpglobal']['labelfield'];
+            }
 		}elseif( isset( $options['array'] ) ){
-		
 			$data = $options['array'];
+            if( isset( $options['array']['valuefield'] ) ){
+                $valueField = $options['array']['valuefield'];
+            }
+            if( isset( $options['array']['labelfield'] ) ){
+                $labelField = $options['array']['labelfield'];
+            }
 		}else{
+            //we assume that we have got correctly formatted $options array
 			return $options;
 		}
 
-		$valueField = 'value';
-		$lableField = $valueField;
-		
-		if( $options['valuefield'] ){
-			$valueField = $options['valuefield'];
-		}
-		if(  $options['labelfield'] ){
-			$lableField = $options['labelfield'];
-		}
 		$opt = array();
 		foreach( $data as $dat ){
 			if( is_array( $dat ) ){
@@ -387,8 +406,8 @@ class Element{
 					$tmp['value'] =  $dat[0];
 				}
 				
-				if( isset( $dat[ $lableField ] ) ){
-					$tmp['label'] =  $dat[ $lableField ];
+				if( isset( $dat[ $labelField ] ) ){
+					$tmp['label'] =  $dat[ $labelField ];
 				}else{
 					$tmp['label'] =  $tmp['value'];
 				}
