@@ -65,7 +65,7 @@ class Form{
     var $index = false; // index in form collection 
     // this will be used if this is form is part of a collection
 
-    //variables initialized by constructor
+    //variables that can be initialized by constructor params
     var $name;					// name for FORM tag, this should also be the name of xml file for this form
     var $dbType = "php";		// framework to be used for running queries, possible values 'php', 'php-pdo', 'joomla'
     var $dbHandle = false;		// database handle will be required for pdo and some other frameworks
@@ -75,17 +75,13 @@ class Form{
     var $loader;
     var $excludeFields;
     var $language = false;
+    var $extraCode = '';
 
     //variables storing form and element details
     var $id;				// id for FORM tag
     var $attributes;		// attributes to output in FORM tag
     var $elements;			// this will be used internally to store form elements and their details
 
-    //variables for storing raw information about form
-    var $xml;				//
-    var $xmlfile;			//
-
-    var $extraCode = '';
     var $errorString = '';
     var $errorFields = array();
     var $isLoaded = false;
@@ -105,40 +101,36 @@ class Form{
         //$template=false, $lang=false, $dbTyp = 'php', &$dbHnd=false, $idx = false, &$parentForm = false
         $this->name = $name;
 
-        //params
-        $this->index = (isset( $params['index']))?$params['index']: $this->index = false;
-        $this->parent = (isset( $params['parent']))?$params['parent']: $this->parent = false;
-        $this->template = (isset( $params['template']))?$params['template']: $this->template = false;
-        $this->language = (isset( $params['language']))?$params['language']: $this->language = false;
-        $this->dbType = (isset( $params['dbType']))?$params['dbType']: $this->dbType = 'php';
-        $this->dbHandle = (isset( $params['dbHandle']))?$params['dbHandle']: $this->dbHandle = false;
-
-        if( isset( $params['renderer']) ){
-            $this->renderer = $params['renderer'];
-        }else{
-            //render using tables by default
-            $this->renderer = new Renderers\Table\Renderer();
-        }
-
-        if( isset( $params['loader']) && is_object( $params['loader']) && is_subclass_of( $params['loader'], 'X2Form\Interfaces\Loader'  )  ){
-            $this->loader = $params['loader'];
-        }else{
-            //load using Autoloader by default
-            $this->loader = new Loaders\Auto();
-        }
-
         ///initialize variables
         $this->elements = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
         $this->attributes = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 
-        if( isset( $params['exclude'] ) ){
-            if( is_array( $params['exclude'] ) ){
-                $this->excludeFields = $params['exclude'];
-            }elseif( is_string( $params['exclude'] ) ){
-                $this->excludeFields = [ $params['exclude'] ];
-            }else{
-                //ignore exclude
+        // set params
+        foreach( $params as $key => $value ){
+            if( in_array( $key, ['index', 'parent', 'template', 'language', 'dbType', 'dbHandle', 'renderer'] ) ){
+                $this->$key = $value;
+            }elseif( isset( $params['loader']) && is_object( $params['loader']) && is_subclass_of( $params['loader'], 'X2Form\Interfaces\Loader'  )  ){
+                $this->loader = $params['loader'];
+            }elseif( isset( $params['exclude'] ) ){
+                if( is_array( $params['exclude'] ) ){
+                    $this->excludeFields = $params['exclude'];
+                }elseif( is_string( $params['exclude'] ) ){
+                    $this->excludeFields = [ $params['exclude'] ];
+                }
+                //else ignore exclude
+            }elseif( $key != 'from' ){
+                //everything else except 'from' will be placed in attributes
             }
+        }
+
+        if( !$this->renderer ){
+            //render using table renderer by default
+            $this->renderer = new Renderers\Table\Renderer();
+        }
+
+        if( !$this->loader ){
+            //load using Autoloader by default
+            $this->loader = new Loaders\Auto();
         }
 
         if( isset( $params['from']) ){
@@ -175,7 +167,7 @@ class Form{
      **************************************************************************/
     public function __sleep(){
         return array( 'index', 'name', 'dbType', 'template', 'id', 'attributes',
-            'elements', 'language', 'xml', 'xmlfile', 'extraCode',
+            'elements', 'language', 'extraCode',
             'errorString', 'errorFields', 'isLoaded', 'callBack' );
     }
 
