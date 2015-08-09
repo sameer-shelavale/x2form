@@ -151,40 +151,35 @@ class Simplexml{
             }elseif( $elem->options && $elem->options->query ){
                 //options are to be fetched from result of a passed query
                 //the query is passed by 'query' tag which is child of options tag
-                $opt['query'] = "{$elem->options->query}";
+                $opt['query']['sql'] = "{$elem->options->query}";
 
                 //find the valuefield and labelfield
                 //these will be used to pick up values from the query results
                 foreach( $elem->options->query->attributes() as $k => $v ){
                     $k = strtolower( "$k" );
-                    if( strtolower( $k ) == 'valuefield' ){
-                        $opt['valuefield'] = "$v";
-                    }
-                    if( strtolower( $k ) == 'labelfield' ){
-                        $opt['labelfield'] = "$v";
-                    }
+                    $opt['query'][$k] = "$v";
                 }
             }elseif( $elem->options && $elem->options->create_function ){
                 //options are to be fetched from result of a passed query
                 //the query is passed by 'query' tag which is child of options tag
-                $opt['create_function'] = "{$elem->options->create_function}";
+                $opt['create_function']['code'] = "{$elem->options->create_function}";
 
                 //find the valuefield and labelfield
                 //these will be used to pick up values from the query results
                 foreach( $elem->options->create_function->attributes() as $k => $v ){
                     $k = strtolower( "$k" );
-                    $opt[$k] = "$v";
+                    $opt['create_function'][$k] = "$v";
                 }
             }elseif( $elem->options && $elem->options->phpglobal ){
                 //options are to be fetched from result of a passed query
                 //the query is passed by 'query' tag which is child of options tag
-                $opt['phpglobal'] = true;
+                $opt['phpglobal'] = [];
 
                 //find the valuefield and labelfield
                 //these will be used to pick up values from the query results
                 foreach( $elem->options->phpglobal->attributes() as $k => $v ){
                     $k = strtolower( "$k" );
-                    $opt[$k] = "$v";
+                    $opt['phpglobal'][$k] = "$v";
                 }
             }
 
