@@ -49,8 +49,10 @@ and then run `composer update`
 You can also download the zip/rar archive and extract it and copy the folder to appropriate location in your project folder.
 And then include the autoload.php in your code
 
+You also need to download [MultiCaptcha](https://github.com/sameer-shelavale/multi-captcha) and include it
 ```
 include_once( 'PATH-TO-X2FORM-FOLDER/src/autoload.php' );
+include_once( 'PATH-TO-MULTICAPTCHA-FOLDER/src/Captcha.php' );
 ```
 
 ## Supported form controls/elements
@@ -672,6 +674,191 @@ $form->addCaptcha([
 ]);
 ```
 
-We can also club the elements together in the constructor param *elements*.
+### an example of form made with add* functions
+```php
+$form = new \X2Form\Form(
+    'ContactUs',
+    [
+        'action' => 'contact-us.php',
+        'method' => 'post'
+    ]
+);
+$form->addText([
+    'name' => 'full_name',
+    'label' => 'Your Name'
+]);
+$form->addText([
+    'name' => 'email',
+    'label' => 'Email',
+    'mandatory' => true,
+    'datatype' => 'email'
+]);
+$form->addTextarea([
+    'name' => 'message',
+    'label' => 'Message',
+    'mandatory' => true
+]);
+$form->addRadio([
+    'name' => 'gender',
+    'label' => 'Gender',
+    'options' => [ 'Male', 'Female' ]
+]);
+$form->addCaptcha([
+    'name' => 'captcha',
+    'secret'=>'contact-us-form-secret-blahblah',
+    'options' => [
+        'gif' => [
+            'maxCodeLength' => 6,
+            'width'=>200,
+            'height'=>80
+        ]
+     ]
+]);
+$form->addSubmit([
+    'type' => 'submit',
+    'name' => 'submit',
+    'value' => 'Send'
+];
+$form->finalize(); //prepares the form for rendering, processing, validation etc.
+
+```
+
+
+### specifying elements together in form constructor
+We can also club the elements together in the form constructor param *elements*.
+Lets see how to do it for a simple contact us form.
+```php
+$form = new \X2Form\Form(
+    'ContactUs',
+    [
+        'action' => 'contact-us.php',
+        'method' => 'post'
+        'elements' => [
+            [
+                'type' => 'text',
+                'name' => 'full_name',
+                'label' => 'Your Name'
+            ],
+            [
+                'type' => 'text',
+                'name' => 'email',
+                'label' => 'Email',
+                'mandatory' => true,
+                'datatype' => 'email'
+            ],
+            [
+                'type' => 'textarea',
+                'name' => 'message',
+                'label' => 'Message',
+                'mandatory' => true
+            ],
+            [
+                'type' => 'radio',
+                'name' => 'gender',
+                'label' => 'Gender',
+                'options' => [ 'Male', 'Female' ]
+            ],
+            [
+                'type' => 'captcha',
+                'name' => 'captcha',
+                'secret'=>'contact-us-form-secret-blahblah',
+                'options' => [
+                    'gif' => [
+                        'maxCodeLength' => 6,
+                        'width'=>200,
+                        'height'=>80
+                    ]
+                 ]
+            ],
+            [
+                'type' => 'submit',
+                'name' => 'submit',
+                'value' => 'Send'
+            ],
+        ]
+    ]
+);
+$form->finalize(); //prepares the form for rendering, processing, validation etc.
+```
+
+Note: It is necessary to run the finalize() function after you are done with adding/updating the form fields.
+
+## Rendering the form.
+Once you *finalize* the form, everything else is very easy.
+To display the form all you need to do is
+```php
+echo $form->render();
+```
+Remember that the render() function returns string, so you need to *echo* it.
+
+## processing & validating the form
+After you *finalize* the form, you can *process submission* or *validate* it.
+
+There is slight difference between the processSubmission() and validate() functions.
+The validate() function only validates the data and return boolean value as result and does nothing else,
+while the processSubmission() function validates the data as well as handles the file uploads also,i.e. it also moves the uploaded files to their target directories.
+It returns a detailed array log with *status*, *message* and array of error fields and their respective error messages.
+
+```php
+    if( $_POST['submit'] == "Submit" ){
+        if( logg_ok( $form->processSubmission( $_POST ) ){
+            echo "Your data is submitted successfully!";
+        }else{
+            //display form again with submitted data populated in it and highlighted error fields
+            echo '<span class="error">'.$form->errorString.'</span>';
+            echo $form->render();
+        }
+    }else{
+        //display form
+        echo $form->render();
+    }
+```
+
+```php
+    if( $_POST['submit'] == "Submit" ){
+        if( $form->validate( $_POST ) ){
+            //do extra/special validations and server side processing and save data etc.
+        }else{
+            //display form again with submitted data populated in it and highlighted error fields
+            echo '<span class="error">'.$form->errorString.'</span>';
+            echo $form->render();
+        }
+    }else{
+        //display form
+        echo $form->render();
+    }
+```
+Note: Whatever data you pass to the processSubmission() and validate() function, it will be populated in the form.
+Also the functions mark fields with errors by setting the *errorString* property on that field(element) and these fields will have an extra css class *errorfield*.
+It also sets the '$form->errorString' which contains summery of the errors occurred during validation.
+
+## refreshing elements using ajax
+
+## rendering the form & form element using frameworks like bootstrap
+By default X2Form renders form in tabular format, means using the '<table>' '<tr>' and '<td>' tags.
+You can also render it using bootstrap by setting the renderer to a bootstrap renderer object, yes that is all you need.
+for example:
+```php
+$form = new \X2Form\Form(
+    'MyFormName',
+    [
+        'action' => 'index.php',
+        'method' => 'post',
+        'renderer' => new X2Form\Renderers\Bootstrap\Renderer() //this is all you need to render in bootstrap
+    ]
+);
+```
+
+Note: Right now it supports *table* & *bootstrap* renderers only; we are planning to add jqueryui and angular renderers in future.
+You are however free to extend the current renderers or implement your own.
+Remember renderer MUST implement *X2Form\Interfaces\Renderer* interface.
+
+## customising the form layout and positioning of elements using templates
+There are times when you don't want the default two column layout of the form and you want more control on positioning of the individual fields in the form.
+In such situations the templates come really handy.
+
+
+##
+
 
 *Special thanks to JetBrains(http://www.jetbrains.com) for granting free license of jetBrains PHPStorm IDE for this project and their relentless support to the open-source community.
