@@ -828,14 +828,57 @@ It returns a detailed array log with *status*, *message* and array of error fiel
         echo $form->render();
     }
 ```
-Note: Whatever data you pass to the processSubmission() and validate() function, it will be populated in the form.
+
+### function processSubmission()
+
+'function processSubmission( $postedData, $oldData, $cancelUploadsOnError = true )'
+
+Almost all of the processing of form submission can be done with this one function.
+
+**Parameters:**
+
+*$postedData* - it is the posted data as associative array, where array keys are the name of fields, so most of the times you will be passing $_POST as $postedData
+
+*$oldData* - You will need to pass this while editing existing records or data. It is mainly used for file handling and form validation.
+For example. if you have a form field PROFILE_PHOTO which is a mandatory field. Now even if the user don't upload new file for PROFILE_PHOTO, it should not throw error if the photo is uploaded previously.
+X2Form checks if the file is uploaded/exists in $oldData, if it exists it will not throw validation error.
+
+*$cancelUploadsOnError* - this parameter states whether the uploaded files should be deleted on error or not.
+Certainly there will be cases where you are uploading multiple files and one of the upload fails due to problem in upload or moving or validation. In such cases we may need to rollback the changes in file system.
+If value of this parameter is true then X2Forms rolls back the changes in file system gracefully.
+Note. X2Forms backs up all the changes it is making in file-system, it creates backup files which it uses later for rollback.
+
+*Return Value* - returns an array of *result*, *code*, *message*, *errorFields*
+    *result* - it indicates whether the operation was a Success or Failure. so the value is either 'Success' or 'Failure'
+    *code* - it is a short errorcode
+    *message* - Description of the result of operation. you can generally display it to user as well.
+    *errorFields* - Associative array of fields which did not pass validation, where array keys are the name of fields.
+
+
+### function validate()
+
+'function validate( $postedData, $oldData)'
+
+This function is used internally by the processSubmission() function.
+
+**Parameters:**
+
+*$postedData* - it is the posted data as associative array, where array keys are the name of fields, so most of the times you will be passing $_POST as $postedData
+
+*$oldData* - You will need to pass this while editing existing records or data. It is mainly used for file handling and form validation.
+For example. if you have a form field PROFILE_PHOTO which is a mandatory field. Now even if the user don't upload new file for PROFILE_PHOTO, it should not throw error if the photo is uploaded previously.
+X2Form checks if the file is uploaded/exists in $oldData, if it exists it will not throw validation error.
+
+*Return Value* - returns (boolean) *true* on successful validation or *false*
+
+Note: Whatever $postedData you pass to the processSubmission() and validate() functions, it will be populated in the form.
 Also the functions mark fields with errors by setting the *errorString* property on that field(element) and these fields will have an extra css class *errorfield*.
 It also sets the '$form->errorString' which contains summery of the errors occurred during validation.
 
-## refreshing elements using ajax
+## Refreshing elements using ajax
 
-## rendering the form & form element using frameworks like bootstrap
-By default X2Form renders form in tabular format, means using the '<table>' '<tr>' and '<td>' tags.
+## Rendering the form & form element using frameworks like bootstrap
+By default X2Form renders form in tabular format, means using the `<table>` `<tr>` and `<td>` tags.
 You can also render it using bootstrap by setting the renderer to a bootstrap renderer object, yes that is all you need.
 for example:
 ```php
@@ -853,12 +896,25 @@ Note: Right now it supports *table* & *bootstrap* renderers only; we are plannin
 You are however free to extend the current renderers or implement your own.
 Remember renderer MUST implement *X2Form\Interfaces\Renderer* interface.
 
-## customising the form layout and positioning of elements using templates
-There are times when you don't want the default two column layout of the form and you want more control on positioning of the individual fields in the form.
-In such situations the templates come really handy.
+## Customising the form layout and positioning of elements using templates
+There are times when you don't want the default two column vertical layout of the form and you want more control on positioning of the individual fields in the form.
+Even the buttons come up one below another.(May be I should add a button-group type in future)
 
+In such situations the templates come really handy, using templates you can organize the form and position the elements as you want.
+
+A X2Form template is a normal html/php file, all the data within the `<body>` and `</body>` tags is used as form template,
+the html `<head>` part is discarded, this is allows you to use any html editor to quickly make the template.
+
+To place a Form Element in the template, just write text [ELEMENTNAME] in that place, here ELEMENTNAME is the *name* of Element.
+
+After rendering the [ELEMENTNAME] will be replaced by actual html for the element.
+
+So, for FIRST_NAME in, we can put in [FIRST_NAME]
+
+Similarly, to place the label for element , put in [FIRST_NAME_label]  notice the suffix _label here and to show the description use [FIRST_NAME_description].
+
+While doing all this remember that you MUST NOT specify the `<FORM>` tag in the template the renderer places `<form>` tag around the template data automatically.
 
 ##
-
 
 *Special thanks to JetBrains(http://www.jetbrains.com) for granting free license of jetBrains PHPStorm IDE for this project and their relentless support to the open-source community.
