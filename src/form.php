@@ -375,7 +375,7 @@ class Form{
             //skip submit buttons and files
             if( $element instanceOf \X2Form\Collection ){
                 $values[ $element->name ] = $element->getValues();
-            }elseif( !in_array( $element->type, array( 'submit', 'button' ) ) ){
+            }elseif( !in_array( $element->type, array( 'submit', 'button', 'reset', 'image' ) ) ){
                 $values[ $element->name ] = $element->value;
             }
         }
