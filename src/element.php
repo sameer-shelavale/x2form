@@ -448,7 +448,7 @@ class Element{
 				}elseif( isset( $this->config['ifempty'] )  ){
 					$this->errorString = $this->config['ifempty'] ;
 				}else{
-					$this->errorString =  "Please specify '{$this->name}'. It is a mandatory field.\n";
+					$this->errorString =  "Please specify '{$this->label}'. It is a mandatory field.\n";
 				}
 			}			
 		}
