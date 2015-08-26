@@ -98,6 +98,7 @@ class Form{
                 //else ignore exclude
             }elseif( $key != 'from' ){
                 //everything else except 'from' will be placed in attributes
+                $this->attributes[ $key ] = $value;
             }
         }
 
@@ -152,7 +153,11 @@ class Form{
     public function __call( $name, $arguments ){
         if( preg_match( '/add([a-z]+)/i', $name, $matches ) ){
             //add element of type $name
-            return $this->addElement( $matches[1], $arguments );
+            $params = [];
+            if( is_array( $arguments ) && isset( $arguments[0] ) ){
+                $params = $arguments[0];
+            }
+            return $this->addElement( $matches[1], $params );
         }
     }
 
