@@ -167,4 +167,14 @@ function logg_fail( $log ){
     return false;
 }
 
+function logg_msg( $log ){
+    if( !is_array( $log ) ){
+        return '';
+    }
+    if( $log['result'] == 'Success' ){
+        return $log['message'] ;
+    }
+    return $log['message']. '<br/>'. implode( '<br/>', $log['errorFields'] ) ;
+}
+
 ?>
