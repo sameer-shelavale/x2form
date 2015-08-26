@@ -286,9 +286,11 @@ class Element{
                 $this->data = $this->createOptions( $this->options );
             }elseif( $this->type == 'captcha' ){
                 $params=$this->config;
-                foreach( $params['options'] as $k => $v ){
-                    $params['options'][$k]['theme'] = 'MulticaptchaTheme';
-                    $params['options'][$k]['themeOptions'] = [];
+                if( isset( $params['options'] ) && is_array( $params['options'] ) ){
+                    foreach( $params['options'] as $k => $v ){
+                        $params['options'][$k]['theme'] = 'MulticaptchaTheme';
+                        $params['options'][$k]['themeOptions'] = [];
+                    }
                 }
                 $this->provider = new \MultiCaptcha\Captcha( $params );
                 $this->provider->make();
