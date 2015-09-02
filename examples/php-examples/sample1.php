@@ -6,40 +6,42 @@ $form = new \X2Form\Form(
     'ContactForm',
     [
         'action' => 'sample1.php',
-        'method' => 'post'
+        'method' => 'post',
+        'elements' => [
+            [
+                'type' => 'text',
+                'name' => 'NAME',
+                'label' => 'Your Name',
+                'mandatory' => true,
+            ],
+            [
+                'type' => 'text',
+                'name'  =>  'EMAIL',
+                'label' =>  'Your Email',
+                'mandatory' => true,
+                'datatype'  => 'email'
+            ],
+            [
+                'type'=>'textarea',
+                'name'=>'MESSAGE',
+                'label'=>'Message',
+                'rows'=>'4',
+                'cols'=>'50',
+                'mandatory' => true
+            ],
+            [
+                'type'=>'captcha',
+                'name'=>'CAPTCHA',
+                'secret' => 'blahblah'
+            ],
+            [
+                'type'=>'submit',
+                'name'=>'submit',
+                'value'=>'Submit'
+            ]
+        ]
     ]
 );
-
-$form->addText([
-    'name' => 'NAME',
-    'label' => 'Your Name',
-    'mandatory' => true,
-]);
-
-$form->addText([
-    'name'  =>  'EMAIL',
-    'label' =>  'Your Email',
-    'mandatory' => true,
-    'datatype'  => 'email'
-]);
-
-$form->addTextarea([
-    'name'=>'MESSAGE',
-    'label'=>'Message',
-    'rows'=>'4',
-    'cols'=>'50',
-    'mandatory' => true
-]);
-
-$form->addCaptcha([
-    'name'=>'CAPTCHA',
-    'secret' => 'blahblah'
-]);
-
-$form->addSubmit([
-    'name'=>'submit',
-    'value'=>'Submit'
-]);
 
 $form->finalize();
 
@@ -68,9 +70,9 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
 <body>
 	<div id="container">
 		<h1>Example 1</h1>
-        <h2>Constructing a simple contact us form using only PHP calls(using add* methods)</h2>
+        <h2>Constructing a simple contact us form using only PHP calls(using constructor params to add elements)</h2>
         <?php
-        if( $message ){
+        if( isset( $message) && $message ){
             echo $message;
         }
         echo $form->render(); ?>
