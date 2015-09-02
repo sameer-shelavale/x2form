@@ -280,8 +280,13 @@ class ElementRenderer {
     public function makeTooltip( &$element ){
         $toolTipText = '';
         if( strlen( $element->errorString ) > 0 ){
-            $element->attributes['class'] = "errorfield ".$element->attributes['class'];
-            $toolTipText = $element->errorString;
+            if( isset( $element->attributes['class'] ) ){
+                $element->attributes['class'] = "errorfield ".$element->attributes['class'];
+            }else{
+                $element->attributes['class'] = "errorfield";
+            }
+
+            $toolTipText = $element->errorString;;
         }
 
         if( strlen( $element->title() ) >0 ){
