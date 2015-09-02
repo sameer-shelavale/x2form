@@ -715,7 +715,6 @@ $form->addCaptcha([
      ]
 ]);
 $form->addSubmit([
-    'type' => 'submit',
     'name' => 'submit',
     'value' => 'Send'
 ];
