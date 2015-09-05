@@ -11,6 +11,9 @@ class Auto{
         }elseif( is_subclass_of( $source, 'Illuminate\Database\Eloquent\Model' ) ){
             //passed laravel Model object or classname
             return \X2Form\Loaders\Eloquent::load( $form, $source, $exclude );
+        }elseif( is_array( $source ) ){
+            //array passed
+            return \X2Form\Loaders\ParamsArray::load( $form, $source, $exclude );
         }elseif( is_file( $source ) && is_readable( $source ) ){
             //filename passed
             return \X2Form\Loaders\Xml::loadFile( $form, $source, $exclude );

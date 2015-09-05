@@ -96,7 +96,7 @@ class Form{
                     $this->excludeFields = [ $params['exclude'] ];
                 }
                 //else ignore exclude
-            }elseif( $key != 'from' ){
+            }elseif( $key != 'from' &&  $key != 'elements' ){
                 //everything else except 'from' will be placed in attributes
                 $this->attributes[ $key ] = $value;
             }
@@ -110,6 +110,11 @@ class Form{
         if( !$this->loader ){
             //load using Autoloader by default
             $this->loader = new Loaders\Auto();
+        }
+
+        if( isset( $params['elements']) ){
+            //load elements passed as array in the params
+            $this->load( $params['elements'], [] );
         }
 
         if( isset( $params['from']) ){
