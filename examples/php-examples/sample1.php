@@ -64,7 +64,7 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Constructing form using only php(without using any xml)</title>
+	<title>Constructing form using only php(default constructor)</title>
 	<link href="../css/style.css" type="text/css" rel="stylesheet">
 </head>
 <body>
