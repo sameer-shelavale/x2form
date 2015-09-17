@@ -21,7 +21,7 @@ class ParamsArray{
             foreach( $elementArray as $elem ){
                 //only elements with type and name will be loaded
                 if( isset( $elem['type'] ) && isset( $elem['name'] ) ){
-                    $form->addElement( $elem['type'], $elem );
+                    $form->addElement( $elem );
                 }
             }
         }
