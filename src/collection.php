@@ -22,65 +22,58 @@ use SimpleXMLElement;
 
 class Collection{
 
-	//major element attributes
+    //special/class-specific properties (can be initialized from constructor)
+    var $formTemplate;				// template to be used for generating form
+    var $listTemplate;
+
+    //basic properties (can be initialized from constructor)
 	var $id;
 	var $name;
 	var $value;
 	var $label;
-	var $description; //when labels are not enough use this (except for radio and checkbox) 
+	var $description; //when labels are not enough use this (except for radio and checkbox)
+    var $parent = false;
 	
-	
-	//variables initialized by constructor
-	var $language = false;
-
+	//other variables (can be initialized from constructor)
+    var $loader;
+    var $renderer;
+    var $language = false;
 	var $dbType = "php";		// framework to be used for running queries, possible values 'php', 'php-pdo', 'joomla'
 	var $dbHandle = false;		// database handle will be required for pdo and some other frameworks
 	
-	var $formTemplate;				// template to be used for generating form
-	var $listTemplate;
-	
-	//variables storing form and element details
+	//properties used internally for storing data
+    var $attributes;		// attributes to be used
 	var $schema;			// schema of the form of recordset
-	
-	var $attributes;		// attributes to be used
 	var $elements;			// this will be used internally to store individual form objects
 	
-	var $parent = false;
+    // properties related to error handling
 	var $errorString = '';
 	var $errorFields = array();
-	
-	var $callBack = array(); //this array will hold all the callback functions/closures : not yet implemented
-	
+
+    //properties indicating state of the collection
 	var $isLoaded = false;
     var $ready = false;
 	
-	var $loader;
-	var $renderer;
-	
-	
-	public function __construct( $name, $params ){
-        //$definitionType="xml", $definitionValue=false, $lang, $dbTyp = 'php', $dbHnd=false, &$parentForm
-		$this->name = $name;
+	public function __construct( $params ){
+        //initialize storage vars
+        $this->elements = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
+        $this->attributes = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 
-        //params
-        $this->parent = (isset( $params['parent']))?$params['parent']: $this->parent = false;
-        $this->template = (isset( $params['template']))?$params['template']: $this->template = false;
-        $this->language = (isset( $params['language']))?$params['language']: $this->language = false;
-        $this->dbType = (isset( $params['dbType']))?$params['dbType']: $this->dbType = 'php';
-        $this->dbHandle = (isset( $params['dbHandle']))?$params['dbHandle']: $this->dbHandle = false;
-
-        $this->renderer = (isset( $params['renderer']))?$params['renderer']: $this->renderer = new Renderers\Table\Renderer(); //render using tables by default
-
-        if( isset( $params['loader']) && is_object( $params['loader']) && is_subclass_of( $params['loader'], 'X2Form\Loaders\Collection' )  ){
-            $this->loader = $params['loader'];
-        }else{
-            //render using tables by default
-            $this->loader = new Loaders\Collection();
+		// set params
+        foreach( $params as $key => $value ){
+            if( in_array( $key, [ 'id', 'name', 'value', 'label', 'description', 'parent', 'formTemplate', 'listTemplate', 'language', 'dbType', 'dbHandle', 'renderer', 'loader'] ) ){
+                $this->$key = $value;
+            }
         }
 
-        //initialize vars
-        $this->elements = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
-		$this->attributes = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
+        //set defaults
+        if( !$this->renderer ){
+            $this->renderer = new Renderers\Table\Renderer();
+        }
+
+        if( !$this->loader ){
+            $this->loader = new Loaders\Collection();
+        }
 
         $this->schema = new Form( $this->name,[
             'parent' => $this,
@@ -90,6 +83,7 @@ class Collection{
             'renderer'=> $this->renderer,
             'index' => 'X2F_INDEX'
         ] );
+
         //load data
         if( isset( $params['from']) ){
             $exclude = [];
@@ -128,13 +122,13 @@ class Collection{
     function finalize(){
         if( !$this->ready ){
             $this->schema->finalize();
-            foreach( $this->elements as $i => $elem ){
+            foreach( $this->elements as &$element ){
                 //set $this as parent of all elements
                 //we do this here because we dont want to call function for adding elements
                 //nor do we want the user to have pain of specifying the parent when its so obvious
-                $this->elements[$i]->parent = $this;
+                $element->parent = $this;
                 //now finalize the elment itself
-                $this->elements[$i]->finalize();
+                $element->finalize();
             }
 
             $this->ready = true;
@@ -170,7 +164,7 @@ class Collection{
 	 ***********************************************************************************/
 	public function getValues( ){
 		$this->value= array();
-		foreach( $this->elements as $formObj ){
+		foreach( $this->elements as &$formObj ){
 			$this->value[ $formObj->index ] = $formObj->getValues();
 		}
 		return $this->value;
