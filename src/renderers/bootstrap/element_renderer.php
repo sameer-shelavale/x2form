@@ -1,7 +1,7 @@
 <?php
 namespace X2Form\Renderers\Bootstrap;
 
-class ElementRenderer {
+class ElementRenderer extends BasicRenderer{
 
     /***********************************************************************************
      * function render()
@@ -24,7 +24,7 @@ class ElementRenderer {
         $id = $this->makeId( $element );
         $toolTip = $this->makeTooltip( $element );
         $attributes = $this->addClass( 'btn', $element->attributes );
-        $attributes = $this->addClass( 'btn-primary', $element->attributes );
+        $attributes = $this->addClass( 'btn-default', $element->attributes );
         $attribTxt = $this->makeAttributes( $attributes );
         $eventsTxt = $this->makeEvents( $element->events );
 
@@ -70,7 +70,7 @@ class ElementRenderer {
         return $this->renderText( $element );
     }
 
-    public function renderPassowrd( &$element ){
+    public function renderPassword( &$element ){
         return $this->renderText( $element );
     }
 
@@ -261,93 +261,13 @@ class ElementRenderer {
         //$attribTxt = $this->makeAttributes( $element->attributes );
         //$eventsTxt = $this->makeEvents( $element->events );
         $theme = new MulticaptchaTheme();
-        if( isset( $element->attributes['class'] ) ){
+        if( isset( $attributes['class'] ) ){
             $theme->fieldClass = $element->attributes['class'];
         }
         return $theme->refresh( $element->provider->data );
     }
 
 
-    public function makeId( &$element ){
-        if( $element->id == '' ){
-            $id = $element->parent->name."_".$element->outputName;
-        }else{
-            $id = $element->id;
-        }
-        return $id;
-    }
 
-    public function makeTooltip( &$element ){
-        $toolTipText = '';
-        if( strlen( $element->errorString ) > 0 ){
-            if( isset( $element->attributes['class'] ) ){
-                $element->attributes['class'] = "errorfield ".$element->attributes['class'];
-            }else{
-                $element->attributes['class'] = "errorfield";
-            }
-
-            $toolTipText = $element->errorString;;
-        }
-
-        if( strlen( $element->title() ) >0 ){
-            if( strlen( $toolTipText ) >0 ){
-                $toolTipText .= '<hr/>';
-            }
-            $toolTip = ' title="'.$toolTipText.$element->title().'" ';
-        }else{
-            $toolTip = ' title="'.$toolTipText.'" ';
-
-        }
-        return $toolTip;
-    }
-
-    public function makeEvents( $events ){
-        //render text for events
-        $eventsTxt = '';
-        foreach( $events as $e => $action ){
-            $eventsTxt .= " $e=\"". str_replace( '"', '&quot;', trim( $action) )."\"";
-        }
-        return $eventsTxt;
-    }
-
-    public function makeAttributes( $attributes ){
-        //render text for attributes
-        $attribTxt = '';
-        foreach( $attributes as $atr => $act ){
-            $attribTxt .= " $atr=\"$act\"";
-        }
-        return $attribTxt;
-    }
-
-    public function makeLabel( &$element ){
-        if( $element->type != 'captcha' ){
-            return '<label for="'.$this->makeId($element).'" class="control-label">'.$element->label().'</label>';
-        }
-        $element->provider->data['description'] = $element->label();
-
-        //for captcha we include the challenge below the label
-        $theme = new MulticaptchaTheme();
-        return '<label for="'.$this->makeId($element).'" class="control-label">'.$theme->renderLabel( $element->provider->data ).'</label>';
-    }
-
-    public function addClass( $className, $attributes ){
-        if( !isset( $attributes['class']) ){
-            $attributes['class'] = $className;
-        }else{
-            $classes= explode( ' ', preg_replace('/(\s\t\n)+/',' ', $attributes['class']) );
-            if( !in_array( $className, $classes )){
-                $classes[] = $className;
-                $attributes['class'] = implode( ' ', $classes);
-            }
-        }
-        return $attributes;
-    }
-
-    public function removeClass( $className, $attributes ){
-        if( isset( $attributes['class']) ){
-            return  preg_replace( ['/^'.$className.'\s/', '/\s'.$className.'\s/', '/\s'.$className.'$/', '/^'.$className.'$/' ], ' ', $attributes['class'] );
-        }
-        return $attributes;
-    }
 
 } 

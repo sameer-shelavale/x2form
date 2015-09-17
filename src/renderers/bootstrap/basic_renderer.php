@@ -22,7 +22,11 @@ abstract class BasicRenderer {
      */
     public function makeId( &$element ){
         if( $element->id == '' ){
-            $id = $element->parent->name."_".$element->outputName;
+            if( property_exists( $element, 'outputName' ) ){
+                $id = $element->parent->name."_".$element->outputName;
+            }else{
+                $id = $element->parent->name."_".$element->name;
+            }
         }else{
             $id = $element->id;
         }

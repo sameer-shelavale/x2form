@@ -1,7 +1,7 @@
 <?php
 namespace X2Form\Renderers\Bootstrap;
 
-class CollectionRenderer {
+class CollectionRenderer extends BasicRenderer{
     var $elementRenderer;
 
 
@@ -75,9 +75,9 @@ class CollectionRenderer {
     public function renderList( &$collection ){
         $html = '<div class="table-responsive"><table class="table table-hover table-striped" id="'.$collection->parent->name.'_'.$collection->name.'_list">';
         $html .= $this->renderListHeader( $collection );
-        foreach( $collection->elements as $i => $subForm ){
+        foreach( $collection->elements as $i => &$subForm ){
             $html .= '<tr>';
-            foreach( $subForm->elements as $elem ){
+            foreach( $subForm->elements as &$elem ){
                 $html .= '<td>'.$this->elementRenderer->render( $elem ).'</td>';
             }
             $html .= '</tr>';
@@ -98,7 +98,7 @@ class CollectionRenderer {
      ****************************************************************************/
     public function renderListHeader( &$collection ){
         $header = '<tr>';
-        foreach( $collection->schema->elements as $elem ){
+        foreach( $collection->schema->elements as &$elem ){
             $header .= '<th>'.$elem->label().'</th>';
         }
         $header .= '</tr>';
