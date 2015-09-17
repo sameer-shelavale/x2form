@@ -62,7 +62,9 @@ class Form{
 
     var $errorString = '';
     var $errorFields = array();
+
     var $isLoaded = false;
+    var $ready = false;
 
     var $callBack = array(); //this array will hold all the callback functions/closures
 
@@ -73,7 +75,7 @@ class Form{
         'jqueryui'  => '\X2Form\Renderers\Jqueryui\Renderer'
     );
 
-    var $ready = false;
+
 
     public function __construct( $name = '', $params  ){
         //$template=false, $lang=false, $dbTyp = 'php', &$dbHnd=false, $idx = false, &$parentForm = false
@@ -162,23 +164,26 @@ class Form{
             if( is_array( $arguments ) && isset( $arguments[0] ) ){
                 $params = $arguments[0];
             }
-            return $this->addElement( $matches[1], $params );
+            $params['type'] = strtolower( $matches[1] );
+            return $this->addElement( $params );
         }
     }
 
-    public function addElement( $type, $params ){
-        $type = strtolower( $type );
-        if( isset( $params['name'] ) && !isset( $this->elements[ $params['name'] ] ) ){
+    public function addElement( $params ){
 
-            $params['language'] = $this->language;
-            $params['dbType'] = $this->dbType;
-            $params['dbHandle'] = $this->dbHandle;
+        if( isset( $params['type'] ) && $params['type'] && isset( $params['name'] ) && !isset( $this->elements[ $params['name'] ] ) ){
+            $type = strtolower( $params['type'] );
             $params['parent'] = $this;
+            $params['dbType'] = &$this->dbType;
+            $params['language'] = &$this->language;
+            $params['dbHandle'] = &$this->dbHandle;
 
             if( $type == 'collection' ){
                 $this->elements[$params['name']] = new Collection( $params['name'], $params );
+            }elseif( $type == 'group' ){
+                $this->elements[$params['name']] = new Group( $params );
             }else{
-                $this->elements[$params['name']] = new Element( $type, $params );
+                $this->elements[$params['name']] = new Element( $params );
             }
         }
         return false;
@@ -199,9 +204,9 @@ class Form{
         $obj = unserialize( serialize( $this ));
         $obj->parent = &$this->parent;
         $obj->dbHandle = $dbh;
-        foreach( $obj->elements as $i=>$elem ){
-            $obj->elements[$i]->parent = &$obj;
-            $obj->elements[$i]->dbHandle = &$dbh;
+        foreach( $obj->elements as &$element ){
+            $element->parent = &$obj;
+            $element->dbHandle = &$dbh;
         }
         return $obj;
     }
@@ -215,13 +220,13 @@ class Form{
      *****************************************************************************/
     function finalize(){
         if( !$this->ready ){
-            foreach( $this->elements as $i => $elem ){
+            foreach( $this->elements as &$element ){
                 //set $this as parent of all elements
                 //we do this here because we don't want to call function for adding elements
                 //nor do we want the user to have pain of specifying the parent when its so obvious
-                $this->elements[$i]->parent = $this;
+                $element->parent = $this;
                 //now finalize the elment itself
-                $this->elements[$i]->finalize();
+                $element->finalize();
             }
             $this->ready = true;
         }
@@ -314,7 +319,7 @@ class Form{
         $this->setValues( $postedData );
         $this->storeOldValues( $oldData );
 
-        foreach( $this->elements as $element ){
+        foreach( $this->elements as &$element ){
             //skip submit buttons and files
             //we will handle files in separate call
 
@@ -337,12 +342,12 @@ class Form{
 
         if( $this->errorString ){
             //clear the filenames
-            foreach( $this->elements as $i => $element ){
+            foreach( $this->elements as &$element ){
                 if( $element->type == 'file' ){
-                    if( $this->elements[$i]->oldValue ){
-                        $this->elements[$i]->value = $this->oldValue ;
+                    if( $element->oldValue ){
+                        $element->value = $this->oldValue ;
                     }else{
-                        $this->elements[$i]->value = "" ;
+                        $element->value = "" ;
                     }
                 }
             }
@@ -362,11 +367,15 @@ class Form{
      ***********************************************************************************/
     public function setValues( $formValues ){
         $this->errorString = '';
-        foreach( $this->elements as $element ){
+        foreach( $this->elements as &$element ){
             if( $element instanceOf \X2Form\Collection ){
                 $element->setValues( $formValues[ $element->name ] );
             }elseif( $element->type != 'submit' && $element->type != 'button' && isset($formValues[$element->name] ) ){
                 $element->value = $formValues[ $element->name ];
+            }elseif( $element instanceOf \X2Form\Group ){
+                foreach( $element->elements as &$groupedElement ){
+                    $groupedElement->value = $formValues[ $groupedElement->name ];;
+                }
             }
         }
         return true;
@@ -381,12 +390,16 @@ class Form{
      ***********************************************************************************/
     public function getValues(){
         $values = array();
-        foreach( $this->elements as $element ){
+        foreach( $this->elements as &$element ){
             //skip submit buttons and files
             if( $element instanceOf \X2Form\Collection ){
                 $values[ $element->name ] = $element->getValues();
             }elseif( !in_array( $element->type, array( 'submit', 'button', 'reset', 'image' ) ) ){
                 $values[ $element->name ] = $element->value;
+            }elseif( $element instanceof \X2Form\Group ){
+                foreach( $element->elements as &$groupedElement ){
+                    $values[ $groupedElement->name ] = $groupedElement->value;
+                }
             }
         }
         return $values;
@@ -404,7 +417,7 @@ class Form{
      *		$oldValues  - associative array of old values
      ***********************************************************************************/
     public function storeOldValues( $oldValues ){
-        foreach( $this->elements as $element ){
+        foreach( $this->elements as &$element ){
             if( $element->type != 'submit' && $element->type != 'button' && isset( $oldValues[ $element->name ] ) ){
                 $element->oldValue = $oldValues[ $element->name ];
             }
@@ -421,7 +434,7 @@ class Form{
      ***********************************************************************************/
     public function handleFileUploads(){
         $uploadError = false;
-        foreach( $this->elements as $element ){
+        foreach( $this->elements as &$element ){
             if( $element->type == 'file' ){
                 if( !$element->handleFileUpload() ){
                     $uploadError = true;
@@ -444,7 +457,7 @@ class Form{
      * 		rolls back all the changes and restores files deleted(backed up and marked for deletion actually)
      ***********************************************************************************/
     public function rollBackFileUploads(){
-        foreach( $this->elements as $element ){
+        foreach( $this->elements as &$element ){
             if( $element->type == 'file' ){
                 $element->rollBackFileUploads();
             }
@@ -481,7 +494,7 @@ class Form{
      ***********************************************************************************/
     public function reset(){
         $this->errorString = '';
-        foreach( $this->elements as $element ){
+        foreach( $this->elements as &$element ){
             if( $element->type != 'submit' && $element->type != 'button' && $element->type != 'label' ) {
                 $element->value = '';
             }
