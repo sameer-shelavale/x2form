@@ -1,8 +1,9 @@
 <?php
 namespace X2Form\Renderers\Table;
 
-class CollectionRenderer {
+class CollectionRenderer extends BasicRenderer {
     var $elementRenderer;
+    var $groupRenderer;
 
 
     /*****************************************************************************
@@ -21,8 +22,8 @@ class CollectionRenderer {
         $collection->schema->index = 'X2F_INDEX';
 
         $addHtml = '<tr>';
-        foreach( $collection->schema->elements as $i => $elem ){
-            $addHtml .= '<td>'.$this->elementRenderer->render( $elem ).'</td>';
+        foreach( $collection->schema->elements as $i => &$element ){
+            $addHtml .= '<td>'.$this->elementRenderer->render( $element ).'</td>';
         }
         $addHtml .= '</tr>';
 
@@ -76,10 +77,10 @@ class CollectionRenderer {
     public function renderList( &$collection ){
         $html = '<table class="list" id="'.$collection->parent->name.'_'.$collection->name.'_list">';
         $html .= $this->renderListHeader( $collection );
-        foreach( $collection->elements as $i => $subForm ){
+        foreach( $collection->elements as $i => &$subForm ){
             $html .= '<tr>';
-            foreach( $subForm->elements as $elem ){
-                $html .= '<td>'.$this->elementRenderer->render( $elem ).'</td>';
+            foreach( $subForm->elements as &$element ){
+                $html .= '<td>'.$this->elementRenderer->render( $element ).'</td>';
             }
             $html .= '</tr>';
         }
@@ -99,8 +100,8 @@ class CollectionRenderer {
      ****************************************************************************/
     public function renderListHeader( &$collection ){
         $header = '<tr>';
-        foreach( $collection->schema->elements as $elem ){
-            $header .= '<th>'.$elem->label().'</th>';
+        foreach( $collection->schema->elements as &$element ){
+            $header .= '<th>'.$element->label().'</th>';
         }
         $header .= '</tr>';
         return $header;
