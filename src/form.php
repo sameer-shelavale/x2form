@@ -40,8 +40,9 @@ use SimpleXMLElement;
 
 class Form{
 
-    var $index = false; // index in form collection 
-    // this will be used if this is form is part of a collection
+    var $index = false; // index in form collection
+    var $primary = false; // primary key, if specified will be used to correctly map submited collection rows on old values
+    // $index and  $primary will be used only if this form is part of a collection
 
     //variables that can be initialized by constructor params
     var $name;					// name for FORM tag, this should also be the name of xml file for this form
@@ -179,7 +180,7 @@ class Form{
             $params['dbHandle'] = &$this->dbHandle;
 
             if( $type == 'collection' ){
-                $this->elements[$params['name']] = new Collection( $params['name'], $params );
+                $this->elements[$params['name']] = new Collection( $params );
             }elseif( $type == 'group' ){
                 $this->elements[$params['name']] = new Group( $params );
             }else{
@@ -313,7 +314,7 @@ class Form{
      *		returns true on success, false on failure.
      *		it sets $errorString variable on failure.
      ***********************************************************************************/
-    public function validate( $postedData, $oldData = array() ){
+    public function validate( $postedData=[], $oldData = [] ){
         $this->errorString = '';
 
         $this->setValues( $postedData );
@@ -334,7 +335,11 @@ class Form{
                 $val = $element->validate();
                 if( strlen( $val ) > 0 ){
                     $this->errorFields[ $element->name ] = $val;
-                    $this->errorString .= $this->errorFields[ $element->name ].'<br/>';
+                    $this->errorString .= $this->errorFields[ $element->name ];
+
+                    if( $element->type != 'collection' ){ //collection already has a ending <br/> in errorString
+                        $this->errorString .= '<br/>';
+                    }
                 }
             }
         }
@@ -366,15 +371,15 @@ class Form{
      *		$formValues  - associative array of submitted values(generally $_POST or $_REQUEST )
      ***********************************************************************************/
     public function setValues( $formValues ){
-        $this->errorString = '';
         foreach( $this->elements as &$element ){
-            if( $element instanceOf \X2Form\Collection ){
-                $element->setValues( $formValues[ $element->name ] );
-            }elseif( $element->type != 'submit' && $element->type != 'button' && isset($formValues[$element->name] ) ){
-                $element->value = $formValues[ $element->name ];
-            }elseif( $element instanceOf \X2Form\Group ){
-                foreach( $element->elements as &$groupedElement ){
-                    $groupedElement->value = $formValues[ $groupedElement->name ];;
+            if( $element instanceOf \X2Form\Group ){
+                //pass all values to group let it take what it has
+                $element->setValues( $formValues );
+            }elseif( isset($formValues[$element->name] ) ){
+                if( $element instanceOf \X2Form\Collection ){
+                    $element->setValues( $formValues[ $element->name ] );
+                }elseif( $element->type != 'submit' && $element->type != 'button' ){
+                    $element->value = $formValues[ $element->name ];
                 }
             }
         }
@@ -397,8 +402,9 @@ class Form{
             }elseif( !in_array( $element->type, array( 'submit', 'button', 'reset', 'image' ) ) ){
                 $values[ $element->name ] = $element->value;
             }elseif( $element instanceof \X2Form\Group ){
-                foreach( $element->elements as &$groupedElement ){
-                    $values[ $groupedElement->name ] = $groupedElement->value;
+                $gValues = $element->getValues();
+                foreach( $gValues as $name => $gValue ){
+                    $values[ $name ] = $gValue;
                 }
             }
         }
@@ -418,8 +424,15 @@ class Form{
      ***********************************************************************************/
     public function storeOldValues( $oldValues ){
         foreach( $this->elements as &$element ){
-            if( $element->type != 'submit' && $element->type != 'button' && isset( $oldValues[ $element->name ] ) ){
-                $element->oldValue = $oldValues[ $element->name ];
+            if( $element instanceOf \X2Form\Group ){
+                //pass all values to group let it take what it has
+                $element->storeOldValues( $oldValues );
+            }elseif( isset($oldValues[$element->name] ) ){
+                if( $element instanceOf \X2Form\Collection ){
+                    $element->storeOldValues( $oldValues[ $element->name ] );
+                }elseif( $element->type != 'submit' && $element->type != 'button' ){
+                    $element->oldValue = $oldValues[ $element->name ];
+                }
             }
         }
     }
