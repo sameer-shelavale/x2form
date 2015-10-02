@@ -27,6 +27,7 @@ class Collection{
     var $listTemplate;
 
     //basic properties (can be initialized from constructor)
+    var $type = 'collection';
 	var $id;
 	var $name;
 	var $value;
@@ -90,7 +91,7 @@ class Collection{
             if( isset( $params['exclude'] ) ){
                 $exclude = $params['exclude'];
             }
-            $this->load( $params['from'], $exclude );
+            $this->schema->load( $params['from'], $exclude );
         }
         if( isset( $params['attributes'] ) ){
             $this->attributes = $params['attributes'] ;
@@ -150,7 +151,6 @@ class Collection{
 				$this->elements[ $idx ]->index = $idx;
 			}
 			$this->elements[ $idx ]->setValues( $formValue );
-			
 		}
 		
 	}
@@ -171,7 +171,36 @@ class Collection{
 		
 	}
 	
-	
+
+    /***********************************************************************************
+     * function storeOldValues()
+     *      This function is only called during processing & validation of submitted form data.
+     *      Main use of old values is in situations such as old files being present for the field,
+     *      In which case it is okay not to upload the the same file again.
+     *
+     *      For a setting old values on a collection its necessary to have a primary/unique field
+     *
+     ***********************************************************************************/
+    public function storeOldValues( $values ){
+        if( is_array( $values ) ){
+            if( $pk = $this->schema->primary ){
+                foreach( $values as $oldValues ){
+                    $found = false;
+                    if( isset( $oldValues[ $pk ] ) && $oldValues[ $pk ] ){
+                        //lets find the subform with the same primery key value
+                        $found = false;
+                        foreach( $this->elements as $k => &$subForm ){
+                            if( property_exists( $subForm, $pk ) && $oldValues[$pk] == $subForm->$pk->value  ){
+                                $found = true;
+                                $subForm->storeOldValues( $oldValues );
+                                break;
+                            }
+                        }
+                    }//else ignore the old value array is most probably deleted
+                }
+            }
+        }
+    }
 	
 	
 	/***********************************************************************************
@@ -202,16 +231,12 @@ class Collection{
 	 ***********************************************************************************/
 	public function validate(){
 		$this->errorString = '';
-		foreach( $this->elements as $i => $subForm ){
+		foreach( $this->elements as $i => &$subForm ){
 			if( ! $subForm->validate() ){
-				$tmp = $subForm->errorString;
+				if( $subForm->errorString ){
+                    $this->errorString .= $subForm->errorString;
+                }
 			}
-			
-			$this->errorString .= $tmp;
-			if( $tmp ){
-				$this->errorString .= '<br/>';
-			} 
-			$this->errorString .= $tmp;
 		}
 		
 		return $this->errorString;
