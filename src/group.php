@@ -121,7 +121,77 @@ class Group{
 	public function description(){
 		return $this->description;
 	}
-	
+
+
+    /***********************************************************************************
+     * function SetValues( $values )
+     * 		This function populates the group elements with values passed as array.
+     * PARAMETERS:
+     *		$values  - associative array of form values
+     ***********************************************************************************/
+    function setValues( $values ){
+        foreach( $this->elements as &$element ){
+            if( $element instanceOf \X2Form\Group ){
+                //pass all values to group let it take what it has
+                $element->setValues( $values );
+            }elseif( isset( $values[ $element->name ] ) ){
+                if( $element instanceOf \X2Form\Collection ){
+                    $element->setValues( $values[ $element->name ] );
+                }elseif( $element->type != 'submit' && $element->type != 'button' ){
+                    $element->value = $values[ $element->name ];
+                }
+            }
+        }
+        return true;
+    }
+
+
+    /***********************************************************************************
+     * function getValues( )
+     * 		This function fetches values of form elements as a associative array.
+     *
+     ***********************************************************************************/
+    public function getValues(){
+        $values = array();
+        foreach( $this->elements as &$element ){
+            //skip submit buttons and files
+            if( $element instanceOf \X2Form\Collection ){
+                $values[ $element->name ] = $element->getValues();
+            }elseif( !in_array( $element->type, array( 'submit', 'button', 'reset', 'image' ) ) ){
+                $values[ $element->name ] = $element->value;
+            }elseif( $element instanceof \X2Form\Group ){
+                $gValues = $element->getValues();
+                foreach( $gValues as $name => $gValue ){
+                    $values[ $name ] = $gValue;
+                }
+            }
+        }
+        return $values;
+    }
+
+    /***********************************************************************************
+     * function storeOldValues( $oldValues )
+     * 		This function stores old values for each element.
+     * 		These values are required mainly for validating 'file' inputs
+     * 		In case a file is already uploaded(in old data) and is not uploaded
+     * 		in current form submission then it should not raise validation error.
+     * PARAMETERS:
+     *		$oldValues  - associative array of old values
+     ***********************************************************************************/
+    public function storeOldValues( $oldValues ){
+        foreach( $this->elements as &$element ){
+            if( $element instanceOf \X2Form\Group ){
+                //pass all values to group let it take what it has
+                $element->storeOldValues( $oldValues );
+            }elseif( isset($oldValues[$element->name] ) ){
+                if( $element instanceOf \X2Form\Collection ){
+                    $element->storeOldValues( $oldValues[ $element->name ] );
+                }elseif( $element->type != 'submit' && $element->type != 'button' ){
+                    $element->oldValue = $oldValues[ $element->name ];
+                }
+            }
+        }
+    }
 	
 	/***********************************************************************************
 	 * function validate()
@@ -135,10 +205,10 @@ class Group{
 
 		foreach( $this->elements as &$element ){ //it will create a copy of element without the &
             if( !$element->validate() ){
-                if( $this->errorString ){
+                $this->errorString .= $element->errorString;
+                if( $element->errorString ){
                     $this->errorString .= '<br/>';
                 }
-                $this->errorString .= $element->errorString;
             }
 		}
         if( !$this->errorString ){
