@@ -1,7 +1,7 @@
 <?php
 namespace X2Form\Renderers\Table;
 
-class CollectionRenderer extends BasicRenderer {
+class CollectionRenderer extends BasicRenderer{
     var $elementRenderer;
     var $groupRenderer;
 
@@ -20,39 +20,24 @@ class CollectionRenderer extends BasicRenderer {
         $html = $this->renderList( $collection );
 
         $collection->schema->index = 'X2F_INDEX';
-
         $addHtml = '<tr>';
-        foreach( $collection->schema->elements as $i => &$element ){
-            $addHtml .= '<td>'.$this->elementRenderer->render( $element ).'</td>';
+        foreach( $collection->schema->elements as $i => $elem ){
+            $addHtml .= '<td>'.$this->elementRenderer->render( $elem ).'</td>';
         }
+        $addHtml .= '<td style="width:1em;">'.$this->renderDeleteBtn( $collection ).'</td>';
         $addHtml .= '</tr>';
 
-        if( !isset( $collection->attributes['showbbuttons'] ) || ( isset( $collection->attributes['showbbuttons'] ) && $collection->attributes['showbbuttons'] != 'false' ) ){
-            $html .= '<input type="button" value="Add" onclick="AddToX2'.$collection->parent->name.'_'.$collection->name.'_list()" />
-					<input type="button" value="Remove" onclick="RemoveFromX2'.$collection->parent->name.'_'.$collection->name.'_list()" />
-			';
-        }
-
-        $js = '
-
+        $html .= '
 		<script type="text/javascript">
-			var  '.$collection->parent->name.'_'.$collection->name.'_count = '.$collection->elements->count().';
-			function AddToX2'.$collection->parent->name.'_'.$collection->name.'_list( ){
+			var  '.$this->makeName( $collection ).'_count = '.$collection->elements->count().';
+			function '.$this->makeAddFunctionName($collection) .'(){
 				var tmp = \''.$addHtml. '\';
-				tmp = tmp.replace( /X2F_INDEX/gi, '.$collection->parent->name.'_'.$collection->name.'_count );
-				$(\'#'.$collection->parent->name.'_'.$collection->name.'_list tr:last\').after(tmp);
-				'.$collection->parent->name.'_'.$collection->name.'_count ++;
-			}
-
-			function RemoveFromX2'.$collection->parent->name.'_'.$collection->name.'_list( ){
-				$(\'#'.$collection->parent->name.'_'.$collection->name.'_list tr:last\').remove();
-				'.$collection->parent->name.'_'.$collection->name.'_count--;
+				tmp = tmp.replace( /X2F_INDEX/gi, '.$this->makeName( $collection ).'_count );
+				$(\'#'.$this->makeName( $collection ).'_list tr:last\').after(tmp);
+				'.$this->makeName( $collection ).'_count ++;
 			}
 		</script>';
 
-
-
-        $html .= $js;
         return $html;
     }
 
@@ -75,13 +60,16 @@ class CollectionRenderer extends BasicRenderer {
      * 		Note that it does'nt send output to screen
      ****************************************************************************/
     public function renderList( &$collection ){
-        $html = '<table class="list" id="'.$collection->parent->name.'_'.$collection->name.'_list">';
+
+        $html = '<table class="table table-hover table-striped" id="'.$this->makeName( $collection ).'_list">';
+
         $html .= $this->renderListHeader( $collection );
         foreach( $collection->elements as $i => &$subForm ){
             $html .= '<tr>';
             foreach( $subForm->elements as &$element ){
                 $html .= '<td>'.$this->elementRenderer->render( $element ).'</td>';
             }
+            $html .= '<td style="width:1em;">'.$this->renderDeleteBtn( $collection ).'</td>';
             $html .= '</tr>';
         }
         $html .= '</table>';
@@ -103,6 +91,7 @@ class CollectionRenderer extends BasicRenderer {
         foreach( $collection->schema->elements as &$element ){
             $header .= '<th>'.$element->label().'</th>';
         }
+        $header .= '<th style="width:1em;">'.$this->renderAddBtn( $collection).'</th>';
         $header .= '</tr>';
         return $header;
     }
@@ -113,5 +102,27 @@ class CollectionRenderer extends BasicRenderer {
 
     public function renderListTemplate(){
 
+    }
+
+    public function renderAddBtn( &$collection  ){
+        $btn = '<button type="button" class="btn btn-add btn-success btn-xs" title="Add" onclick="'.$this->makeAddFunctionName( $collection).'()" >'
+            .'<span>+</span>'
+            .'</button>';
+        return $btn;
+    }
+
+    public function renderDeleteBtn( &$collection  ){
+        $btn = '<button type="button" class="btn btn-delete btn-danger btn-xs" title="Remove" onclick="this.parentElement.parentElement.remove()" >'
+            .'<span>&times;</span>'
+            .'</button>';
+        return $btn;
+    }
+
+    public function makeAddFunctionName( &$collection ){
+        return 'AddToX2'.$this->makeName( $collection ).'_list';
+    }
+
+    public function makeName( &$collection ){
+        return $collection->parent->name.'_'.$collection->name;
     }
 }
