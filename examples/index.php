@@ -1,9 +1,9 @@
 /*
 * 1. Constructing a simple contact us form using only PHP calls(using constructor params to load elements)
-* 2. Constructing a simple contact us form using only PHP calls(using add* methods to add/load elements)
-* 3. Displaying form using bootstrap
-* 4. Group - Grouping up Elements in a single row
-* 5. Collection - forms within a form
+* 2. Group - Grouping up Elements in a single row
+* 3. Collection - forms within a form
+* 4. Constructing a form in example 3,  using only PHP calls(using add* methods to add/load elements)
+* 5. Displaying form using bootstrap
 * 6. Templates - customizing the layout
 * 7. Populating values
 * 8. Creating form from db table

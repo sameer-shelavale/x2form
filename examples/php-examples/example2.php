@@ -5,7 +5,7 @@ require_once('../../vendor/autoload.php');
 $form = new \X2Form\Form(
     'ContactForm',
     [
-        'action' => 'sample1.php',
+        'action' => 'example2.php',
         'method' => 'post',
         'elements' => [
             [
@@ -78,7 +78,7 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title>Constructing form using only php(default constructor)</title>
+    <title>Example 2 - Group</title>
     <link href="../css/style.css" type="text/css" rel="stylesheet">
 </head>
 <body>
@@ -113,14 +113,14 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
             <h1>Example 2 - Group</h1>
             <h3>Horizontal or inline alignment of multiple elements in a row using <b>"group"</b>.</h3>
             <p>
-                Grouping up elements is quiet easy. Just pass them in the elements index(key) of the group tag.
+                Grouping up elements is quiet easy. Just pass them in the <i>elements</i> of the group tag.
                 Remember to give a <i>name</i> to your <i>group</i>.
             </p>
             <code><pre>
 $form = new \X2Form\Form(
     'ContactForm',
     [
-        'action' => 'sample1.php',
+        'action' => 'example2.php',
         'method' => 'post',
         'elements' => [
             [
@@ -156,14 +156,14 @@ $form = new \X2Form\Form(
                 'direction' => 'inline',
                 'elements'=>[
                     [
-                    'type'=>'submit',
-                    'name'=>'submit',
-                    'value'=>'Submit'
+                        'type'=>'submit',
+                        'name'=>'submit',
+                        'value'=>'Submit'
                     ],
                     [
-                    'type'=>'reset',
-                    'name'=>'reset',
-                    'value'=>'Reset'
+                        'type'=>'reset',
+                        'name'=>'reset',
+                        'value'=>'Reset'
                     ]
                 ]
             ]</b>
@@ -171,7 +171,14 @@ $form = new \X2Form\Form(
     ]
 );
             </pre></code>
-
+            <p>
+                Note: The Group is added basically to avoid the need of creating custom template,
+                for a small thing like displaying the buttons horizontally, but it can also handle other
+                elements as long as the width of the container or your visual design permits.
+                <br/>
+                It is recommended to avoid creating nested groups,
+                instead use <i>template</i> to achieve the desired visual appearance.
+            </p>
         </div>
     </div>
 

@@ -5,7 +5,7 @@ require_once('../../vendor/autoload.php');
 $form = new \X2Form\Form(
     'ContactForm',
     [
-        'action' => 'sample1.php',
+        'action' => 'example1.php',
         'method' => 'post',
         'elements' => [
             [
@@ -69,7 +69,7 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Constructing form using only php(default constructor)</title>
+	<title>Example 1 - Constructing form using only php(default constructor)</title>
 	<link href="../css/style.css" type="text/css" rel="stylesheet">
 </head>
 <body>
@@ -104,7 +104,7 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
 $form = new \X2Form\Form(
     'ContactForm',
     [
-        'action' => 'sample1.php',
+        'action' => 'example1.php',
         'method' => 'post',
         'elements' => [
             [

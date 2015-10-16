@@ -5,53 +5,76 @@ require_once('../../vendor/autoload.php');
 $form = new \X2Form\Form(
     'ContactForm',
     [
-        'action' => 'sample2.php',
-        'method' => 'post'
-    ]
-);
+        'action' => 'example3.php',
+        'method' => 'post',
+        'elements' => [
+            [
+                'type' => 'text',
+                'name' => 'NAME',
+                'label' => 'Your Name',
+                'mandatory' => true,
+            ],
+            [
+                'type' => 'text',
+                'name'  =>  'EMAIL',
+                'label' =>  'Your Email',
+                'mandatory' => true,
+                'datatype'  => 'email'
+            ],
+            [
+                'type'=>'textarea',
+                'name'=>'MESSAGE',
+                'label'=>'Message',
+                'rows'=>'4',
+                'cols'=>'50',
+                'mandatory' => true
+            ],
+            [
+                'type'=>'collection',
+                'name' => 'work_experience',
+                'label' => 'Work Experience',
+                'from' => [
+                    [
+                        'type' => 'text',
+                        'name' => 'company',
+                        'label' => 'Company',
+                        'mandatory' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'name' => 'role',
+                        'label' => 'Role',
+                        'mandatory' => true,
+                    ],
+                ]
+            ],
+            [
+                'type'=>'captcha',
+                'name'=>'CAPTCHA',
+                'secret' => 'blahblah'
+            ],
+            //Now we GROUP up the submit and reset buttons.
+            [
+                'type'=>'group',
+                'name'=>'buttons',
+                'direction' => 'inline', //places elements horizontally using white space(&nbsp;) as separator
+                'elements'=>[
+                    [
+                        'type'=>'submit',
+                        'name'=>'submit',
+                        'value'=>'Submit'
+                    ],
+                    [
+                        'type'=>'reset',
+                        'name'=>'reset',
+                        'value'=>'Reset'
+                    ]
+                ]
+            ]
 
-$form->addText([
-    'name' => 'NAME',
-    'label' => 'Your Name',
-    'mandatory' => true,
-]);
-
-$form->addText([
-    'name'  =>  'EMAIL',
-    'label' =>  'Your Email',
-    'mandatory' => true,
-    'datatype'  => 'email'
-]);
-
-$form->addTextarea([
-    'name'=>'MESSAGE',
-    'label'=>'Message',
-    'rows'=>'4',
-    'cols'=>'50',
-    'mandatory' => true
-]);
-
-$form->addCaptcha([
-    'name'=>'CAPTCHA',
-    'secret' => 'blahblah'
-]);
-
-$form->addGroup([
-    'name'=>'buttons',
-    'direction'=>'inline',
-    'elements'=>[
-        [
-            'type'=>'submit',
-            'name'=>'submit',
-            'value'=>'Submit'
-        ],
-        [
-            'type'=>'reset',
-            'name'=>'reset',
-            'value'=>'Reset'
         ]
     ]
-]);
+);
 
 $form->finalize();
 
@@ -74,98 +97,126 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title>Constructing form using only php(without using any xml)</title>
+    <title>Example 3 - Collection</title>
     <link href="../css/style.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="../js/jquery-ui-1.9.2.custom/js/jquery-1.8.3.js" ></script>
 </head>
 <body>
 
 <div id="outputContainer">
     <div class="container">
         <h2>Contact Us</h2>
-    <?php
-    if( isset( $message) && $message ){
-        echo $message;
-    }
-    echo $form->render(); ?>
+        <?php
+        //lets print the submitted data if the validation was successful
+        if( isset( $message) && $message ){
+            echo $message;
+        }
+        echo $form->render();
+        ?>
     </div>
-<?php
-//lets print the submitted data if the validation was successful
-if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" && logg_ok( $log ) ){
-    ?>
-    <div class="container">
-        <h2>Submited values</h2>
-        <?php var_dump( $form->getValues() ); ?>
-    </div>
-<?php } ?>
-</div>
 
+    <?php
+    if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" && logg_ok( $log ) ){
+        ?>
+        <div class="container">
+            <h2>Submited values</h2>
+            <?php
+            var_dump( $form->getValues() );
+            ?>
+        </div>
+    <?php
+    }
+    ?>
+</div>
 <div id="codeContainer">
     <div class="container">
-        <h1>Example 3</h1>
-        <h3>Constructing a simple contact us form using only PHP calls(using add* methods)</h3>
+        <h1>Example 3 - Collection</h1>
+        <h3>Multiple occurances of a set of fields.</h3>
         <p>
-            You can also create the form in example 2 without passing the elements in constructor.
-            Instead you can use the add* functions. For example
+            Collection is essentially forms within a form, it allows you to create multiple sets/rows of fields of predefined type dynamically.
         </p>
         <code><pre>
 $form = new \X2Form\Form(
     'ContactForm',
     [
-        'action' => 'sample2.php',
-        'method' => 'post'
-    ]
-);
+        'action' => 'example3.php',
+        'method' => 'post',
+        'elements' => [
+            [
+                'type' => 'text',
+                'name' => 'NAME',
+                'label' => 'Your Name',
+                'mandatory' => true,
+            ],
+            [
+                'type' => 'text',
+                'name'  =>  'EMAIL',
+                'label' =>  'Your Email',
+                'mandatory' => true,
+                'datatype'  => 'email'
+            ],
+            [
+                'type'=>'textarea',
+                'name'=>'MESSAGE',
+                'label'=>'Message',
+                'rows'=>'4',
+                'cols'=>'50',
+                'mandatory' => true
+            ],
+            <b>[
+                'type'=>'collection',
+                'name' => 'work_experience',
+                'label' => 'Work Experience',
+                'from' => [
+                    [
+                        'type' => 'text',
+                        'name' => 'company',
+                        'label' => 'Company',
+                        'mandatory' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'name' => 'role',
+                        'label' => 'Role',
+                        'mandatory' => true,
+                    ],
+                ]
+            ],</b>
+            [
+                'type'=>'captcha',
+                'name'=>'CAPTCHA',
+                'secret' => 'blahblah'
+            ],
+            //Now we GROUP up the submit and reset buttons.
+            [
+                'type'=>'group',
+                'name'=>'buttons',
+                'direction' => 'inline', //places elements horizontally using white space(&nbsp;) as separator
+                'elements'=>[
+                    [
+                        'type'=>'submit',
+                        'name'=>'submit',
+                        'value'=>'Submit'
+                    ],
+                    [
+                        'type'=>'reset',
+                        'name'=>'reset',
+                        'value'=>'Reset'
+                    ]
+                ]
+            ]
 
-$form->addText([
-    'name' => 'NAME',
-    'label' => 'Your Name',
-    'mandatory' => true,
-]);
-
-$form->addText([
-    'name'  =>  'EMAIL',
-    'label' =>  'Your Email',
-    'mandatory' => true,
-    'datatype'  => 'email'
-]);
-
-$form->addTextarea([
-    'name'=>'MESSAGE',
-    'label'=>'Message',
-    'rows'=>'4',
-    'cols'=>'50',
-    'mandatory' => true
-]);
-
-$form->addCaptcha([
-    'name'=>'CAPTCHA',
-    'secret' => 'blahblah'
-]);
-
-$form->addGroup([
-    'name'=>'buttons',
-    'direction'=>'inline',
-    'elements'=>[
-        [
-            'type'=>'submit',
-            'name'=>'submit',
-            'value'=>'Submit'
-        ],
-        [
-            'type'=>'reset',
-            'name'=>'reset',
-            'value'=>'Reset'
         ]
     ]
-]);
-        </pre></code>
+);
+            </pre></code>
         <p>
-            Note that, you need not specify the <i>type</i> for element you are adding with add* function.
+            Note:<br/>
+            Collection needs jQuery to render the rows dynamically, make sure you include jQuery in your page.<br/>
+            For now collection only allows horizontal placement, but vertical placement with row summary is also planned for upcoming versions.
+            <br/>
+            Avoid creating nested collections.
         </p>
-        <p>
-            The add* functions are useful when you already have a form created(from ORM objects or database tables) and you just want to add some extra fields.
-        </p>
-
     </div>
 </div>
 
