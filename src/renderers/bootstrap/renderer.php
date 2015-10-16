@@ -7,6 +7,7 @@ class Renderer extends BasicRenderer implements \X2Form\Interfaces\Renderer{
 
     var $elementRenderer;
     var $collectionRenderer;
+    var $groupRenderer;
 
     function __construct(){
         $this->elementRenderer = new ElementRenderer();

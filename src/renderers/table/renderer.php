@@ -22,7 +22,7 @@ class Renderer extends BasicRenderer implements \X2Form\Interfaces\Renderer{
         $this->groupRenderer->collectionRenderer = &$this->collectionRenderer;
     }
 
-    public function render( &$form, $addFormTag=true ){
+    public function render( &$form, $addFormTag = true ){
 
         if( $form->template && is_file( $form->template ) ){
             return $this->renderTemplate( $form, $addFormTag );

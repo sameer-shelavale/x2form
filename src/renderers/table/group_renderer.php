@@ -8,13 +8,6 @@ class GroupRenderer extends BasicRenderer{
     var $elementRenderer;
     var $collectionRenderer;
 
-    function __construct(){
-        $this->elementRenderer = new ElementRenderer();
-        $this->collectionRenderer = new CollectionRenderer();
-        $this->collectionRenderer->elementRenderer = &$this->elementRenderer;
-
-    }
-
     public function render( &$group ){
 
         if( $group->direction == 'inline' ){
