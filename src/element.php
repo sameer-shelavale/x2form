@@ -25,57 +25,55 @@ use X2Form\Helpers\DB;
 
 class Element{
 	//major element attributes
-	var $id;
+    var $type;
 	var $name;
 	var $outputName;
-	
-	var $type;
 	var $value;
 	var $label;
 	var $description; //when labels are not enough use this (except for radio and checkbox) 
-	
-	//minor element attributes
-	var $attributes;
+    var $id;
+
+	var $attributes; //stores minor element attributes,
+                     //these will be output in the html as attributes of the tag
 	
 	//other values to be passed like events or list data
+    var $events;
+    var $config;
+    var $oldValue;
 	var $options;
-    var $data; // used for storing calculated data, e.g. list of options for dropdowns, radio, checkboxes
-	var $events;
-	var $config;
-    var $ready=false; //indicates that the element is ready for rendering
 
-	var $oldValue;
-	
 	var $dbType="default";
 	var $dbHandle=false;
-	
-	var $fileSystemChanges = array();	// old files are not deleted immediately, they are backed up
-									// If some error occurs during the file Upload, the backed up files are restored
-									
-	var $renamedFiles = array();	//this will store all files we renamed and their actual names
-	
 	var $parent = false;
 	
 	var $errorString = '';
+    var $ready=false; //indicates that the element is ready for rendering
 
     var $basicTypes = [ 'text', 'button', 'submit', 'reset', 'hidden', 'image', 'password', 'file', 'textarea', 'dropdown', 'checkbox', 'radio', 'label' ];
 
     var $provider;  // an object/array of objects(of external classes/dependencies) which provides the processing,rendering, validating logic
                     // e.g. Captcha is provided by Multicaptcha library
 
+    // properties used for internal storage
+    var $elements = []; //used by 'group' type to store the sub-elements, for other types its ignored.
+
+    var $fileSystemChanges = array();	// old files are not deleted immediately, they are backed up
+                                        // If some error occurs during the file Upload,
+                                        // the backed up files are restored
+
+    var $renamedFiles = array();	//this will store all files we renamed and their actual names
+
+    var $data; // used for storing calculated data, e.g. list of options for dropdowns, radio, checkboxes
+
     /*
      * Default constructor
      * parentForm can be null, it will be updated to correct value during the finalize()
      */
-	public function __construct( $eType='text', $params = array() ){
+	public function __construct( $params = array() ){
+        // initialize the internal storage arrays
 		$this->attributes = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 		$this->config = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 		$this->events = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
-
-        $this->parent = (isset( $params['parent']))?$params['parent']: $this->parent = false;
-        $this->dbType = (isset( $params['dbType']))?$params['dbType']: $this->dbType = 'php';
-        $this->dbHandle = (isset( $params['dbHandle']))?$params['dbHandle']: $this->dbHandle = false;
-
 
         //basic properties/attributes
 		//$prop = array( 'id'=>'', 'name'=>'', 'type'=>'', 'value'=>'', 'label'=>'', 'description'=>'' );
@@ -112,13 +110,17 @@ class Element{
 			$this->config->language = $this->parent->language; //inherit language from parent
 		}
 
+        if( !isset( $params['type'] ) ){
+            $params['type'] = 'text';
+        }
+        $eType = $params['type'];
 
 		//now find the $prop, $conf and $attr
 		foreach( $params as $k => $v ){
 			$k = strtolower( $k );
 			if( property_exists( '\X2Form\Element', $k ) ){
                 if( $eType == 'captcha' && $k == 'options'){
-                    //for captcha type, options are part of the config which it passes as params
+                    //for captcha type, options are part of the type configurations which are passed in params array
                     $this->config['options'] = $v;
                 }else{
 				    $this->$k = $v;
@@ -138,12 +140,10 @@ class Element{
 			}
 		}
 
+
         if( !isset( $this->config['mandatory'] ) ){
             $this->config['mandatory'] = false;
         }
-
-		$this->type = $eType;
-			
 	}
 	
 	
@@ -286,9 +286,11 @@ class Element{
                 $this->data = $this->createOptions( $this->options );
             }elseif( $this->type == 'captcha' ){
                 $params=$this->config;
-                foreach( $params['options'] as $k => $v ){
-                    $params['options'][$k]['theme'] = 'MulticaptchaTheme';
-                    $params['options'][$k]['themeOptions'] = [];
+                if( isset( $params['options'] ) && is_array( $params['options'] ) ){
+                    foreach( $params['options'] as $k => $v ){
+                        $params['options'][$k]['theme'] = 'MulticaptchaTheme';
+                        $params['options'][$k]['themeOptions'] = [];
+                    }
                 }
                 $this->provider = new \MultiCaptcha\Captcha( $params );
                 $this->provider->make();
@@ -448,7 +450,7 @@ class Element{
 				}elseif( isset( $this->config['ifempty'] )  ){
 					$this->errorString = $this->config['ifempty'] ;
 				}else{
-					$this->errorString =  "Please specify '{$this->name}'. It is a mandatory field.\n";
+					$this->errorString =  "Please specify '{$this->label}'. It is a mandatory field.\n";
 				}
 			}			
 		}

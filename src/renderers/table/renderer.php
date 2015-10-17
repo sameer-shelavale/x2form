@@ -2,23 +2,30 @@
 namespace X2Form\Renderers\Table;
 
 use X2Form\Collection;
+use X2Form\Group;
 
-class Renderer implements \X2Form\Interfaces\Renderer{
+class Renderer extends BasicRenderer implements \X2Form\Interfaces\Renderer{
 
     var $elementRenderer;
     var $collectionRenderer;
+    var $groupRenderer;
 
     function __construct(){
         $this->elementRenderer = new ElementRenderer();
         $this->collectionRenderer = new CollectionRenderer();
-        $this->collectionRenderer->elementRenderer = &$this->elementRenderer;
+        $this->groupRenderer = new GroupRenderer();
 
+        $this->collectionRenderer->elementRenderer = &$this->elementRenderer;
+        $this->collectionRenderer->groupRenderer = &$this->groupRenderer;
+
+        $this->groupRenderer->elementRenderer = &$this->elementRenderer;
+        $this->groupRenderer->collectionRenderer = &$this->collectionRenderer;
     }
 
-    public function render( &$form, $addFormTag=true ){
+    public function render( &$form, $addFormTag = true ){
 
         if( $form->template && is_file( $form->template ) ){
-            return $this->renderTemplate($form, $addFormTag);
+            return $this->renderTemplate( $form, $addFormTag );
         }
 
         //generate normal html
@@ -26,26 +33,34 @@ class Renderer implements \X2Form\Interfaces\Renderer{
         $cnt=1;
         $hiddenElems = '';
 
-        foreach( $form->elements as $i=>$elem ){
+        foreach( $form->elements as $i => &$element ){
             if( $cnt%2 == 0){ $class = 'even'; }else{ $class= 'odd'; }
 
-            if( $form->elements[$i] instanceof \X2Form\Collection ){
+            if( $element instanceof \X2Form\Collection ){
                 $cnt++;
                 $html .= '<tr class="'.$class.'"><td valign="top">'
-                    .$form->elements[$i]->label().'</td><td>'
-                    .$this->collectionRenderer->render( $form->elements[$i] ).' &nbsp; <i>'
-                    .$form->elements[$i]->description().'</i></td></tr>';
-            }elseif( $elem->type == 'hidden' ){
-                $hiddenElems .= $this->elementRenderer->render( $form->elements[$i] );
-            }elseif( $elem->type == 'label' ){
+                    .$this->makeLabel( $element ).'</td><td>'
+                    .$this->collectionRenderer->render( $element ).' &nbsp; '
+                    .$this->makeDescription( $element )
+                    .'</td></tr>';
+            }elseif( $element instanceof \X2Form\Group ){
+                $cnt++;
+                $html .= '<tr class="'.$class.'"><td valign="top">'
+                    .$this->makeLabel( $element ).'</td><td>'
+                    .$this->groupRenderer->render( $element ).' &nbsp; '
+                    .$this->makeDescription( $element )
+                    .'</td></tr>';
+            }elseif( $element->type == 'hidden' ){
+                $hiddenElems .= $this->elementRenderer->render( $element );
+            }elseif( $element->type == 'label' ){
                 $html .= '<tr class="'.$class.'"><td valign="top" colspan="2">'
-                    .$this->elementRenderer->render( $form->elements[$i] ).' &nbsp;</td></tr>';
+                    .$this->elementRenderer->render( $element ).' &nbsp;</td></tr>';
             }else{
                 $cnt++;
                 $html .= '<tr class="'.$class.'"><td valign="top">'
-                    .$this->elementRenderer->makeLabel( $form->elements[$i] ).'</td><td>'
-                    .$this->elementRenderer->render( $form->elements[$i] ).' &nbsp; <i>'
-                    .$form->elements[$i]->description().'</i></td></tr>';
+                    .$this->makeLabel( $element ).'</td><td>'
+                    .$this->elementRenderer->render( $element ).' &nbsp; '
+                    .$this->makeDescription( $element ).'</td></tr>';
             }
         }
 
@@ -89,26 +104,26 @@ class Renderer implements \X2Form\Interfaces\Renderer{
         }
 
         $hiddenElems = "";
-        foreach( $form->elements as $i=>$elem ){
-            if( $elem->type == "hidden" ){
+        foreach( $form->elements as $i => $element ){
+            if( $element->type == "hidden" ){
                 //we will add hidden elements at end of form
-                $hiddenElems .= $this->elementRenderer->render( $form->elements[$i] )." ";
+                $hiddenElems .= $this->elementRenderer->render( $element )." ";
             }else{
-                if( $form->elements[$i] instanceof \X2Form\Collection ){
-                    $template = str_replace( "[{$elem->name}]", $this->collectionRenderer->render( $elem  ), $template );
+                if( $element instanceof \X2Form\Collection ){
+                    $template = str_replace( "[{$element->name}]", $this->collectionRenderer->render( $element  ), $template );
                 }else{
-                    $template = str_replace( "[{$elem->name}]", $this->elementRenderer->render( $elem  ), $template );
+                    $template = str_replace( "[{$element->name}]", $this->elementRenderer->render( $element  ), $template );
                 }
-                $template = str_replace( "[{$elem->name}_label]", $this->elementRenderer->makeLabel( $elem ), $template );
-                $template = str_replace( "[{$elem->name}_description]", $elem->description(), $template );
+                $template = str_replace( "[{$element->name}_label]", $this->elementRenderer->makeLabel( $element ), $template );
+                $template = str_replace( "[{$element->name}_description]", $element->description(), $template );
 
             }
 
 
-            if( is_array( $elem->value )){
-                $template = str_replace( "[{$elem->name}_value]", implode( ', ', $elem->value ), $template );
+            if( is_array( $element->value )){
+                $template = str_replace( "[{$element->name}_value]", implode( ', ', $element->value ), $template );
             }else{
-                $template = str_replace( "[{$elem->name}_value]", $elem->value, $template );
+                $template = str_replace( "[{$element->name}_value]", $element->value, $template );
             }
         }
 
@@ -133,24 +148,24 @@ class Renderer implements \X2Form\Interfaces\Renderer{
         $cnt=1;
         $hiddenElems = '';
 
-        foreach( $form->elements as $i=>$elem ){
+        foreach( $form->elements as $i => $element ){
             if( $cnt%2 == 0){ $class = 'even'; }else{ $class= 'odd'; }
 
-            if( $elem->type == 'hidden' ){
-                $hiddenElems .= " [{$elem->name}]";
-            }elseif( $elem->type == 'label' ){
+            if( $element->type == 'hidden' ){
+                $hiddenElems .= " [{$element->name}]";
+            }elseif( $element->type == 'label' ){
                 $html .= '<tr class="'.$class.'"><td valign="top" colspan="2">'
-                    ."[{$elem->name}]".' &nbsp;</td></tr>';
+                    ."[{$element->name}]".' &nbsp;</td></tr>';
             }else{
                 $cnt++;
                 $html .= '<tr class="'.$class.'"><td valign="top">'
-                    ."[{$elem->name}_label]".'</td><td>'
-                    ."[{$elem->name}]".' &nbsp; <i>'
-                    ."[{$elem->name}_description]".'</i></td></tr>';
+                    ."[{$element->name}_label]".'</td><td>'
+                    ."[{$element->name}]".' &nbsp; <i>'
+                    ."[{$element->name}_description]".'</i></td></tr>';
             }
         }
 
-        $html .= '</table>';
+        $html .= '</table>'.$hiddenElems;
 
         return $html;
     }

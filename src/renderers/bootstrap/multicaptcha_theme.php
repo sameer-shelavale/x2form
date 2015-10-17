@@ -51,9 +51,9 @@ EOT;
             $data['labelId'] = rtrim( base64_encode(uniqid('a',true)), '=' );
         }
 
-        $html = '<div id="'.$data['containerId'].'" class="input-group">';
+        $html = '<div id="'.$data['containerId'].'" class="form-group">';
         $html .= $this->renderChallenge( $data );
-        $html .= '<div class="input-group">';
+        $html .= '<div class="form-group">';
         $html .= $this->renderResponseField( $data ).$this->renderTools( $data );
         $html .= '</div></div>';
         if( !$refresh ){

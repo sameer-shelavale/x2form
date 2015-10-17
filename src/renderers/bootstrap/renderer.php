@@ -3,15 +3,22 @@ namespace X2Form\Renderers\Bootstrap;
 
 use X2Form\Collection;
 
-class Renderer implements \X2Form\Interfaces\Renderer{
+class Renderer extends BasicRenderer implements \X2Form\Interfaces\Renderer{
 
     var $elementRenderer;
     var $collectionRenderer;
+    var $groupRenderer;
 
     function __construct(){
         $this->elementRenderer = new ElementRenderer();
         $this->collectionRenderer = new CollectionRenderer();
+        $this->groupRenderer = new GroupRenderer();
+
         $this->collectionRenderer->elementRenderer = &$this->elementRenderer;
+        $this->collectionRenderer->groupRenderer = &$this->groupRenderer;
+
+        $this->groupRenderer->elementRenderer = &$this->elementRenderer;
+        $this->groupRenderer->collectionRenderer = &$this->collectionRenderer;
     }
 
     public function render( &$form, $addFormTag=true ){
@@ -25,38 +32,37 @@ class Renderer implements \X2Form\Interfaces\Renderer{
         $cnt=1;
         $hiddenElems = '';
 
-        foreach( $form->elements as $i=>$elem ){
+        foreach( $form->elements as $i => &$element ){
 
-            if( $form->elements[$i] instanceof \X2Form\Collection ){
+            if( $element instanceof \X2Form\Collection ){
                 $cnt++;
                 $html .= '<div class="form-group">'
-                    .$form->elements[$i]->label()
-                    .$this->collectionRenderer->render( $form->elements[$i] );
+                    .$this->makeLabel( $element )
+                    .$this->collectionRenderer->render( $element )
+                    .$this->makeDescription( $element )
+                    .'</div>';
 
-                if( strlen( $form->elements[$i]->description() ) > 0 ){
-                    $html .= '<p class="help-block">'
-                        .$form->elements[$i]->description()
-                        .'</p>';
-                }
-                $html .= '</div>';
-
-            }elseif( $elem->type == 'hidden' ){
-                $hiddenElems .= $this->elementRenderer->render( $form->elements[$i] );
-            }elseif( $elem->type == 'label' ){
+            }elseif( $element instanceof \X2Form\Group ){
+                $cnt++;
                 $html .= '<div class="form-group">'
-                    .$this->elementRenderer->render( $form->elements[$i] )
+                    .$this->makeLabel( $element )
+                    .$this->groupRenderer->render( $element )
+                    .$this->makeDescription( $element )
+                    .'</div>';
+
+            }elseif( $element->type == 'hidden' ){
+                $hiddenElems .= $this->elementRenderer->render( $element );
+            }elseif( $element->type == 'label' ){
+                $html .= '<div class="form-group">'
+                    .$this->elementRenderer->render( $element )
                     .'</div>';
             }else{
                 $cnt++;
                 $html .= '<div class="form-group">'
-                    .$this->elementRenderer->makeLabel( $form->elements[$i] )
-                    .$this->elementRenderer->render( $form->elements[$i] );
-                if( strlen( $form->elements[$i]->description() ) > 0 ){
-                    $html .= '<p class="help-block">'
-                    .$form->elements[$i]->description()
-                    .'</p>';
-                }
-                $html .= '</div>';
+                    .$this->makeLabel( $element )
+                    .$this->elementRenderer->render( $element )
+                    .$this->makeDescription( $element )
+                .'</div>';
             }
         }
 
@@ -98,21 +104,21 @@ class Renderer implements \X2Form\Interfaces\Renderer{
         }
 
         $hiddenElems = "";
-        foreach( $form->elements as $i=>$elem ){
-            if( $elem->type == "hidden" ){
+        foreach( $form->elements as $i => &$element ){
+            if( $element->type == "hidden" ){
                 //we will add hidden elements at end of form
-                $hiddenElems .= $this->elementRenderer->render( $form->elements[$i] )." ";
+                $hiddenElems .= $this->elementRenderer->render( $element )." ";
             }else{
-                if( $form->elements[$i] instanceof \X2Form\Collection ){
-                    $template = str_replace( "[{$elem->name}]", $this->collectionRenderer->render( $elem  ), $template );
+                if( $element instanceof \X2Form\Collection ){
+                    $template = str_replace( "[{$element->name}]", $this->collectionRenderer->render( $element  ), $template );
                 }else{
-                    $template = str_replace( "[{$elem->name}]", $this->elementRenderer->render( $elem  ), $template );
+                    $template = str_replace( "[{$element->name}]", $this->elementRenderer->render( $element  ), $template );
                 }
-                $template = str_replace( "[{$elem->name}_label]", $elem->label(), $template );
-                $template = str_replace( "[{$elem->name}_description]", $elem->description(), $template );
+                $template = str_replace( "[{$element->name}_label]", $element->label(), $template );
+                $template = str_replace( "[{$element->name}_description]", $element->description(), $template );
 
             }
-            $template = str_replace( "[{$elem->name}_value]", $elem->value, $template );
+            $template = str_replace( "[{$element->name}_value]", $element->value, $template );
         }
 
         $attribs = '';
@@ -134,20 +140,20 @@ class Renderer implements \X2Form\Interfaces\Renderer{
         $cnt=1;
         $hiddenElems = '';
 
-        foreach( $form->elements as $i=>$elem ){
+        foreach( $form->elements as $i => $element ){
 
-            if( $elem->type == 'hidden' ){
-                $hiddenElems .= " [{$elem->name}]";
-            }elseif( $elem->type == 'label' ){
+            if( $element->type == 'hidden' ){
+                $hiddenElems .= " [{$element->name}]";
+            }elseif( $element->type == 'label' ){
                 $html .= '<div class="form-group">'
-                    ." [{$elem->name}]"
+                    ." [{$element->name}]"
                     .'</div>';
             }else{
                 $cnt++;
                 $html .= '<div class="form-group">'
-                    ."[{$elem->name}_label]"
-                    ."[{$elem->name}]"
-                    .'<p class="help-block">['.$elem->name.'_description]</p>'.
+                    ."[{$element->name}_label]"
+                    ."[{$element->name}]"
+                    .'<p class="help-block">['.$element->name.'_description]</p>'.
                     '</div>';
             }
         }

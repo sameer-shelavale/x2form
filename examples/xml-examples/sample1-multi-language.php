@@ -1,7 +1,7 @@
 <?php
 
-require_once( '../src/autoload.php' );
-require_once( '../vendor/autoload.php' );
+require_once('../src/autoload.php');
+require_once('../vendor/autoload.php');
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -27,7 +27,7 @@ $formObj->finalize();
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>A simple HTML with multilanguage supportform using X2Form </title>
-	<link href="style.css" type="text/css" rel="stylesheet">
+	<link href="../style.css" type="text/css" rel="stylesheet">
 </head>
 <body>
 	<div id="container">

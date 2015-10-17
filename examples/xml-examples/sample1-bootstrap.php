@@ -1,6 +1,6 @@
 <?php
-require_once( '../src/autoload.php' );
-require_once( '../vendor/autoload.php' );
+require_once('../src/autoload.php');
+require_once('../vendor/autoload.php');
 
 $link = mysql_connect('localhost', 'root', '');
 if (!$link) {
@@ -42,8 +42,8 @@ if( isset( $_POST['submit'] ) &&  $_POST['submit'] == "Submit" ){
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 	<title>Displaying Sample 1 using bootstrap</title>
 
-    <link rel="stylesheet" href="../vendor/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../vendor/bootstrap/dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../../vendor/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../vendor/bootstrap/dist/css/bootstrap-theme.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 </head>
