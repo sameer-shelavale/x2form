@@ -67,15 +67,22 @@ class Collection{
             }
         }
 
-        //set defaults
+        //set attributes
+        if( isset( $params['attributes'] ) ){
+            $this->attributes = $params['attributes'] ;
+        }
+
+        //set renderer
         if( !$this->renderer ){
             $this->renderer = new Renderers\Table\Renderer();
         }
 
+        //set loader
         if( !$this->loader ){
             $this->loader = new Loaders\Collection();
         }
 
+        //initialize schema for subforms
         $this->schema = new Form( $this->name,[
             'parent' => $this,
             'language' => $this->language,
@@ -85,7 +92,7 @@ class Collection{
             'index' => 'X2F_INDEX'
         ] );
 
-        //load data
+        //load schema details if 'from' parameter is set
         if( isset( $params['from']) ){
             $exclude = [];
             if( isset( $params['exclude'] ) ){
@@ -93,9 +100,7 @@ class Collection{
             }
             $this->schema->load( $params['from'], $exclude );
         }
-        if( isset( $params['attributes'] ) ){
-            $this->attributes = $params['attributes'] ;
-        }
+
 		 
 	}
 
