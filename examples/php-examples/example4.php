@@ -99,7 +99,7 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
 
 <div id="outputContainer">
     <div class="container">
-        <h2>Contact Us</h2>
+        <h2>Sample Contact Us Form</h2>
     <?php
     if( isset( $message) && $message ){
         echo $message;
