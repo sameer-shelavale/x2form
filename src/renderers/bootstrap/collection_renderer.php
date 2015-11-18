@@ -21,7 +21,7 @@ class CollectionRenderer extends BasicRenderer{
 
         $collection->schema->index = 'X2F_INDEX';
         $addHtml = '<tr>';
-        foreach( $collection->schema->elements as $i => $elem ){
+        foreach( $collection->schema->elements as $i => &$elem ){
             $addHtml .= '<td>'.$this->elementRenderer->render( $elem ).'</td>';
         }
         $addHtml .= '<td style="width:1em;">'.$this->renderDeleteBtn( $collection ).'</td>';
