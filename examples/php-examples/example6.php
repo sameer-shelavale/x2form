@@ -138,6 +138,7 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
     <!-- HERE WE INCLUDE BOOTSTRAP CSS -->
     <link rel="stylesheet" href="http://localhost/Bootstrap-3-Offline-Docs/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="http://localhost/Bootstrap-3-Offline-Docs/dist/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../css/x2form-bootstrap.css">
 
     <script type="text/javascript" src="../js/jquery-ui-1.9.2.custom/js/jquery-1.8.3.js" ></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">

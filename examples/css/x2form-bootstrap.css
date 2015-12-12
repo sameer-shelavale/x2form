@@ -1,0 +1,13 @@
+.errorfield{border:1px solid #ff0000; }
+.btn-add{ padding: 0; font-weight:bold; font-size: 110%; background-color: #5cb85c; background-image: linear-gradient(to bottom, #5cb85c 0px, #419641 100%); background-repeat: repeat-x; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 1px 1px rgba(0, 0, 0, 0.075); text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2); border: 1px solid #3e8f3e; border-radius: 3px; }
+.btn-add:hover{ background-color:#419641; background-position: 0 -15px;}
+.btn-delete{ padding: 0; font-weight:bold; font-size: 110%; background-color: #d9534f; background-image:linear-gradient(to bottom, #d9534f 0px, #c12e2a 100%); background-repeat:repeat-x; box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset, 0 1px 1px rgba(0, 0, 0, 0.075); text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2); border: 1px solid #d43f3a; border-radius: 3px; }
+.btn-delete:hover{ background-color: #c12e2a; background-position: 0 -15px;}
+
+pre{
+    max-height: 300px;
+}
+
+pre b{
+    color: #0000FF;
+}

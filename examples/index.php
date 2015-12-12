@@ -3,9 +3,9 @@
 * 2. Group - Grouping up Elements in a single row
 * 3. Collection - forms within a form
 * 4. Constructing a form in example 3,  using only PHP calls(using add* methods to add/load elements)
-* 5. Displaying form using bootstrap
-* 6. Templates - customizing the layout
-* 7. Populating values
+* 5. Populating values
+* 6. Displaying form using bootstrap
+* 7. Templates - customizing the layout
 * 8. Creating form from db table
 * 9. Creating form directly from Laravel Models(Elequent ORM objects)
 * 10.
