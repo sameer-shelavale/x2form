@@ -170,6 +170,20 @@ class Group{
     }
 
     /***********************************************************************************
+     * function clear()
+     * 		This function clears all the values set in the form elements except buttons and labels.
+     ***********************************************************************************/
+    public function clear(){
+        $this->errorString = '';
+        foreach( $this->elements as &$element ){
+            if( $element->type != 'submit' && $element->type != 'button' && $element->type != 'label' && $element->type != 'reset'  ) {
+                $element->clear();
+            }
+        }
+        return true;
+    }
+
+    /***********************************************************************************
      * function storeOldValues( $oldValues )
      * 		This function stores old values for each element.
      * 		These values are required mainly for validating 'file' inputs
@@ -211,10 +225,7 @@ class Group{
                 }
             }
 		}
-        if( !$this->errorString ){
-            return true;
-        }
-		return false;
+        return $this->errorString;
 	}
 	
 	

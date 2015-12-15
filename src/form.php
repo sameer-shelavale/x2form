@@ -153,9 +153,27 @@ class Form{
      * 		This is called during serialization in the getDeepClone() method
      **************************************************************************/
     public function __sleep(){
-        return array( 'index', 'name', 'dbType', 'template', 'id', 'attributes',
-            'elements', 'language', 'extraCode',
-            'errorString', 'errorFields', 'isLoaded', 'callBack' );
+        return array(
+            'index',
+            'primary',
+            'name',
+            'dbType',
+            'template',
+            'renderer',
+            'loader',
+            'excludeFields',
+            'language',
+            'extraCode',
+            'id',
+            'attributes',
+            'elements',
+            'errorString',
+            'errorFields',
+            'isLoaded',
+            'callBack',
+            'ready',
+            'inbuiltRenderers'
+        );
     }
 
     public function __call( $name, $arguments ){
@@ -289,7 +307,6 @@ class Form{
      *
      ***********************************************************************************/
     function processSubmission( $postedData, $oldData=array(), $rollbackOnError = true ){
-
         if( $this->validate( $postedData, $oldData ) ){
             Logg( 'LOG', 'CODE', 'Submited data has passed validation.' );
 
@@ -314,11 +331,16 @@ class Form{
      *		returns true on success, false on failure.
      *		it sets $errorString variable on failure.
      ***********************************************************************************/
-    public function validate( $postedData=[], $oldData = [] ){
+    public function validate( $postedData=null, $oldData = null ){
         $this->errorString = '';
 
-        $this->setValues( $postedData );
-        $this->storeOldValues( $oldData );
+        if( is_array( $postedData ) ){
+            $this->clear(); // clear initial data, this is required specially for collection
+            $this->setValues( $postedData );
+        }
+        if( is_array( $oldData ) ){
+            $this->storeOldValues( $oldData );
+        }
 
         foreach( $this->elements as &$element ){
             //skip submit buttons and files
@@ -328,7 +350,6 @@ class Form{
                 if( !$element->provider->validate( $postedData ) ){
                     $element->errorString = $element->provider->error;
                     $this->errorFields[ $element->name ] = $element->provider->error;
-                    $this->errorString .= $this->errorFields[ $element->name ].'<br/>';
                 }
             }elseif( $element->type != 'submit' && $element->type != 'button' && $element->type != 'reset' && $element->type != 'label' ){
 
@@ -336,15 +357,11 @@ class Form{
                 if( strlen( $val ) > 0 ){
                     $this->errorFields[ $element->name ] = $val;
                     $this->errorString .= $this->errorFields[ $element->name ];
-
-                    if( $element->type != 'collection' ){ //collection already has a ending <br/> in errorString
-                        $this->errorString .= '<br/>';
-                    }
                 }
             }
         }
 
-
+        $this->errorString = implode( '<br/>', $this->errorFields );
         if( $this->errorString ){
             //clear the filenames
             foreach( $this->elements as &$element ){
@@ -500,16 +517,14 @@ class Form{
 
 
     /***********************************************************************************
-     * function reset(  )
-     * 		This function populates the form elements with values passed in $formValues.
-     * PARAMETERS:
-     *		$formValues  - associative array of submitted values(generally $_POST or $_REQUEST )
+     * function clear()
+     * 		This function clears all the values set in the form elements except buttons and labels.
      ***********************************************************************************/
-    public function reset(){
+    public function clear(){
         $this->errorString = '';
         foreach( $this->elements as &$element ){
-            if( $element->type != 'submit' && $element->type != 'button' && $element->type != 'label' ) {
-                $element->value = '';
+            if( $element->type != 'submit' && $element->type != 'button' && $element->type != 'label' && $element->type != 'reset' ) {
+                $element->clear();
             }
         }
         return true;

@@ -227,7 +227,7 @@ for example lets see this example, it uses a simple 1d array:
 $formObj->addDropdown([
     'name'=>'continent',
     'label'=>'Continent',
-    'options'=> [ 'africa', 'america', 'asia', 'australia', 'europe' ],
+    'options'=> ['array' => [ 'africa', 'america', 'asia', 'australia', 'europe' ] ],
 );
 ```
 When using 1d array each of the array element becomes the value and label as well.

@@ -13,6 +13,9 @@ class Collection{
             //we wont find any collection specific data from eloquent model
             //so load the schema directly from the eloquent model
             return \X2Form\Loaders\Eloquent::load( $collection->schema, $source, $exclude );
+        }elseif( is_array( $source ) ){
+            //params array containing elements is passed
+            return \X2Form\Loaders\ParamsArray::load( $collection->schema, $source );
         }elseif( is_file( $source ) && is_readable( $source ) ){
             //filename passed
             return $this->loadFile( $collection, $source, $exclude );

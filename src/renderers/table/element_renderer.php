@@ -98,7 +98,7 @@ class ElementRenderer extends BasicRenderer {
             foreach( $element->data as $opt ){
                 //var_dump( $opt );
                 $checked='';
-                if( $opt['value'] == $element->value ){ $checked = 'checked="true"'; }
+                if( $opt['value'] == $element->value ){ $checked = 'checked="checked"'; }
 
                 $str .= "<input type=\"radio\" id=\"$id$cnt\" name=\"".$element->outputName."\" value=\"{$opt['value']}\" $checked $attribTxt $eventsTxt /><label for=\"$id$cnt\">{$opt['label']}</label>".$spacer;
                 $cnt++;
@@ -125,9 +125,9 @@ class ElementRenderer extends BasicRenderer {
             $opt = $element->data[0];
             $checked = '';
             if( is_array( $element->value ) && in_array( $opt['value'], $element->value ) ){
-                $checked = 'checked="true"';
+                $checked = 'checked="checked"';
             }elseif( $opt['value'] == $element->value ){
-                $checked = 'checked="true"';
+                $checked = 'checked="checked"';
             }
             $str = "<input type=\"checkbox\" id=\"".$id."\" name=\"".$element->outputName."\" value=\"{$opt['value']}\" $checked $attribTxt $eventsTxt /><label for=\"$id\">{$opt['label']}</label>".$spacer;
 
@@ -137,9 +137,9 @@ class ElementRenderer extends BasicRenderer {
             foreach( $element->data as $opt ){
                 $checked = '';
                 if( is_array( $element->value ) && in_array( $opt['value'], $element->value ) ){
-                    $checked = 'checked="true"';
+                    $checked = 'checked="checked"';
                 }elseif( $opt['value'] == $element->value ){
-                    $checked = 'checked="true"';
+                    $checked = 'checked="checked"';
                 }
                 $str .= "<input type=\"checkbox\" id=\"".$id."$cnt\" name=\"".$element->outputName."[$cnt]\" value=\"{$opt['value']}\" $checked $attribTxt $eventsTxt /><label for=\"$id$cnt\">{$opt['label']}</label>".$spacer;
                 $cnt++;
@@ -172,9 +172,9 @@ class ElementRenderer extends BasicRenderer {
                 $val = $opt;
             }
             if( isset( $element->attributes['multiple'] ) && is_array( $element->value ) && in_array( $val, $element->value ) ){
-                $selected = 'selected="true"';
+                $selected = 'selected="selected"';
             }elseif( $val == $element->value ){
-                $selected = 'selected="true"';
+                $selected = 'selected="selected"';
             }else{
                 $selected = '';
             }

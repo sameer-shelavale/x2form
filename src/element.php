@@ -153,8 +153,32 @@ class Element{
 	 * 		This is called during serialization in the getDeepClone() method 
 	 **************************************************************************/
 	public function __sleep(){
-		return array( 'id', 'name','outputName', 'value','type', 'label', 'description', 'attributes', 'options', 'events', 'config', 'dbType', 'oldValue', 'fileSystemChanges', 'renamedFiles', 'errorString' );
-	}
+		return array(
+
+            'type',
+            'name',
+            'outputName',
+            'value',
+            'label',
+            'description',
+            'id',
+            'attributes',
+            'events',
+            'config',
+            'oldValue',
+            'options',
+            'dbType',
+            'fileSystemChanges',
+            'renamedFiles',
+            'errorString',
+            'ready',
+            'basicTypes',
+            'provider',
+            'elements',
+            'data'
+        );
+
+    }
 	
 	
 	/**************************************************************************
@@ -176,6 +200,24 @@ class Element{
 			$this->outputName = $this->name;
 		}
 	}
+
+    /**************************************************************************
+     * function setValue()
+     * 		This function sets value for the element
+     *
+     **************************************************************************/
+    public function setValue( $value ){
+        $this->value = $value;
+    }
+
+    /**************************************************************************
+     * function clear()
+     * 		This function unsets value
+     *
+     **************************************************************************/
+    public function clear(){
+        $this->value = '';
+    }
 	
 	
 	/**************************************************************************
@@ -278,9 +320,9 @@ class Element{
      *      It is essential to call this function before rendering or validation
      *****************************************************************************/
     function finalize(){
+        //update the output name
+        $this->updateOutputName();
         if( !$this->ready ){
-            //update the output name
-            $this->updateOutputName();
             //calculate the option data
             if( $this->type == 'radio' || $this->type == 'checkbox' || $this->type == 'dropdown' ){
                 $this->data = $this->createOptions( $this->options );

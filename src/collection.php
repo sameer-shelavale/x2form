@@ -67,15 +67,22 @@ class Collection{
             }
         }
 
-        //set defaults
+        //set attributes
+        if( isset( $params['attributes'] ) ){
+            $this->attributes = $params['attributes'] ;
+        }
+
+        //set renderer
         if( !$this->renderer ){
             $this->renderer = new Renderers\Table\Renderer();
         }
 
+        //set loader
         if( !$this->loader ){
             $this->loader = new Loaders\Collection();
         }
 
+        //initialize schema for subforms
         $this->schema = new Form( $this->name,[
             'parent' => $this,
             'language' => $this->language,
@@ -85,7 +92,7 @@ class Collection{
             'index' => 'X2F_INDEX'
         ] );
 
-        //load data
+        //load schema details if 'from' parameter is set
         if( isset( $params['from']) ){
             $exclude = [];
             if( isset( $params['exclude'] ) ){
@@ -93,9 +100,7 @@ class Collection{
             }
             $this->schema->load( $params['from'], $exclude );
         }
-        if( isset( $params['attributes'] ) ){
-            $this->attributes = $params['attributes'] ;
-        }
+
 		 
 	}
 
@@ -138,21 +143,45 @@ class Collection{
 
 	
 	/***********************************************************************************
-	 * function SetValues( $valueArray )
-	 * 		This function populates the subforms with values passed in $valueArray. 
+	 * function setValues( $valueArray )
+	 * 		This function populates the subforms with values passed in $valueArray.
+     *      the $valueArray is array of subform-values.
+     *      NOTE:   the indexes of the $valueArray are ignored.
+     *              Instead it uses the "primary" field(primary key)
+     *              to map the values on existing ones.
 	 * PARAMETERS:
 	 *		$valueArray  - associative array of submitted values(generally $_POST or $_REQUEST )
 	 ***********************************************************************************/
 	public function setValues( $valueArray = false ){
-		foreach( $valueArray as $idx => $formValue ){
-			if( !isset( $this->elements[ $idx ] ) ){
-				
-				$this->elements[ $idx ] = $this->schema->deepClone();;
-				$this->elements[ $idx ]->index = $idx;
-			}
-			$this->elements[ $idx ]->setValues( $formValue );
+        $pk = $this->schema->primary;
+		foreach( $valueArray as $idx => $formValues ){
+            //if primary key is present and is not zero,
+            //search the subform with that primary key
+            if( $pk && $formValues[$pk] != 0 ){
+                //lets find the subform with the same primery key value
+                $found = false;
+                foreach( $this->elements as $k => &$subForm ){
+                    if( property_exists( $subForm, $pk ) && $formValues[$pk] == $subForm->$pk->value  ){
+                        $subForm->setValues( $formValues );
+                        $found = true;
+                        break;
+                    }
+                }
+                //if found, continue with next element
+                if( $found ){
+                    continue;
+                }
+            }
+            // else if control reaches here,
+            //just create new subform and set the values
+            $idx = $this->elements->count();
+            $this->elements[ $idx ] = $this->schema->deepClone();;
+            $this->elements[ $idx ]->index = $idx;
+			$this->elements[ $idx ]->setValues( $formValues );
+            //the output name of newly created form need to be refreshed
+            $this->elements[ $idx ]->ready = false;
 		}
-		
+
 	}
 	
 	
@@ -170,7 +199,17 @@ class Collection{
 		return $this->value;
 		
 	}
-	
+
+
+    /**************************************************************************
+     * function clear()
+     * 		This function unset value
+     *
+     **************************************************************************/
+    public function clear(){
+        //remove all elements
+        $this->elements = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
+    }
 
     /***********************************************************************************
      * function storeOldValues()
@@ -185,13 +224,10 @@ class Collection{
         if( is_array( $values ) ){
             if( $pk = $this->schema->primary ){
                 foreach( $values as $oldValues ){
-                    $found = false;
                     if( isset( $oldValues[ $pk ] ) && $oldValues[ $pk ] ){
                         //lets find the subform with the same primery key value
-                        $found = false;
                         foreach( $this->elements as $k => &$subForm ){
                             if( property_exists( $subForm, $pk ) && $oldValues[$pk] == $subForm->$pk->value  ){
-                                $found = true;
                                 $subForm->storeOldValues( $oldValues );
                                 break;
                             }
