@@ -33,6 +33,14 @@ $form->addRadio([
     'options'  => [ 'array'=> ['male', 'female'] ],
 ]);
 
+$form->addCheckbox([
+    'name'  =>  'LANGUAGES',
+    'label' =>  'Languages known',
+    'mandatory' => true,
+    'options'  => [ 'array'=> ['English', 'Hindi', 'French', 'German'] ],
+    'direction'=>'vertical'
+]);
+
 $form->addDropdown([
     'name'  =>  'EXPERIENCE',
     'label' =>  'Experience',

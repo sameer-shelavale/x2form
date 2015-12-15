@@ -3,7 +3,6 @@
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 </head>
 <body>
-
     <div class="row">
         <div class="col-md-6 col-sm-12">
             <div class="form-group">
@@ -14,6 +13,10 @@
                 [EMAIL_label]
                 [EMAIL]
             </div>
+            <div class="form-group">
+                [GENDER_label]
+                [GENDER]
+            </div>
         </div>
         <div class="col-md-6 col-sm-12">
             <div class="form-group">
@@ -21,8 +24,8 @@
                 [EXPERIENCE]
             </div>
             <div class="form-group">
-                [GENDER_label]
-                [GENDER]
+                [LANGUAGES_label]
+                [LANGUAGES]
             </div>
 
         </div>
@@ -56,6 +59,5 @@
             [buttons]
         </div>
     </div>
-
 </body>
 </html>
