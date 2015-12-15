@@ -111,6 +111,8 @@ class Renderer extends BasicRenderer implements \X2Form\Interfaces\Renderer{
             }else{
                 if( $element instanceof \X2Form\Collection ){
                     $template = str_replace( "[{$element->name}]", $this->collectionRenderer->render( $element  ), $template );
+                }elseif( $element instanceof \X2Form\Group ){
+                    $template = str_replace( "[{$element->name}]", $this->groupRenderer->render( $element  ), $template );
                 }else{
                     $template = str_replace( "[{$element->name}]", $this->elementRenderer->render( $element  ), $template );
                 }
