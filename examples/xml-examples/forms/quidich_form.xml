@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form action="sample1_process.php" method="POST" enctype="multipart/form-data">
+<form action="example.php" method="POST" enctype="multipart/form-data">
 	<elements>
 		<!-- example of labels -->
 		<element type="label" name="LABEL1" value="Annual Quidich Tournament Application Form" style="font-weight:bold" ></element>
@@ -12,8 +12,6 @@
 		
 		<!-- example of mandatory text input with 'email' datatype -->
 		<element type="text" name="QMAIL" label="Email" datatype="email" mandatory="true" ></element>
-		
-		
 		
 		<!-- example of dropdown with description. Description is displayed after the element by default, but with templates it can be customized -->
 		<element type="dropdown" name="PROFESSION" label="Profession" mandatory="true" description="You need not apply if your profession is not listed here." >
@@ -98,19 +96,17 @@
 		
 		<!-- example of hidden inputs -->
 		<element type="hidden" name="USER_ID" value="0" ></element>
-		
-		<!-- example of hidden submit buttons -->
-		<element type="submit" name="submit" value="Submit" class="siteButtons saveDiamondButton"></element>	
-		<element type="submit" name="dump" value="Submit &amp; dump data" class="siteButtons saveDiamondButton"></element>
-		
-		<!-- example of normal button with onclick event -->
-		<element type="button" name="eventbutton" value="Click event" class="siteButtons saveDiamondButton">
-			<events>
-				<event type="onclick"><![CDATA[ alert("This click event originates from XML definition of this form!")  ]]></event>
-			</events>
-		</element>
 
+        <!-- example of hidden submit buttons -->
+        <element type="submit" name="submit" value="Submit" class="siteButtons saveDiamondButton"></element>
+        <element type="submit" name="dump" value="Submit &amp; dump data" class="siteButtons saveDiamondButton"></element>
 
+        <!-- example of normal button with onclick event -->
+        <element type="button" name="eventbutton" value="Click event" class="siteButtons saveDiamondButton">
+            <events>
+                <event type="onclick"><![CDATA[ alert("This click event originates from XML definition of this form!")  ]]></event>
+            </events>
+        </element>
 
 	</elements>
 </form>
