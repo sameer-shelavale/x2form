@@ -17,7 +17,7 @@ table td{ padding:8px; border-top:1px solid #f3f3f3;}
 #outputContainer{ width: 50%; float: right;}
 .container{ float:right; background-color:#fff; width:90%; margin:20px auto; border:10px solid #ddd;padding:15px; box-shadow:0 0 30px #D8D8D8; }
 
-pre{
+pre, xmp{
     max-height: 300px;
     overflow-x: auto;
     overflow-y: auto;background-color: #f5f5f5;
