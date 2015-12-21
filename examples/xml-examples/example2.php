@@ -18,7 +18,8 @@ $formObj = new Form(
     [
         'from'=> 'forms/quidich_form_grouped.xml',
         'dbHandle' => $link,
-        'dbType'=>'php'
+        'dbType'=>'php',
+        'action' => 'example2.php'
     ]
 );
 $formObj->finalize();
@@ -26,7 +27,7 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
     $log = $formObj->processSubmission( $_POST );
     if( !logg_ok( $log ) ){
         $message = '<div class="error">'. logg_msg( $log ).'</div>';
-        $form->rollBackFileUploads();
+        $formObj->rollBackFileUploads();
     }else{
         $message = '<div class="success">'. logg_msg( $log ).'</div>';
     }

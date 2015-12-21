@@ -17,7 +17,8 @@ $formObj = new \X2Form\Form(
     'QuidichForm',
     [
         'from'=> 'forms/quidich_form_grouped.xml',
-        'renderer' => new X2Form\Renderers\Bootstrap\Renderer() //IMP: set Bootstrap renderer
+        'renderer' => new X2Form\Renderers\Bootstrap\Renderer(), //IMP: set Bootstrap renderer
+        'action' => 'example3.php'
     ]
 );
 $formObj->attributes['action'] = 'example3.php';
@@ -27,7 +28,7 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
     $log = $formObj->processSubmission( $_POST );
     if( !logg_ok( $log ) ){
         $message = '<div class="error">'. logg_msg( $log ).'</div>';
-        $form->rollBackFileUploads();
+        $formObj->rollBackFileUploads();
     }else{
         $message = '<div class="success">'. logg_msg( $log ).'</div>';
     }

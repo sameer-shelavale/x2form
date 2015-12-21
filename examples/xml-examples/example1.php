@@ -26,7 +26,7 @@ if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
     $log = $formObj->processSubmission( $_POST );
     if( !logg_ok( $log ) ){
         $message = '<div class="error">'. logg_msg( $log ).'</div>';
-        $form->rollBackFileUploads();
+        $formObj->rollBackFileUploads();
     }else{
         $message = '<div class="success">'. logg_msg( $log ).'</div>';
     }
