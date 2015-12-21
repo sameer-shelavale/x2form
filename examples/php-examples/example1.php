@@ -53,14 +53,12 @@ $form->finalize();
 //handle the form submission
 if( isset( $_POST['submit'] ) && $_POST['submit'] == "Submit" ){
 
-    $form->setValues( $_POST );
     $log = $form->processSubmission( $_POST );
     if( !logg_ok( $log ) ){
         $message = '<div class="error">'. logg_msg( $log ).'</div>';
         $form->rollBackFileUploads();
     }else{
         $message = '<div class="success">'. logg_msg( $log ).'</div>';
-
     }
 }
 

@@ -108,9 +108,9 @@ class Columns{
             }
         }
 
-        $form->elements->$column['column_name'] = new \X2Form\Element(
-            $typeMap[$column['data_type']],
+        $form->addElement(
             array(
+                'type' => $typeMap[$column['data_type']],
                 'name'=>$column['column_name'],
                 'label'=>'',
                 'mandatory'=>'true',

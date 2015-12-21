@@ -40,7 +40,7 @@ class Simplexml{
             $params = self::parseChild( $elem );
 
             if( isset( $params['type'] ) && isset( $params['name'] ) ){
-                $form->addElement( $params['type'], $params );
+                $form->addElement( $params );
             }
         }
 
@@ -72,9 +72,30 @@ class Simplexml{
         $opt = array();
 
         if( isset( $prop['type'] ) && $prop['type'] =="collection" || strtolower( $elem->getName() ) == 'collection' ){
-
             $prop['type'] = 'collection';
-            $prop['from'] = $elem;
+
+            //collection xml structure has elements as a child and may have other properties like
+            // headertemplate. itemtemplate, listfields etc. as children (from legacy 1.0 version
+            // but these are not implemented in 2.0 for now)
+            foreach( $elem->children() as $child ){
+                if( $child->getName() == 'schema' ){
+                    $prop['from'] = $child;
+                }else{
+                    //use text value of the child as property-value
+                    $prop[ $child->getName() ] = "$child";
+                }
+            }
+            return $prop;
+
+        }elseif( isset( $prop['type'] ) && $prop['type'] =="group" || strtolower( $elem->getName() ) == 'group' ){
+            $prop['type'] = 'group';
+
+            //find the group elements
+            $prop['elements'] = array();
+
+            foreach( $elem->children() as $child ){
+                $prop['elements'][] = self::parseChild( $child );
+            }
             return $prop;
 
         }else{

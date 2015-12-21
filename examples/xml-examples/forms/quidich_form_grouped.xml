@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form action="sample1_process.php" method="POST" enctype="multipart/form-data">
+<form action="example2.php" method="POST" enctype="multipart/form-data">
 	<elements>
 		<element type="label" name="LABEL1" value="Family Background" ></element>
 		<collection name="FAMILY_MEMBERS" label="Family Members" groupcontainer="div">
@@ -28,29 +28,29 @@
 		</collection>
 		
 		<collection name="TEAM_MEMBERS" label="Team Members" groupcontainer="div">
-			<schema>
-				<elements>
-					<element type="text" name="FIRST_NAME" label="First Name" ></element>
-					<element type="text" name="LAST_NAME" label="Last Name" ></element>
-					
-				</elements>
-			</schema>
-			<headertemplate><![CDATA[
+        <schema>
+            <elements>
+                <element type="text" name="FIRST_NAME" label="First Name" ></element>
+                <element type="text" name="LAST_NAME" label="Last Name" ></element>
+
+            </elements>
+        </schema>
+        <headertemplate><![CDATA[
 					<tr>
 						<th>[FIRST_NAME_title]</th>
 						<th>[LAST_NAME_title]</th>
 					</tr>
 			]]></headertemplate>
-			<itemtemplate><![CDATA[
+        <itemtemplate><![CDATA[
 					<tr>
 						<td>[FIRST_NAME]</td>
 						<td>[LAST_NAME]</td>
 					</tr>
 			]]></itemtemplate>
-			<listfields>
-			
-			</listfields>
-		</collection>
+        <listfields>
+
+        </listfields>
+    </collection>
 		
 		<element type="text" name="QMAIL" label="Email" datatype="email" mandatory="true" ></element>
 		
@@ -112,13 +112,15 @@
 		<element type="file" name="PORTFOLIO" description="Only in pdf format" label="Upload your portfolio" mandatory="true" maxsizemb="2" allowextensions="pdf" ></element>
 		
 		<element type="hidden" name="LOT" label="" ></element>
-		
-		<element type="submit" name="submit" value="Submit" class="siteButtons saveDiamondButton"></element>	
-		<element type="submit" name="dump" value="Submit &amp; dump data" class="siteButtons saveDiamondButton"></element>	
-		<element type="button" name="eventbutton" value="Click event" class="siteButtons saveDiamondButton">
-			<events>
-				<event type="onclick"><![CDATA[ alert("This click event originates from XML definition of this form!")  ]]></event>
-			</events>
-		</element>
+
+		<group name="buttons" direction="inline">
+            <element type="submit" name="submit" value="Submit" class="siteButtons saveDiamondButton"></element>
+            <element type="submit" name="dump" value="Submit &amp; dump data" class="siteButtons saveDiamondButton"></element>
+            <element type="button" name="eventbutton" value="Click event" class="siteButtons saveDiamondButton">
+                <events>
+                    <event type="onclick"><![CDATA[ alert("This click event originates from XML definition of this form!")  ]]></event>
+                </events>
+            </element>
+        </group>
 	</elements>
 </form>

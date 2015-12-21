@@ -96,6 +96,7 @@ class CollectionRenderer extends BasicRenderer{
         return $header;
     }
 
+
     public function renderListRaw(){
 
     }
