@@ -90,19 +90,18 @@ class Form{
         foreach( $params as $key => $value ){
             if( in_array( $key, ['index', 'parent', 'template', 'language', 'dbType', 'dbHandle', 'renderer'] ) ){
                 $this->$key = $value;
-            }elseif( isset( $params['loader']) && is_object( $params['loader']) && is_subclass_of( $params['loader'], 'X2Form\Interfaces\Loader'  )  ){
+            }elseif( $key == 'loader' && is_object( $params['loader']) && is_subclass_of( $params['loader'], 'X2Form\Interfaces\Loader'  )  ){
                 $this->loader = $params['loader'];
-            }elseif( isset( $params['exclude'] ) ){
-                if( is_array( $params['exclude'] ) ){
-                    $this->excludeFields = $params['exclude'];
-                }elseif( is_string( $params['exclude'] ) ){
-                    $this->excludeFields = [ $params['exclude'] ];
+            }elseif(  $key == 'exclude' ){
+                if( is_array( $value ) ){
+                    $this->excludeFields = $value;
+                }elseif( is_string( $value ) ){
+                    $this->excludeFields = [ $value ];
                 }
                 //else ignore exclude
-            }elseif( $key != 'from' &&  $key != 'elements' ){
-                //everything else except 'from' will be placed in attributes
-                $this->attributes[ $key ] = $value;
             }
+            //rest we will place in form attributes in another for loop at end of this method
+            //so that those can override the values supplied in "from"
         }
 
         if( !$this->renderer ){
@@ -129,6 +128,13 @@ class Form{
         }else{
             //form will be loaded manually
             $this->isLoaded = true;
+        }
+
+        //set form attributes
+        foreach( $params as $key => $value ){
+            if( !in_array( $key, ['index', 'parent', 'template', 'language', 'dbType', 'dbHandle', 'renderer', 'from', 'elements' ] ) ){
+                $this->attributes[ $key ] = $value;
+            }
         }
 
     }
