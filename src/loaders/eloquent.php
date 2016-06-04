@@ -20,7 +20,12 @@ class Eloquent{
             }
         }
 
-        return Columns::load( $form, $log['columns'] );
+        $log = Columns::load( $form, $log['columns'] );
+
+        //hide the primary key field by default as it auto-increments
+        if( $primary = $model->getKeyName() ){
+            $form->elements->$primary->type = 'hidden';
+        }
 	}
 
     public static function getColumns( $tableName ){
@@ -92,8 +97,6 @@ class Eloquent{
         $log['columns'] = $columns;
         return $log;
     }
-
-	
 };
 
 ?>

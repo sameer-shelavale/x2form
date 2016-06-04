@@ -1,11 +1,11 @@
 <?php
 namespace X2Form;
-require_once ( ltrim( __DIR__, '/'). '/helpers/dbhelper.php' );
-require_once ( ltrim( __DIR__, '/'). '/helpers/logger.php' );
+require_once ( rtrim( __DIR__, '/'). '/helpers/dbhelper.php' );
+require_once ( rtrim( __DIR__, '/'). '/helpers/logger.php' );
 
 //Auto load the required php classes
 spl_autoload_register( function($className){
-    $curDir = ltrim( __DIR__, '/');
+    $curDir = rtrim( __DIR__, '/');
     //$cls = array_pop( explode('\\', $className) );
 
     if( preg_match( '/X2Form\\\Renderers\\\(bootstrap|table|div|jqueryui|table)\\\(.+)$/i', $className, $matches ) ){
