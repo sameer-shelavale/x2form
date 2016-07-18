@@ -19,17 +19,21 @@ namespace X2Form;
 use ArrayObject;
 use SimpleXMLElement;
 
-class Group{
+class Step{
     // special properties
-    var $direction = 'horizontal'; //the direction in which the grouped elements should be rendered,
+    var $index = 0; //The step number
+    var $isActive = false;
+    var $isComplete = false;
+    var $canBeSkipped = false;
+    var $isSkipped = false;
 
 	//basic properties
 	var $id;
 	var $name;
-	var $value; // a group wont have any value for now, but keeping this for future use
+	var $value; // a Step wont have any value for now, but keeping this for future use
 	var $label; // can be used for input-group in bootstrap
 	var $description; // when labels are not enough this can be used
-    var $type = 'group';
+    var $type = 'step';
 
 	//other properties to be initialized by constructor
 	var $language = false;
@@ -53,14 +57,14 @@ class Group{
         $this->attributes = new ArrayObject( array(), ArrayObject::ARRAY_AS_PROPS );
 
         foreach( $params as $key => $value ){
-            if( in_array( $key, [ 'direction', 'id', 'name', 'value', 'label', 'description', 'parent', 'template', 'language', 'dbType', 'dbHandle' ] ) ){
+            if( in_array( $key, [ 'direction', 'id', 'name', 'value', 'label', 'description', 'parent', 'template', 'language', 'dbType', 'dbHandle', 'index', 'isComplete', 'isSkipped', 'canBeSkipped' ] ) ){
                 $this->$key = $value;
             }elseif( $key == 'elements' && is_array( $value ) ){
                 foreach( $value as $elem ){
                     $this->addElement( $elem );
                 }
             }else{
-                //everything else is attribute and will be displayed as a attribute of the html tag
+                //everything else is attribute and will be used while constructing the html
                 $this->attributes[ $key ] = $value;
             }
         }
@@ -131,7 +135,7 @@ class Group{
      ***********************************************************************************/
     function setValues( $values ){
         foreach( $this->elements as &$element ){
-            if( $element instanceOf \X2Form\Group || $element instanceOf \X2Form\Step ){
+            if( $element instanceOf \X2Form\Group ){
                 //pass all values to group let it take what it has
                 $element->setValues( $values );
             }elseif( isset( $values[ $element->name ] ) ){
@@ -227,14 +231,12 @@ class Group{
                     $this->errorFields[ $element->name ] = $element->provider->error;
                 }
             }elseif( $element->type != 'submit' && $element->type != 'button' && $element->type != 'reset' && $element->type != 'label' ){
-
                 if( $element->type == 'step' || $element->type == 'group' ){
                     //because step and group may contain a captcha
                     $val = $element->validate( $postedData );
                 }else{
                     $val = $element->validate();
                 }
-
                 if( strlen( $val ) > 0 ){
                     $this->errorFields[ $element->name ] = $val;
                     $this->errorString .= $this->errorFields[ $element->name ];

@@ -3,7 +3,6 @@ namespace X2Form\Renderers\Table;
 
 class CollectionRenderer extends BasicRenderer{
     var $elementRenderer;
-    var $groupRenderer;
 
 
     /*****************************************************************************
