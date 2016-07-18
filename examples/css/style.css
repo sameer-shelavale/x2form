@@ -12,6 +12,7 @@ input[type=submit], input[type=button], input[type=reset],button{ padding:5px 20
 
 input[type=radio]{padding:1px }
 input, select, textarea{ background-color:#eee; color:#666; border:1px solid #ddd; padding:4px}
+table{ width: 100%; }
 table td{ padding:8px; border-top:1px solid #f3f3f3;}
 #codeContainer{ width: 50%; float: left;}
 #outputContainer{ width: 50%; float: right;}
