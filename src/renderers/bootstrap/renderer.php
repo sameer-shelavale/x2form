@@ -8,17 +8,17 @@ class Renderer extends BasicRenderer implements \X2Form\Interfaces\Renderer{
     var $elementRenderer;
     var $collectionRenderer;
     var $groupRenderer;
+    var $stepRenderer;
 
     function __construct(){
         $this->elementRenderer = new ElementRenderer();
         $this->collectionRenderer = new CollectionRenderer();
         $this->groupRenderer = new GroupRenderer();
+        $this->stepRenderer = new StepRenderer();
 
         $this->collectionRenderer->elementRenderer = &$this->elementRenderer;
-        $this->collectionRenderer->groupRenderer = &$this->groupRenderer;
-
         $this->groupRenderer->elementRenderer = &$this->elementRenderer;
-        $this->groupRenderer->collectionRenderer = &$this->collectionRenderer;
+        $this->stepRenderer->elementRenderer = &$this->elementRenderer;
     }
 
     public function render( &$form, $addFormTag=true ){
@@ -28,42 +28,13 @@ class Renderer extends BasicRenderer implements \X2Form\Interfaces\Renderer{
         }
 
         //generate normal html
-        $html = '';
-        $cnt=1;
-        $hiddenElems = '';
+        $html = $this->elementRenderer->renderChildren( $form->elements );
 
-        foreach( $form->elements as $i => &$element ){
-
-            if( $element instanceof \X2Form\Collection ){
-                $cnt++;
-                $html .= '<div class="form-group">'
-                    .$this->makeLabel( $element )
-                    .$this->collectionRenderer->render( $element )
-                    .$this->makeDescription( $element )
-                    .'</div>';
-
-            }elseif( $element instanceof \X2Form\Group ){
-                $cnt++;
-                $html .= '<div class="form-group">'
-                    .$this->makeLabel( $element )
-                    .$this->groupRenderer->render( $element )
-                    .$this->makeDescription( $element )
-                    .'</div>';
-
-            }elseif( $element->type == 'hidden' ){
-                $hiddenElems .= $this->elementRenderer->render( $element );
-            }elseif( $element->type == 'label' ){
-                $html .= '<div class="form-group">'
-                    .$this->elementRenderer->render( $element )
-                    .'</div>';
-            }else{
-                $cnt++;
-                $html .= '<div class="form-group">'
-                    .$this->makeLabel( $element )
-                    .$this->elementRenderer->render( $element )
-                    .$this->makeDescription( $element )
-                .'</div>';
+        if( $form->hasSteps() ){
+            if( ! $form->activeStep ){
+                return '';
             }
+            $html .= '<input type="hidden" name="'.$form->stepFieldName.'" value="'.$form->activeStep.'" />';
         }
 
         $attribs = '';
@@ -71,9 +42,9 @@ class Renderer extends BasicRenderer implements \X2Form\Interfaces\Renderer{
             $attribs .= " $key=\"$atr\"";
         }
         if( $addFormTag ){
-            $template = "<form name=\"{$form->name}\" id=\"{$form->id}\" $attribs >$html $hiddenElems {$form->extraCode} </form>";
+            $template = "<form name=\"{$form->name}\" id=\"{$form->id}\" $attribs >$html {$form->extraCode} </form>";
         }else{
-            $template = "$html $hiddenElems {$form->extraCode}";
+            $template = "$html {$form->extraCode}";
         }
 
         return $template;

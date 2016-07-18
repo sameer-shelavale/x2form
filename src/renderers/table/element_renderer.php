@@ -3,6 +3,16 @@ namespace X2Form\Renderers\Table;
 
 class ElementRenderer extends BasicRenderer {
 
+    function __construct(){
+        $this->collectionRenderer = new CollectionRenderer();
+        $this->groupRenderer = new GroupRenderer();
+        $this->stepRenderer = new StepRenderer();
+
+        $this->collectionRenderer->elementRenderer = &$this;
+        $this->groupRenderer->elementRenderer = &$this;
+        $this->stepRenderer->elementRenderer = &$this;
+    }
+
     /***********************************************************************************
      * function render()
      * 		This function renders form element and returns the output as string.
@@ -271,6 +281,129 @@ class ElementRenderer extends BasicRenderer {
             $theme->fieldClass = $element->attributes['class'];
         }
         return $theme->refresh( $element->provider->data );
+    }
+
+    public function renderChildren( &$elements, $direction='vertical', $wrap=true ){
+        $html = '';
+        $hiddenElems = '';
+
+        if( $direction == 'inline' ){
+            //horizontal alignment using blank space as seperator
+            foreach( $elements as $i => &$element ){
+                if( $element instanceof \X2Form\Collection ){
+                    $html .= $this->makeLabel( $element ).' '
+                        .$this->collectionRenderer->render( $element ).' '
+                        .$this->makeDescription( $element ).' &nbsp; ';
+                }elseif( $element instanceof \X2Form\Group ){
+                    $html .= $this->makeLabel( $element ).' '
+                        .$this->groupRenderer->render( $element ).' '
+                        .$this->makeDescription( $element ).' &nbsp; ';
+                }elseif( $element instanceof \X2Form\Step ){
+                    if(  $element->isActive ){
+                        $html .= $this->stepRenderer->render( $element );
+                    }
+                }elseif( $element->type == 'hidden' ){
+                    $hiddenElems .= $this->render( $element );
+                }elseif( $element->type == 'label' ){
+                    $html .= $this->render( $element ).' &nbsp; ';
+                }else{
+                    $html .= $this->makeLabel( $element ).' '
+                        .$this->render( $element ).'  '
+                        .$this->makeDescription( $element ).' &nbsp; ';
+                }
+            }
+
+        }elseif( $direction == 'horizontal' ){
+            //horizontal alignment using tables
+            //generate normal html
+            if( $wrap ){
+                $html = '<table cellpadding="0" cellspacing="0" border="0"><tr>';
+            }
+
+            foreach( $elements as $i => &$element ){
+                if( $element instanceof \X2Form\Collection ){
+                    $html .= '<td valign="top">'
+                        .$this->makeLabel( $element ).'</td><td>'
+                        .$this->collectionRenderer->render( $element ).' &nbsp; '
+                        .$this->makeDescription( $element )
+                        .'</td>';
+                }elseif( $element instanceof \X2Form\Group ){
+                    $html .= '<td valign="top">'
+                        .$this->makeLabel( $element ).'</td><td>'
+                        .$this->groupRenderer->render( $element ).' &nbsp; '
+                        .$this->makeDescription( $element )
+                        .'</td>';
+                }elseif( $element instanceof \X2Form\Step ){
+                    if(  $element->isActive ){
+                        $html .= '<td valign="top" colspan="2">'
+                            .$this->stepRenderer->render( $element ).' &nbsp; '
+                            .'</td>';
+                    }
+                }elseif( $element->type == 'hidden' ){
+                    $hiddenElems .= $this->render( $element );
+                }elseif( $element->type == 'label' ){
+                    $html .= '<td valign="top" colspan="2">'
+                        .$this->render( $element ).' &nbsp;</td>';
+                }else{
+                    $html .= '<td valign="top">'
+                        .$this->makeLabel( $element ).'</td><td>'
+                        .$this->render( $element ).' &nbsp; '
+                        .$this->makeDescription( $element )
+                        .'</td>';
+                }
+            }
+            $html .= '</tr>';
+            if( $wrap){
+                $html .= '</table>';
+            }
+
+        }else{
+            // vertical alignment using tables
+            //generate normal html
+            if( $wrap){
+                $html = '<table cellpadding="0" cellspacing="0" border="0">';
+            }
+            $cnt=1;
+
+            foreach( $elements as $i => &$element ){
+                if( $cnt%2 == 0){ $class = 'even'; }else{ $class= 'odd'; }
+
+                if( $element instanceof \X2Form\Collection ){
+                    $cnt++;
+                    $html .= '<tr class="'.$class.'"><td valign="top">'
+                        .$this->makeLabel( $element ).'</td><td>'
+                        .$this->collectionRenderer->render( $element ).' &nbsp; '
+                        .$this->makeDescription( $element ).'</td></tr>';
+                }elseif( $element instanceof \X2Form\Group ){
+                    $cnt++;
+                    $html .= '<tr class="'.$class.'"><td valign="top">'
+                        .$this->makeLabel( $element ).'</td><td>'
+                        .$this->groupRenderer->render( $element ).' &nbsp; '
+                        .$this->makeDescription( $element ).'</td></tr>';
+                }elseif( $element instanceof \X2Form\Step ){
+                    if(  $element->isActive ){
+                        $cnt++;
+                        $html .= '<tr class="'.$class.'"><td valign="top" colspan="2">'
+                            .$this->stepRenderer->render( $element ).'</td></tr>';
+                    }
+                }elseif( $element->type == 'hidden' ){
+                    $hiddenElems .= $this->render( $element );
+                }elseif( $element->type == 'label' ){
+                    $html .= '<tr class="'.$class.'"><td valign="top" colspan="2">'
+                        .$this->render( $element ).' &nbsp;</td></tr>';
+                }else{
+                    $cnt++;
+                    $html .= '<tr class="'.$class.'"><td valign="top">'
+                        .$this->makeLabel( $element ).'</td><td>'
+                        .$this->render( $element ).' &nbsp; '
+                        .$this->makeDescription( $element ).'</td></tr>';
+                }
+            }
+            if( $wrap){
+                $html .= '</table>';
+            }
+        }
+        return $html.$hiddenElems;
     }
 
 } 

@@ -3,6 +3,16 @@ namespace X2Form\Renderers\Bootstrap;
 
 class ElementRenderer extends BasicRenderer{
 
+    function __construct(){
+        $this->collectionRenderer = new CollectionRenderer();
+        $this->groupRenderer = new GroupRenderer();
+        $this->stepRenderer = new StepRenderer();
+
+        $this->collectionRenderer->elementRenderer = &$this;
+        $this->groupRenderer->elementRenderer = &$this;
+        $this->stepRenderer->elementRenderer = &$this;
+    }
+
     /***********************************************************************************
      * function render()
      * 		This function renders form element and returns the output as string.
@@ -267,7 +277,118 @@ class ElementRenderer extends BasicRenderer{
         return $theme->refresh( $element->provider->data );
     }
 
+    public function renderChildren( &$elements, $direction='vertical', $wrap=true ){
+        $html = '';
+        $hiddenElems = '';
 
+        if( $direction == 'inline' ){
+            //horizontal alignment using blank space as seperator
+            $html .= '<div class="form-group form-inline">';
+            foreach( $elements as $i => &$element ){
+                if( $element instanceof \X2Form\Collection ){
+                    $html .= $this->makeLabel( $element ).' '
+                        .$this->collectionRenderer->render( $element )
+                        .$this->makeDescription( $element ).' ';
+                }elseif( $element instanceof \X2Form\Group ){
+                    $html .=  $this->makeLabel( $element ).' '
+                        .$this->groupRenderer->render( $element ).' '
+                        .$this->makeDescription( $element ).' ';
+                }elseif( $element instanceof \X2Form\Step ){
+                    if( $element->isActive ){
+                        $html .= $this->stepRenderer->render( $element );
+                    }
+                }elseif( $element->type == 'hidden' ){
+                    $hiddenElems .= $this->render( $element );
+                }elseif( $element->type == 'label' ){
+                    $html .= $this->render( $element ).' ';
+                }elseif( in_array( $element->type, ['submit', 'reset', 'password', 'image'] ) ){
+                    $html .= $this->render( $element ).' ';
+                }else{
+                    $html .= $this->makeLabel( $element ).' '
+                        .$this->render( $element ).' '
+                        .$this->makeDescription( $element ).' ';
+                }
+            }
+            $html .= '</div> ';
+
+        }elseif( $direction == 'horizontal' ){
+            //horizontal alignment using blank space as seperator
+            $html .= '<div class="form-group form-inline">';
+            foreach( $elements as $i => &$element ){
+                if( $element instanceof \X2Form\Collection ){
+                    $html .= '<div class="form-group">'
+                        .$this->makeLabel( $element )
+                        .$this->collectionRenderer->render( $element )
+                        .$this->makeDescription( $element )
+                        .'</div> ';
+                }elseif( $element instanceof \X2Form\Group ){
+                    $html .=  '<div class="form-group">'
+                        .$this->makeLabel( $element )
+                        .$this->groupRenderer->render( $element )
+                        .$this->makeDescription( $element )
+                        .'</div> ';
+                }elseif( $element instanceof \X2Form\Step ){
+                    if( $element->isActive ){
+                        $html .=  '<div class="form-group">'
+                            .$this->stepRenderer->render( $element )
+                            .'</div> ';
+                    }
+                }elseif( $element->type == 'hidden' ){
+                    $hiddenElems .= $this->render( $element );
+                }elseif( $element->type == 'label' ){
+                    $html .= '<div class="form-group">'
+                        .$this->render( $element )
+                        .'</div> ';
+                }else{
+                    $html .= '<div class="form-group">'
+                        .$this->makeLabel( $element ).' '
+                        .$this->render( $element )
+                        .$this->makeDescription( $element )
+                        .'</div> ';
+                }
+            }
+            $html .= '</div> ';
+
+        }else{
+            // vertical alignment using tables
+            $html .= '<div class="form-group">';
+            foreach( $elements as $i => &$element ){
+                if( $element instanceof \X2Form\Collection ){
+                    $html .= '<div class="form-group">'
+                        .$this->makeLabel( $element )
+                        .$this->collectionRenderer->render( $element )
+                        .$this->makeDescription( $element )
+                        .'</div> ';
+                }elseif( $element instanceof \X2Form\Group ){
+                    $html .=  '<div class="form-group">'
+                        .$this->makeLabel( $element )
+                        .$this->groupRenderer->render( $element )
+                        .$this->makeDescription( $element )
+                        .'</div> ';
+                }elseif( $element instanceof \X2Form\Step ){
+                    if( $element->isActive ){
+                        $html .=  '<div class="form-group">'
+                            .$this->stepRenderer->render( $element )
+                            .'</div> ';
+                    }
+                }elseif( $element->type == 'hidden' ){
+                    $hiddenElems .= $this->render( $element );
+                }elseif( $element->type == 'label' ){
+                    $html .= '<div class="form-group">'
+                        .$this->render( $element )
+                        .'</div> ';
+                }else{
+                    $html .= '<div class="form-group">'
+                        .$this->makeLabel( $element ).' '
+                        .$this->render( $element )
+                        .$this->makeDescription( $element )
+                        .'</div> ';
+                }
+            }
+            $html .= '</div> ';
+        }
+        return $html.$hiddenElems;
+    }
 
 
 } 

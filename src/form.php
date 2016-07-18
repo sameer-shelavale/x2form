@@ -76,6 +76,9 @@ class Form{
         'jqueryui'  => '\X2Form\Renderers\Jqueryui\Renderer'
     );
 
+    var $steps = array(); // this will hold the step objects if any
+    var $stepFieldName = 'step';
+    var $activeStep;
 
 
     public function __construct( $name = '', $params  ){
@@ -207,6 +210,14 @@ class Form{
                 $this->elements[$params['name']] = new Collection( $params );
             }elseif( $type == 'group' ){
                 $this->elements[$params['name']] = new Group( $params );
+            }elseif( $type == 'step' ){
+                $this->elements[$params['name']] = new Step( $params );
+                if( isset( $params['index']) ){
+                    $this->steps[ $params['index'] ] = &$this->elements[$params['name']];
+                }else{
+                    $this->steps[] = &$this->elements[$params['name']];
+                }
+
             }else{
                 $this->elements[$params['name']] = new Element( $params );
             }
@@ -253,8 +264,40 @@ class Form{
                 //now finalize the elment itself
                 $element->finalize();
             }
+            if( $this->hasSteps() ){
+                ksort( $this->steps );
+
+                session_start();
+                //load stored form values
+                if( isset( $_SESSION[ $this->name ] ) ){
+
+                    $storedValues = $_SESSION[ $this->name ];
+                    $this->setValues( $storedValues );
+                }
+                //load stored step data/status
+                if( isset( $_SESSION[ $this->name.'-step-data' ] ) ){
+                    $stepData = $_SESSION[ $this->name.'-step-data' ];
+                    $this->setStepData( $stepData );
+                }
+
+                $currentStep = false;
+                //check if a step is requested as GET or POST parameter
+                if( isset( $_REQUEST[ $this->stepFieldName ] ) && isset( $this->steps[ $_REQUEST[ $this->stepFieldName ] ] ) ){
+                    if( $this->canActivateStep( $_REQUEST[ $this->stepFieldName ] ) ){
+                        $currentStep = $_REQUEST[ $this->stepFieldName ];
+                    }
+                }
+                //if currentStep is not found yet then select the first incomplete step as current
+                if( !$currentStep ){
+                    $currentStep = $this->getFirstIncompleteStep();
+                }
+
+                $this->setStep( $currentStep );
+            }
+
             $this->ready = true;
         }
+
     }
 
     /*****************************************************************************
@@ -278,6 +321,81 @@ class Form{
     }
 
 
+    function hasSteps(){
+        if( is_array( $this->steps ) && count( $this->steps) > 1 ){
+            return true;
+        }
+        return false;
+    }
+
+    function setStep( $stepIndex ){
+        if( isset( $this->steps[ $stepIndex ] ) ){
+            //first disable all other steps
+            foreach( $this->steps as &$step ){
+                $step->isActive = false;
+            }
+            //set the specified step as active
+            $this->steps[ $stepIndex ]->isActive = true;
+            $this->activeStep = $stepIndex;
+            return true;
+        }
+        return false;
+    }
+
+    function getFirstIncompleteStep(){
+
+        foreach( $this->steps as $key => &$step ){
+            if( $step->isComplete || ( $step->canBeSkipped && $step->isSkipped ) ){
+                continue;
+            }else{
+                return $key;
+            }
+        }
+        return false;
+    }
+
+    function canActivateStep( $stepId ){
+        foreach( $this->steps as $key => &$step ){
+            if( $key == $stepId ){
+                return $stepId;
+            }
+            if( !$step->isComplete ){
+                if( !$step->canBeSkipped || !$step->isSkipped ){
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    function getStepData(){
+        $data = array();
+        if( is_array($this->steps) ){
+            foreach( $this->steps as $key => &$step ){
+                $data[$key] = array(
+                    'isComplete'=> $step->isComplete,
+                    'isSkipped' => $step->isSkipped
+                );
+            }
+        }
+        return $data;
+    }
+
+    function setStepData( $data ){
+        if( is_array($this->steps) ){
+            foreach( $data as $key => $step ){
+                if( isset( $this->steps[ $key ] ) ){
+                    if( isset( $step['isComplete'] ) ){
+                        $this->steps[ $key ]->isComplete = $step['isComplete'];
+                    }
+                    if( isset( $step['isSkipped'] ) ){
+                        $this->steps[ $key ]->isSkipped = $step['isSkipped'];
+                    }
+                }
+            }
+        }
+        return $data;
+    }
 
     /*****************************************************************************
      * function renderRaw()
@@ -314,10 +432,38 @@ class Form{
      ***********************************************************************************/
     function processSubmission( $postedData, $oldData=array(), $rollbackOnError = true ){
         if( $this->validate( $postedData, $oldData ) ){
-            Logg( 'LOG', 'CODE', 'Submited data has passed validation.' );
+            if( $this->hasSteps()){
+                Logg( 'LOG', 'CODE', 'Submited data for Step:'.$this->activeStep.' has passed validation.' );
+                $this->handleFileUploads( $postedData, $oldData );
+                //mark the step as complete
+                $this->steps[ $this->activeStep ]->isComplete = true;
+                //store the data in session
+                $_SESSION[ $this->name ] = $this->getValues();
+                //store the stepData as well
+                $_SESSION[ $this->name.'-step-data' ] = $this->getStepData();
 
-            $this->handleFileUploads( $postedData, $oldData );
-            return Logg( 'Success', 'S001', 'Form submission successful.' );
+                if( $nextStep = $this->getFirstIncompleteStep() ){
+                    $this->setStep( $nextStep );
+                    //update the store the stepData as well
+                    $_SESSION[ $this->name.'-step-data' ] = $this->getStepData();
+
+                    return Logg( 'Failure', '001', '' );
+                }else{
+                    //there are no remaining steps
+                    $this->steps[ $this->activeStep ]->isActive = false;
+                    $this->activeStep = false;
+                    unset( $_SESSION[ $this->name] );
+                    unset( $_SESSION[ $this->name.'-step-data' ] );
+
+                    return Logg( 'Success', 'S001', 'Form submission successful.' );
+                }
+
+            }else{
+                Logg( 'LOG', 'CODE', 'Submited data has passed validation.' );
+
+                $this->handleFileUploads( $postedData, $oldData );
+                return Logg( 'Success', 'S001', 'Form submission successful.' );
+            }
         }else{
             if( $rollbackOnError ){
                 $this->rollBackFileUploads();
@@ -340,29 +486,50 @@ class Form{
     public function validate( $postedData=null, $oldData = null ){
         $this->errorString = '';
 
-        if( is_array( $postedData ) ){
-            $this->clear(); // clear initial data, this is required specially for collection
-            $this->setValues( $postedData );
-        }
-        if( is_array( $oldData ) ){
-            $this->storeOldValues( $oldData );
-        }
+        if( $this->hasSteps() ){
+            if( is_array( $postedData ) ){
+                $this->steps[ $this->activeStep ]->clear(); // clear initial data, this is required specially for collection
+                $this->steps[ $this->activeStep ]->setValues( $postedData );
+            }
+            if( is_array( $oldData ) ){
+                $this->steps[ $this->activeStep ]->storeOldValues( $oldData );
+            }
+            //validate
+            $val = $this->steps[ $this->activeStep ]->validate( $postedData );
+            if( strlen( $val ) > 0 ){
+                $this->errorFields[ $this->steps[ $this->activeStep ]->name ] = $val;
+                $this->errorString .= $this->errorFields[ $this->steps[ $this->activeStep ]->name ];
+            }
+        }else{
+            if( is_array( $postedData ) ){
+                $this->clear(); // clear initial data, this is required specially for collection
+                $this->setValues( $postedData );
+            }
+            if( is_array( $oldData ) ){
+                $this->storeOldValues( $oldData );
+            }
+            foreach( $this->elements as &$element ){
+                //skip submit buttons and files
+                //we will handle files in separate call
 
-        foreach( $this->elements as &$element ){
-            //skip submit buttons and files
-            //we will handle files in separate call
+                if( $element->type == 'captcha' ){
+                    if( !$element->provider->validate( $postedData ) ){
+                        $element->errorString = $element->provider->error;
+                        $this->errorFields[ $element->name ] = $element->provider->error;
+                    }
+                }elseif( $element->type != 'submit' && $element->type != 'button' && $element->type != 'reset' && $element->type != 'label' ){
 
-            if( $element->type == 'captcha' ){
-                if( !$element->provider->validate( $postedData ) ){
-                    $element->errorString = $element->provider->error;
-                    $this->errorFields[ $element->name ] = $element->provider->error;
-                }
-            }elseif( $element->type != 'submit' && $element->type != 'button' && $element->type != 'reset' && $element->type != 'label' ){
+                    if( $element->type == 'step' || $element->type == 'group' ){
+                        //because step and group may contain a captcha
+                        $val = $element->validate( $postedData );
+                    }else{
+                        $val = $element->validate();
+                    }
 
-                $val = $element->validate();
-                if( strlen( $val ) > 0 ){
-                    $this->errorFields[ $element->name ] = $val;
-                    $this->errorString .= $this->errorFields[ $element->name ];
+                    if( strlen( $val ) > 0 ){
+                        $this->errorFields[ $element->name ] = $val;
+                        $this->errorString .= $this->errorFields[ $element->name ];
+                    }
                 }
             }
         }
@@ -395,7 +562,7 @@ class Form{
      ***********************************************************************************/
     public function setValues( $formValues ){
         foreach( $this->elements as &$element ){
-            if( $element instanceOf \X2Form\Group ){
+            if( $element instanceOf \X2Form\Group || $element instanceOf \X2Form\Step){
                 //pass all values to group let it take what it has
                 $element->setValues( $formValues );
             }elseif( isset($formValues[$element->name] ) ){
@@ -422,13 +589,13 @@ class Form{
             //skip submit buttons and files
             if( $element instanceOf \X2Form\Collection ){
                 $values[ $element->name ] = $element->getValues();
-            }elseif( !in_array( $element->type, array( 'submit', 'button', 'reset', 'image' ) ) ){
-                $values[ $element->name ] = $element->value;
-            }elseif( $element instanceof \X2Form\Group ){
+            }elseif( $element instanceof \X2Form\Group || $element instanceof \X2Form\Step ){
                 $gValues = $element->getValues();
                 foreach( $gValues as $name => $gValue ){
                     $values[ $name ] = $gValue;
                 }
+            }elseif( !in_array( $element->type, array( 'submit', 'button', 'reset', 'image' ) ) ){
+                $values[ $element->name ] = $element->value;
             }
         }
         return $values;
@@ -447,8 +614,8 @@ class Form{
      ***********************************************************************************/
     public function storeOldValues( $oldValues ){
         foreach( $this->elements as &$element ){
-            if( $element instanceOf \X2Form\Group ){
-                //pass all values to group let it take what it has
+            if( $element instanceOf \X2Form\Group || $element instanceOf \X2Form\Step ){
+                //pass all values to group/step let it take what it has
                 $element->storeOldValues( $oldValues );
             }elseif( isset($oldValues[$element->name] ) ){
                 if( $element instanceOf \X2Form\Collection ){
