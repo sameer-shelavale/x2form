@@ -428,7 +428,12 @@ class Element{
                 $labelField = $options['phpglobal']['labelfield'];
             }
 		}elseif( isset( $options['array'] ) ){
-			$data = $options['array'];
+            if( isset( $options['array']['value'] ) && ( isset( $options['array']['valuefield'] ) ||  isset( $options['array']['labelfield'] ) )){
+                $data = $options['array']['value'];
+            }else{
+                $data = $options['array'];
+            }
+
             if( isset( $options['array']['valuefield'] ) ){
                 $valueField = $options['array']['valuefield'];
             }
