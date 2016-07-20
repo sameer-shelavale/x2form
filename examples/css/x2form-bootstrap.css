@@ -11,3 +11,13 @@ pre{
 pre b{
     color: #0000FF;
 }
+
+.help-block{
+    opacity: 0.4;
+    font-size: 80%;
+}
+
+.char-count{
+    font-size: 80%;
+    opacity: 0.25;
+}
