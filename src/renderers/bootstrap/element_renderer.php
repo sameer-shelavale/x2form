@@ -87,10 +87,29 @@ class ElementRenderer extends BasicRenderer{
     public function renderTextarea( &$element ){
         $id = $this->makeId( $element );
         $toolTip = $this->makeTooltip( $element );
+        //add the character count script if character count is enabled
+        $appendText = '';
+        if( isset( $element->attributes['maxlength'] )
+            && is_numeric( $element->attributes['maxlength'] )
+            && isset($element->config['showcharcount'] )
+            && $element->config['showcharcount'] == true
+        ){
+            $onChangeScript = "document.getElementById('".$id.'-char-count'."').innerHTML = Math.max(0,(parseInt(this.getAttribute('maxlength'))-this.value.length)).toString()+' characters remaining.'";
+            $appendText = '<span id="'.$id.'-char-count" class="char-count" >'
+                .($element->attributes['maxlength'] - strlen( $element->value ) )
+                .' characters remaining</span>';
+            if( isset( $element->attributes['onkeyup'] ) ){
+                $element->attributes['onkeyup'] = $onChangeScript .$element->attributes['onchange'];
+            }else{
+                $element->attributes['onkeyup'] = $onChangeScript ;
+            }
+
+        }
         $attributes = $this->addClass( 'form-control', $element->attributes );
         $attribTxt = $this->makeAttributes( $attributes );
         $eventsTxt = $this->makeEvents( $element->events );
-        return "<textarea id=\"".$id."\" name=\"$element->outputName\" $toolTip $attribTxt $eventsTxt >{$element->value}</textarea>";
+        return "<textarea id=\"".$id."\" name=\"$element->outputName\" $toolTip $attribTxt $eventsTxt >{$element->value}</textarea>".$appendText;
+
     }
 
     public function renderRadio( &$element ){
