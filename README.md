@@ -29,7 +29,7 @@ This makes it very easy to update and maintain the forms in long term adding and
 #### Using Composer Command
 You can install X2Form on command line in your project using Composer by running
 ```
-composer require sameer-shelavale/multi-captcha
+composer require sameer-shelavale/x2form
 ```
 
 #### composer.json
@@ -38,7 +38,7 @@ Alternatively, you can add it directly in your composer.json file in require blo
 ```
 {
     "require": {
-        "sameer-shelavale/x2form": "2.0.*"
+        "sameer-shelavale/x2form": "2.1.*"
     }
 }
 ```

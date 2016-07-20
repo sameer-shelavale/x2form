@@ -102,7 +102,8 @@ class Element{
             'imgwidth'=>false,
             'imgheight'=>false,
             'ifempty'=>'',
-            'ifinvalid'=>''
+            'ifinvalid'=>'',
+            'showcharcount' => false
         );
 
 
@@ -117,8 +118,16 @@ class Element{
 
 		//now find the $prop, $conf and $attr
 		foreach( $params as $k => $v ){
+            $k0 = $k;
 			$k = strtolower( $k );
-			if( property_exists( '\X2Form\Element', $k ) ){
+            if( property_exists( '\X2Form\Element', $k0 ) ){
+                if( $eType == 'captcha' && $k0 == 'options'){
+                    //for captcha type, options are part of the type configurations which are passed in params array
+                    $this->config['options'] = $v;
+                }else{
+                    $this->$k0 = $v;
+                }
+            }elseif( property_exists( '\X2Form\Element', $k ) ){
                 if( $eType == 'captcha' && $k == 'options'){
                     //for captcha type, options are part of the type configurations which are passed in params array
                     $this->config['options'] = $v;
@@ -428,7 +437,12 @@ class Element{
                 $labelField = $options['phpglobal']['labelfield'];
             }
 		}elseif( isset( $options['array'] ) ){
-			$data = $options['array'];
+            if( isset( $options['array']['value'] ) && ( isset( $options['array']['valuefield'] ) ||  isset( $options['array']['labelfield'] ) )){
+                $data = $options['array']['value'];
+            }else{
+                $data = $options['array'];
+            }
+
             if( isset( $options['array']['valuefield'] ) ){
                 $valueField = $options['array']['valuefield'];
             }

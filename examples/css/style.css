@@ -48,3 +48,12 @@ div#menu ul li a{color:#666; border-bottom:0;}
 div#menu ul li b{color:#000; font-size:130%;}
 div#menu ul li{ background-color:#eee; margin:5px 0; padding:5px; border-radius:5px; border:1px solid #ccc;}
 div#menu ul li:hover{ background-color:#2CDDB7; box-shadow:0 0 30px #D8D8D8; }
+
+.help-block{
+    opacity: 0.4;
+    font-size: 80%;
+}
+.char-count{
+    font-size: 80%;
+    opacity: 0.25;
+}
